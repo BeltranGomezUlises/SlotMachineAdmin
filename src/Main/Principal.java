@@ -774,15 +774,19 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_menuPerifericosActionPerformed
 
     private void btnEncargadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEncargadosActionPerformed
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));                      
         EstadisticaEncargados eg = new EstadisticaEncargados();
         eg.setLocationRelativeTo(null);
         eg.setVisible(true);
+        setCursor(null);
     }//GEN-LAST:event_btnEncargadosActionPerformed
 
     private void btnConsultaValesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultaValesActionPerformed
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));                      
         ConsultaVales cv = new ConsultaVales();
         cv.setLocationRelativeTo(this);
         cv.setVisible(true);
+        setCursor(null);                      
     }//GEN-LAST:event_btnConsultaValesActionPerformed
 
     private void btnConsultaValesKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnConsultaValesKeyTyped

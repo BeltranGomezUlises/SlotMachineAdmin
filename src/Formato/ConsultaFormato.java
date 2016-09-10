@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.NoSuchElementException;
@@ -75,7 +76,7 @@ public class ConsultaFormato extends javax.swing.JFrame {
             Formato.ordenarFormatosQ(Formatos, 0, Formatos.size()-1);            
             Formatos = Formato.ordenarFormatosSucursal(Formatos, sucursales);            
             Formato.ordenarFormatosTurno(Formatos);
-            
+                        
             this.asignarFaltantes();                                           
                                 
             //actualizarFormatos(Formatos);              
@@ -172,7 +173,7 @@ public class ConsultaFormato extends javax.swing.JFrame {
         new Runnable(){
             @Override
             public void run() {
-                for(int k=0; k<anchos.length; k++){//ajustar los tamaños
+                for(int k=0; k < anchos.length; k++){//ajustar los tamaños
                     table.getColumnModel().getColumn(k).setPreferredWidth(anchos[k]); 
                 }
             }            

@@ -1,6 +1,8 @@
 
 package Utilerias;
 
+import Formato.Formato;
+import static Formato.Formato.ordenarFormatosQ;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -143,7 +145,37 @@ public class Utileria {
             }
         }
                                 
-    }        
+    } 
+    public static void QSortStringDates(ArrayList<String> dates) throws ParseException{
+        ArrayList<Date> miDates = new ArrayList<>();
+        for (String date : dates) {
+            miDates.add(simpleDateFormat.parse(date));
+        }
+        QuickSortStringOfDates(miDates, 0, miDates.size() - 1);
+    }
+    
+    public static void QuickSortStringOfDates(ArrayList<Date> lista, int izq, int der) throws ParseException{
+            int i = izq; 
+            int j = der; 
+            Date x = lista.get((izq + der) /2 ); 
+            Date aux;
+            do{ 
+                while( (lista.get(i).compareTo(x) < 0) && (j <= der) ){ 
+                       i++;} 
+                while( (lista.get(j).compareTo(x) > 0) && (j > izq) ){ 
+                       j--;} 
+                if( i <= j ){ 
+                    aux = simpleDateFormat.parse(simpleDateFormat.format(lista.get(i)));                            
+                    lista.set(i, lista.get(j));
+                    lista.set(j, aux);                            
+                    i++;  j--; 
+                } 
+            }while( i <= j ); 
+            if( izq < j ) 
+                QuickSortStringOfDates( lista, izq, j ); 
+            if( i < der ) 
+                QuickSortStringOfDates( lista, i, der );  
+    }
   
     public static Date lunesAnterior(String fecha){              
         GregorianCalendar cal = new GregorianCalendar();                
