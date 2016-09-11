@@ -6,15 +6,10 @@ import Utilerias.TableHeader.ColumnGroup;
 import Utilerias.TableHeader.GroupableTableHeader;
 import Utilerias.Utileria;
 import static Utilerias.Utileria.quitaGuion;
-import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -27,10 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,7 +30,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -96,13 +87,13 @@ public class EstadisticaEncargados extends JFrame{
         this.setLayout(new BorderLayout());
         //panel superior
         JPanel panel = new JPanel();        
-        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5,0));        
+                                               
         
         JLabel lbInicial = new JLabel("Fecha Inicial: ");        
         panel.add(lbInicial);                        
-        panel.add(jDateInicial);        
-        panel.add(new JLabel("    ")); //separador
-        
+        panel.add(jDateInicial);           
+        panel.add(new JLabel("    ")); //separador        
         
         JLabel lbFinal = new JLabel("Fecha Final: ");
         panel.add(lbFinal);
@@ -179,6 +170,40 @@ public class EstadisticaEncargados extends JFrame{
                 System.out.println("    N: " + encargadosDeSucursal.get((i + 1) * 2) );                
             }*/
             mEncargados.add(encargadosDeSucursal); //añadir fila a la matriz
+        }       
+    }
+    
+    private void llenarMatrizDeDuplicados(){
+         //llenar matriz de asteriscos a las celdas donde el encargado este doblando turno
+        mAsteriscos = new String[mEncargados.size()][mEncargados.get(0).size() + 1 ];
+        for (int i = 0; i < mAsteriscos.length; i++) { //inicializar
+            Arrays.fill(mAsteriscos[i], "");                    
+        }
+        for (int i = 1; i < mEncargados.get(0).size() - 1; i++) {
+            for (int j = 0; j < mEncargados.size(); j++) {
+                String valorCeldaActual = String.valueOf(mEncargados.get(j).get(i));
+                if (!valorCeldaActual.isEmpty()) {
+                    //preguntar por el turno siguiente
+                    for (int k = 0; k < mEncargados.size(); k++) {
+                        if (String.valueOf(mEncargados.get(k).get( i + 1 )).equals(valorCeldaActual)) {
+                            mAsteriscos[k][i + 2] += "*";
+                            //si duplico entonces chear si triplico
+                            try {
+                                for (int l = 0; l < mEncargados.size(); l++) {
+                                    if (String.valueOf(mEncargados.get(l).get( i + 2 )).equals(valorCeldaActual)) {
+                                        mAsteriscos[l][i + 3] += "*";
+                                        //aqui podemos preguntar si cuatruplico con otro ciclo
+                                        break;
+                                    }
+                                } 
+                            } catch (IndexOutOfBoundsException e) {
+                                //cuando sea el penultimo elemento saltara esta excepcion
+                            }                           
+                            break;
+                        }
+                    }                                        
+                }                
+            }
         }
     }
     
@@ -202,7 +227,8 @@ public class EstadisticaEncargados extends JFrame{
                 return false; //Disallow the editing of any cell
             }
         }; 
-        table.setDefaultRenderer(Object.class, new TableRender());
+        TableRender tr = new TableRender(mAsteriscos);        
+        table.setDefaultRenderer(Object.class, tr);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);                
                 
         TableColumnModel cm = table.getColumnModel();        
@@ -217,7 +243,7 @@ public class EstadisticaEncargados extends JFrame{
             indiceTurno++;
             header.addColumnGroup(gFecha);
         }                      
-    }
+    }        
     
     private void llenarTabla(){
         //llenar con el contenido la tabla        
@@ -229,46 +255,8 @@ public class EstadisticaEncargados extends JFrame{
             }
             dm.addRow(fila);
         } 
-    }
-    
-    private void llenarMatrizDeDuplicados(){
-         //llenar matriz de asteriscos a las celdas donde el encargado este doblando turno
-        mAsteriscos = new String[table.getRowCount()][table.getColumnCount()];
-        for (int i = 0; i < mAsteriscos.length; i++) { //inicializar
-            Arrays.fill(mAsteriscos[i], "");                    
-        }
-        for (int i = 1; i < table.getColumnCount() - 2; i++) {
-            for (int j = 0; j < table.getRowCount(); j++) {
-                String valorCeldaActual = String.valueOf(table.getValueAt(j, i));
-                if (!valorCeldaActual.isEmpty()) {
-                    //preguntar por el turno siguiente
-                    for (int k = 0; k < table.getRowCount(); k++) {
-                        if (String.valueOf(table.getValueAt(k, i + 1)).equals(valorCeldaActual)) {
-                            mAsteriscos[k][i + 1] += "*";
-                            //si duplico entonces chear si triplico
-                            for (int l = 0; l < table.getRowCount(); l++) {
-                                if (String.valueOf(table.getValueAt(l, i + 2)).equals(valorCeldaActual)) {
-                                    mAsteriscos[l][i + 2] += "*";
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }                                        
-                }                
-            }
-        }
-    }
-    
-    private void asignarDuplicadosATabla(){
-        //agregar los asteriscos para que se pinten los nombres
-        for (int i = 0; i < mAsteriscos.length; i++) {
-            for (int j = 0; j < mAsteriscos[i].length; j++) {
-                table.setValueAt(table.getValueAt(i, j) + mAsteriscos[i][j], i, j);
-            }
-        }   
-    }
-    
+    }        
+        
     private void ajustarAnchosTabla(){
         //ajustar el ancho de la tabla
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
@@ -300,10 +288,11 @@ public class EstadisticaEncargados extends JFrame{
             //cargar y llenar listas        
             this.llenarListas(formatosFiltrados); //inicalizar las listas y llenarlas
             this.llenarMatrizEncargados(); //utiliza las listas llenadas anteriormente
+            this.llenarMatrizDeDuplicados(); //calcular posiciones de duplicados en una matriz
             this.crearTablaYDiseño(); //creamos el modelo y la tabla
             this.llenarTabla(); //llenamos con los encargados la tabla
-            this.llenarMatrizDeDuplicados(); //calcular posiciones de duplicados en una matriz
-            this.asignarDuplicadosATabla(); //meter los datos de la matriz a la tabla
+            
+            //this.asignarDuplicadosATabla(); //meter los datos de la matriz a la tabla
             this.ajustarAnchosTabla(); // ajustar los anchos de las columnas  
         } catch (Exception e) {
             System.out.println("sin fecha");
