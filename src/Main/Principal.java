@@ -775,9 +775,7 @@ public class Principal extends javax.swing.JFrame {
 
     private void btnEncargadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEncargadosActionPerformed
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));                      
-        EstadisticaEncargados eg = new EstadisticaEncargados();
-        eg.setLocationRelativeTo(null);
-        eg.setVisible(true);
+        EstadisticaEncargados eg = new EstadisticaEncargados();                
         setCursor(null);
     }//GEN-LAST:event_btnEncargadosActionPerformed
 
