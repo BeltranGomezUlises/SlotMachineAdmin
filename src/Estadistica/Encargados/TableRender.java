@@ -25,7 +25,7 @@ public class TableRender extends DefaultTableCellRenderer{
         }  else{
             if ( mAsteriscos[row][column].contains("*") ){
                 this.setOpaque(true);
-                this.setForeground(naranja);
+                this.setForeground(Color.blue);
             }else{
                 //restablecer a los colores default
                 this.setBackground(Color.white);

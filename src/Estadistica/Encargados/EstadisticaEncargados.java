@@ -9,6 +9,7 @@ import static Utilerias.Utileria.quitaGuion;
 import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,19 +52,22 @@ public class EstadisticaEncargados extends JFrame{
     DefaultTableModel dm;
     
     //componentes
-    JDateChooser jDateInicial = new JDateChooser();
+    JDateChooser jDateInicial = new JDateChooser();    
     JDateChooser jDateFinal = new JDateChooser();
     JButton btnFiltrar = new JButton("Filtrar");
     
     public EstadisticaEncargados() {                
         super( "Groupable Header Example" );
         super.setExtendedState(MAXIMIZED_BOTH);
-        super.setSize(800, 400);
+        super.setSize(510, 400);
+        super.setMinimumSize(new Dimension(510, 400));
         //colocar en la ultima semana del calendario
         GregorianCalendar cal = new GregorianCalendar();        
         jDateFinal.setDate(cal.getTime());
+        jDateFinal.setPreferredSize(new Dimension( 100, 20 ));
         cal.add(Calendar.DATE, -7);
         jDateInicial.setDate(cal.getTime());
+        jDateInicial.setPreferredSize(new Dimension(100, 20));
         this.filtrar();
             
         //comportamiento boton
