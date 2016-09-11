@@ -3,6 +3,7 @@ package Estadistica.Encargados;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -10,8 +11,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class TableRender extends DefaultTableCellRenderer{
     
     private String[][] mAsteriscos ;
-    
-    private Color naranja = new Color(255,100,0);
+        
+    private Color verde = new Color(0,150,0);
     
     TableRender(String[][] mAsteriscos){
        this.mAsteriscos = mAsteriscos;
@@ -19,21 +20,23 @@ public class TableRender extends DefaultTableCellRenderer{
     
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column){                                
-        if ( mAsteriscos[row][column].contains("**") ){
-            this.setOpaque(true);
-            this.setForeground(Color.RED);
+        
+        if ( mAsteriscos[row][column].contains("**") ){            
+            this.setForeground(Color.RED);                        
         }  else{
-            if ( mAsteriscos[row][column].contains("*") ){
-                this.setOpaque(true);
+            if ( mAsteriscos[row][column].contains("*") ){                
                 this.setForeground(Color.blue);
             }else{
                 //restablecer a los colores default
                 this.setBackground(Color.white);
-                this.setForeground(Color.black);
+                this.setForeground(verde);
+                //this.setFont(new Font("san-serif", Font.BOLD, 11));
+                
             }                
         }        
-        super.getTableCellRendererComponent (table, value, isSelected, hasFocus, row, column);        
-        return this;
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        c.setFont((c.getFont().deriveFont(Font.BOLD)));                
+        return c;
    }
 
     public String[][] getmAsteriscos() {
@@ -43,14 +46,5 @@ public class TableRender extends DefaultTableCellRenderer{
     public void setmAsteriscos(String[][] mAsteriscos) {
         this.mAsteriscos = mAsteriscos;
     }
-
-    public Color getNaranja() {
-        return naranja;
-    }
-
-    public void setNaranja(Color naranja) {
-        this.naranja = naranja;
-    }
-    
-    
+   
 }
