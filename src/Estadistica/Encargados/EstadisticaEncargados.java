@@ -10,6 +10,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,12 +97,17 @@ public class EstadisticaEncargados extends JFrame{
             dm.addColumn("N");            
         }
         //teniendo el modelo de la tabla con las columnas de menor nivel crear la tabla para agrupar columnas
-        JTable table = new JTable( dm ) {
+        final JTable table = new JTable( dm ) {
             @Override
             protected JTableHeader createDefaultTableHeader() {
                return new GroupableTableHeader(columnModel);
             }
-        };                
+            @Override
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                return false; //Disallow the editing of any cell
+            }
+        }; 
+        table.setDefaultRenderer(Object.class, new TableRender());
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.getColumnModel().getColumn(0).setPreferredWidth(120); //columna de sucursales mas ancha
         
@@ -127,14 +133,48 @@ public class EstadisticaEncargados extends JFrame{
                 fila.add(quitaGuion(mEncargados.get(i).get(j)));
             }
             dm.addRow(fila);
+        } 
+        //agregar asteriscos a las celdas donde el encargado este doblando turno
+        String[][] mAsteriscos = new String[table.getRowCount()][table.getColumnCount()];
+        for (int i = 0; i < mAsteriscos.length; i++) { //inicializar
+            Arrays.fill(mAsteriscos[i], "");                    
         }
+        for (int i = 1; i < table.getColumnCount() - 1; i++) {
+            for (int j = 0; j < table.getRowCount(); j++) {
+                String valorCeldaActual = String.valueOf(table.getValueAt(j, i));
+                if (!valorCeldaActual.isEmpty()) {
+                    //preguntar por el turno siguiente
+                    for (int k = 0; k < table.getRowCount(); k++) {
+                        if (String.valueOf(table.getValueAt(k, i + 1)).equals(valorCeldaActual)) {
+                            mAsteriscos[k][i + 1] += "*";
+                            //si duplico entonces chear si triplico
+                            for (int l = 0; l < table.getRowCount(); l++) {
+                                if (String.valueOf(table.getValueAt(l, i + 2)).equals(valorCeldaActual)) {
+                                    mAsteriscos[l][i + 2] += "**";
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }                                        
+                }                
+            }
+        }
+        //agregar los asteriscos para que se pinten los nombres
+        for (int i = 0; i < mAsteriscos.length; i++) {
+            for (int j = 0; j < mAsteriscos[i].length; j++) {
+                table.setValueAt(table.getValueAt(i, j) + mAsteriscos[i][j], i, j);
+            }
+        }        
+        //ajustar el ancho de la tabla
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(120); 
-        }
-        
+        }     
         
         JScrollPane scroll = new JScrollPane( table );
-        getContentPane().add( scroll );           
+        getContentPane().add( scroll );  
+        
+        super.setVisible(true);
     }
     
     public static void main(String[] args) {
@@ -143,7 +183,6 @@ public class EstadisticaEncargados extends JFrame{
             public void windowClosing( WindowEvent e ) {
             System.exit(0);
             }
-        });
-        ed.setVisible(true);        
+        });        
     }
 }
