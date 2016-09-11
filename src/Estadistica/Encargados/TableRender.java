@@ -18,11 +18,11 @@ public class TableRender extends DefaultTableCellRenderer{
         } else{
             if ( valorCelda.contains("**") ){
                 this.setOpaque(true);
-                this.setForeground(naranja);
+                this.setForeground(Color.RED);
             }  else{
                 if ( valorCelda.contains("*") ){
                     this.setOpaque(true);
-                    this.setForeground(Color.blue);
+                    this.setForeground(naranja);
                 }else{
                     //restablecer a los colores default
                     this.setBackground(Color.white);
