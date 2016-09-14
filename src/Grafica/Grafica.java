@@ -4,7 +4,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -15,16 +14,13 @@ import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-
-
 public class Grafica {
-
-   
+ 
     //tabla de valores
     private ArrayList<ArrayList<Float>> valores;
     // columnas
     private ArrayList<String> type;
-    //filas o elementos tipa linea
+    //filas o elementos tipo linea
     private ArrayList<String> series;
     
     //objetos de grafica
@@ -58,8 +54,7 @@ public class Grafica {
             }
         }        
 
-        return dataset;
-                
+        return dataset;                
     }
     
   
