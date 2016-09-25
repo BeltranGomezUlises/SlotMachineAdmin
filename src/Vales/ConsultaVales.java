@@ -219,7 +219,7 @@ public class ConsultaVales extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Float.class, java.lang.Boolean.class, java.lang.Boolean.class
+                java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Float.class, java.lang.Boolean.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false, false, false, false, false, false
@@ -364,19 +364,20 @@ public class ConsultaVales extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTotalesActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        
         int index = tabla.getSelectedRow();
-        if (index != -1) {            
-            if (JOptionPane.showConfirmDialog(null, "Seguro desea eliminar el vale: \"" + valesFiltrados.get(index).getFolioCompleto() +"\"?", "Eliminar", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-                for (int i = 0; i < vales.size(); i++) {
-                    if (valesFiltrados.get(index).equals(vales.get(i))) {
+        if (index != -1) {      
+            for (int i = 0; i < vales.size(); i++) {
+                //tomar el folio completo seleccionado
+                String folioCompleto = String.valueOf(tabla.getValueAt(index, 0));//folio                    
+                if (vales.get(i).getFolioCompleto().equals(folioCompleto)) {
+                    if (JOptionPane.showConfirmDialog(null, "Seguro desea eliminar el vale: \"" + vales.get(i).getFolioCompleto() +"\"?", "Eliminar", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                         vales.remove(i);
                         Vale.actualizarVD(vales);
                         JOptionPane.showMessageDialog(rootPane, "Vale eliminado con éxito", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                         this.filtrar();
                     }
                 }
-            }            
+            }                                                   
         }else{
             JOptionPane.showMessageDialog(rootPane, "Debe seleccionar un vale", "Atención", JOptionPane.WARNING_MESSAGE);
         }

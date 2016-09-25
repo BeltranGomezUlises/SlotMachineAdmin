@@ -4,6 +4,7 @@ package Vales.Chequeras;
 import ControlUsuario.Loged;
 import static Utilerias.Utileria.quitaGuion;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -17,6 +18,7 @@ public class Chequeras extends javax.swing.JFrame {
         initComponents();
         tabla.setAutoCreateRowSorter(true);
         chequeras = Chequera.cargarChequeras();
+        Collections.sort(chequeras);        
         DefaultTableModel md = (DefaultTableModel) tabla.getModel();
         for (Chequera chequera : chequeras) {            
             md.addRow(new Object[] { chequera.getId(), quitaGuion( chequera.getRutero() ) });

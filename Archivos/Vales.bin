@@ -135,7 +135,7 @@ J MARTIN 277 24/08/2016 CNOP GASOLINA GASOLINA_JAVI_ etiqueta_1 SIN# 100.0 false
 J MARTIN 278 24/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 QVK 250.0 false false
 J MARTIN 279 24/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 S/N3 500.0 false false
 J MARTIN 280 25/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 S/N3 550.0 false false
-J MARTIN 281 25/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 ÑFD 500.0 false true
+J MARTIN 281 25/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 ï¿½FD 500.0 false true
 J MARTIN 282 25/08/2016 CAVERNA GASOLINA 100_CHEVY_BLANCO,_200_JETTA etiqueta_1 EVQ 300.0 false false
 J MARTIN 283 25/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 SIG 200.0 false false
 J MARTIN 284 25/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 QUK 200.0 false false
@@ -146,7 +146,7 @@ J MARTIN 288 25/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 CKY 300.0
 J MARTIN 289 25/08/2016 CAVERNA RENTA_OFICINA RENTA_OFICINA etiqueta_1 NDJ 500.0 false false
 J MARTIN 290 25/08/2016 CAVERNA RENTA_OFICINA RENTA_OFICINA etiqueta_1 DGG 100.0 false false
 J MARTIN 291 26/08/2016 CAVERNA RENTA_OFICINA RENTA_OFICINA etiqueta_1 EVQ 600.0 false false
-J MARTIN 2921 26/08/2016 CAVERNA RENTA_OFICINA RENTA_OFICINA etiqueta_1 ÑFD 450.0 false false
+J MARTIN 2921 26/08/2016 CAVERNA RENTA_OFICINA RENTA_OFICINA etiqueta_1 ï¿½FD 450.0 false false
 J MARTIN 293 26/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 SIG 700.0 false false
 J MARTIN 294 26/08/2016 CAVERNA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 BSV 200.0 false false
 J MARTIN 295 26/08/2016 NUEVA_PATRIA RENTA_MENSUAL RENTA_MENSUAL etiqueta_1 RSU 1300.0 false false
@@ -336,7 +336,7 @@ J MARTIN 385 30/08/2016 MADERO pago_juanito pago_juanito etiqueta_1 A036 100.0 f
 J MARTIN 386 30/08/2016 FRANCISCO_VILLA pago_juanito pago_juanito etiqueta_1 B016 240.0 false true
 J MARTIN 388 30/08/2016 FRANCISCO_VILLA pago_juanito pago_juanito etiqueta_1 B021 150.0 false true
 J MARTIN 389 30/08/2016 FRANCISCO_VILLA pagojuanito pagojuanito etiqueta_1 S/N2 300.0 false true
-J MARTIN 390 31/08/2016 CAVERNA cigarros cigarros etiqueta_1 ÑFD 200.0 false true
+J MARTIN 390 31/08/2016 CAVERNA cigarros cigarros etiqueta_1 ï¿½FD 200.0 false true
 J MARTIN 391 31/08/2016 CAVERNA cigarros cigarros| etiqueta_1 SIQ 200.0 false true
 J MARTIN 392 31/08/2016 CAVERNA cigarros cigarros etiqueta_1 BSV 250.0 false true
 J MARTIN 393 31/08/2016 CAVERNA cigarros cigarros etiqueta_1 HKS 300.0 false true
@@ -356,7 +356,6 @@ J MARTIN 407 1/09/2016 CAVERNA nomina_empleados nomina_empleados etiqueta_1 PEM 
 J MARTIN 408 1/09/2016 CAVERNA nomina_empleados nomina_empleados etiqueta_1 SIQ 100.0 false true
 MK MIGUEL 458 29/08/2016 MADERO cigarros_paola cigarros_pendiente etiqueta_1 A022 300.0 false false
 MK MIGUEL 459 29/08/2016 MADERO cigarros_paola cigarros_pendiente etiqueta_1 A022 400.0 false false
-MK MIGUEL 460 1/09/2016 BONICE retiroq retiro etiqueta_1 B003 160.0 false true
 MK MIGUEL 461 1/09/2016 BONICE retiro retiro etiqueta_1 B007 100.0 false true
 MK MIGUEL 462 1/09/2016 BONICE retiro retiro etiqueta_1 A100 150.0 false true
 MK MIGUEL 463 1/09/2016 BONICE retiro retiro etiqueta_1 A095 160.0 false true
@@ -367,7 +366,7 @@ MK MIGUEL 467 1/09/2016 FRANCISCO_VILLA retiro retiro etiqueta_1 B016 200.0 fals
 MK MIGUEL 468 1/09/2016 JUAREZ gasolina_chevy_verde gasolina_chevey_verde etiqueta_1 B056 100.0 false false
 MK MIGUEL 469 1/09/2016 JUAREZ cautin cautin etiqueta_1 B056 150.0 false false
 J MARTIN 409 1/09/2016 CAVERNA nomian_encarcagos nomina_encargados etiqueta_1 EVQ 400.0 false true
-J MARTIN 410 1/09/2016 CAVERNA nomina_encargado nomina_encargados etiqueta_1 ÑFD 200.0 false true
+J MARTIN 410 1/09/2016 CAVERNA nomina_encargado nomina_encargados etiqueta_1 ï¿½FD 200.0 false true
 J MARTIN 411 1/09/2016 CAVERNA nomina_encargado nomina_encargados etiqueta_1 DGG 150.0 false true
 J MARTIN 412 1/09/2016 CAVERNA nomina_encargados nomina_encargados etiqueta_1 NJJ 200.0 false true
 J MARTIN 413 1/09/2016 VIP noina_encargados nomina_encargados etiqueta_1 S/N 360.0 false true
@@ -377,7 +376,6 @@ MK MIGUEL 470 2/09/2016 LAS_CUCAS pago_mirna pago_mirna etiqueta_1 B050 550.0 fa
 MK MIGUEL 471 2/09/2016 LAS_CUCAS pagomirna pago_mirna etiqueta_1 A049 100.0 false true
 MK MIGUEL 473 2/09/2016 LAS_CUCAS pago_mirna pago_mirna etiqueta_1 B044 250.0 false true
 MK MIGUEL 474 2/09/2016 BONICE pago_erendida pago_erendida etiqueta_1 A100 356.0 false true
-MK MIGUEL 475 2/09/2016 BONICE retiro retiro etiqueta_1 B003 440.0 false true
 MK MIGUEL 476 2/09/2016 BONICE retiro retiro etiqueta_1 S/NN 400.0 false true
 MK MIGUEL 477 2/09/2016 BONICE retiro retiro etiqueta_1 B009 300.0 false true
 MK MIGUEL 478 2/09/2016 BONICE retiro retiro etiqueta_1 B007 250.0 false true
@@ -399,7 +397,7 @@ A JAVIER 3 2/09/2016 NUEVA_PATRIA CIGARROS PAOLA etiqueta_1 SN 150.0 false true
 A JAVIER 4 2/09/2016 NUEVA_PATRIA CIGARROS PAOLA etiqueta_1 RSU 150.0 false true
 A JAVIER 5 2/09/2016 CIUDADES_HERMANAS CIGARROS PAOLA etiqueta_1 S/## 430.0 false true
 A JAVIER 6 2/09/2016 CIUDADES_HERMANAS CIGARROS PAOLA etiqueta_1 S/## 278.0 false true
-A JAVIER 7 2/09/2016 CIUDADES_HERMANAS pago_doña_sandra pago_doña_sandra etiqueta_1 S/## 200.0 false true
+A JAVIER 7 2/09/2016 CIUDADES_HERMANAS pago_doï¿½a_sandra pago_doï¿½a_sandra etiqueta_1 S/## 200.0 false true
 A JAVIER 8 2/09/2016 CIUDADES_HERMANAS moto_javi_ponchado moto_javi_ponchado etiqueta_1 S/## 70.0 false true
 A JAVIER 9 2/09/2016 CIUDADES_HERMANAS 200_urey,_50_martin_gas gastos etiqueta_1 S/## 250.0 false true
 A JAVIER 10 2/09/2016 CIUDADES_HERMANAS martin_gas martin etiqueta_1 S/## 100.0 false true
@@ -413,7 +411,7 @@ A JAVIER 17 2/09/2016 CAVERNA renta renta_mensual etiqueta_1 S/N3 600.0 false tr
 A JAVIER 18 2/09/2016 CAVERNA renta_mensual renta_mensual etiqueta_1 CKY 250.0 false true
 A JAVIER 19 2/09/2016 CAVERNA renta_mensual renta etiqueta_1 NDJ 150.0 false true
 A JAVIER 20 2/09/2016 CAVERNA renta_mensual100 renta_ etiqueta_1 S/N3 100.0 false true
-A JAVIER 21 2/09/2016 CAVERNA renta} renta_mensual etiqueta_1 ÑFD 350.0 false true
+A JAVIER 21 2/09/2016 CAVERNA renta} renta_mensual etiqueta_1 ï¿½FD 350.0 false true
 A JAVIER 22 2/09/2016 CAVERNA renta_mensual renta etiqueta_1 EVQ 600.0 false true
 A JAVIER 23 2/09/2016 CAVERNA renta_mensual renta etiqueta_1 SIQ 700.0 false true
 A JAVIER 24 2/09/2016 CAVERNA renta_mensual renta_mensual etiqueta_1 BSV 600.0 false true
