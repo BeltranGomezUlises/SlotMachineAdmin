@@ -65,7 +65,8 @@ public class ConsultaFormato extends javax.swing.JFrame {
         initComponents();                
         try{            
             this.permisosUsuario(); //asignar los permisos a los botones            
-            tabla.setAutoCreateRowSorter(true);          
+            tabla.setAutoCreateRowSorter(true); 
+            tabla.getTableHeader().setReorderingAllowed(false);
             tabla.setModel(md);//cargar la tabla            
             ajustarTamañosTabla(tabla,anchos);
             
@@ -328,6 +329,9 @@ public class ConsultaFormato extends javax.swing.JFrame {
     }
     
     public final void llenarTabla(Vector<Formato> filtrado){
+        //vaciar tabla
+        DefaultTableModel md = (DefaultTableModel) tabla.getModel();
+        md.setRowCount(0);
         //llenar las filas de las tablas con con cada formato
             for(int k=0; k<filtrado.size();k++){
                 fila= new Vector();
@@ -820,13 +824,13 @@ public class ConsultaFormato extends javax.swing.JFrame {
         
     }//GEN-LAST:event_cmbEncargadoActionPerformed
     private void btnFiltrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarActionPerformed
-        String sucursal=quitaEspacios(cmbSucursal.getSelectedItem().toString());
-        String encargado=quitaEspacios(cmbEncargado.getSelectedItem().toString());
-        char turno= cmbTurno.getSelectedItem().toString().charAt(0);
+        String sucursal = quitaEspacios(cmbSucursal.getSelectedItem().toString());
+        String encargado = quitaEspacios(cmbEncargado.getSelectedItem().toString());
+        char turno = cmbTurno.getSelectedItem().toString().charAt(0);
         String pagado = cmbPagado.getSelectedItem().toString();
         //copiar y filtrar los Todos los formatos
         filtrado= new Vector<Formato>();
-        for(int k=0; k<Formatos.size(); k++){
+        for(int k=0; k < Formatos.size(); k++){
             filtrado.add(Formatos.elementAt(k));
         }
         //una vez lleno eliminar todos aquellos registros a los que no
@@ -912,9 +916,9 @@ public class ConsultaFormato extends javax.swing.JFrame {
             ex.printStackTrace();
         }
         //Cargar la tabla
-        md = new DefaultTableModel(datos, cabecera);
-        tabla.setModel(md);
-        this.ajustarTamañosTabla(tabla,anchos);//ajustar los tamaños       
+       // md = new DefaultTableModel(datos, cabecera);
+        //tabla.setModel(md);
+        //this.ajustarTamañosTabla(tabla,anchos);//ajustar los tamaños       
         //llenar la tabla con el vector filtrado
         this.llenarTabla(filtrado);
         //Agregar la ultima fila de totales:
@@ -962,19 +966,23 @@ public class ConsultaFormato extends javax.swing.JFrame {
        }
     }//GEN-LAST:event_btnMostrarActionPerformed
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        int indexFila=tabla.getSelectedRow();
-        if(indexFila+1==tabla.getRowCount()){
+        int indexFila = tabla.getSelectedRow();
+        if(indexFila + 1 == tabla.getRowCount()){
             JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE );
         }else{
-            if(indexFila!=-1){
+            if( indexFila != -1){
                 if(JOptionPane.showConfirmDialog(rootPane,"¿Seguro que desea eliminar el formato seleccionado?", "Eliminar", YES_NO_OPTION)==JOptionPane.OK_OPTION){
                     //buscar el indice de la fila que seleccionaste en el vector del formatos (el que tiene todos)
-                    for(int k=0; k<Formatos.size();k++){
-                        if(filtrado.elementAt(indexFila).getFecha().equals(Formatos.elementAt(k).getFecha()) &&
-                           filtrado.elementAt(indexFila).getTurno()==Formatos.elementAt(k).getTurno() &&
-                           filtrado.elementAt(indexFila).getSucursal().equals(Formatos.elementAt(k).getSucursal())){
-                          indexFila=k;
-                          break;
+                    //tomar la fecha turno y sucursal del seleccionado
+                    String fecha = String.valueOf(tabla.getValueAt(indexFila, 0));
+                    char turno = tabla.getValueAt(indexFila, 1).toString().charAt(0);
+                    String sucursal = String.valueOf(tabla.getValueAt(indexFila, 2));
+                    for(int k = 0; k < Formatos.size(); k++){
+                        if(fecha.equals(Formatos.elementAt(k).getFecha()) &&
+                           turno == Formatos.elementAt(k).getTurno() &&
+                           sucursal.equals(Formatos.elementAt(k).getSucursal())){
+                           indexFila = k;
+                           break;
                         }
                     }
                     //buscar el movimiento y preguntar si se desea eliminarlo

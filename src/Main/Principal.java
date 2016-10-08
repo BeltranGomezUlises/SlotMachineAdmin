@@ -82,6 +82,8 @@ public class Principal extends javax.swing.JFrame {
     private void initComponents() {
 
         jMenuItem10 = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
+        jMenu5 = new javax.swing.JMenu();
         jPanel1 = new javax.swing.JPanel();
         btnConsultaFormato = new javax.swing.JButton();
         btnCapturaFormato = new javax.swing.JButton();
@@ -119,8 +121,13 @@ public class Principal extends javax.swing.JFrame {
         menuPerifericos = new javax.swing.JMenuItem();
         menuConfiguracion = new javax.swing.JMenu();
         jMenuItem9 = new javax.swing.JMenuItem();
+        menuAyuda = new javax.swing.JMenuItem();
 
         jMenuItem10.setText("jMenuItem10");
+
+        jMenu4.setText("jMenu4");
+
+        jMenu5.setText("jMenu5");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Bon Ice Admin");
@@ -534,6 +541,14 @@ public class Principal extends javax.swing.JFrame {
         });
         menuConfiguracion.add(jMenuItem9);
 
+        menuAyuda.setText("Ayuda");
+        menuAyuda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuAyudaActionPerformed(evt);
+            }
+        });
+        menuConfiguracion.add(menuAyuda);
+
         jMenuBar1.add(menuConfiguracion);
 
         setJMenuBar(jMenuBar1);
@@ -832,6 +847,10 @@ public class Principal extends javax.swing.JFrame {
         e.setLocationRelativeTo(null);
         e.setVisible(true);        
     }//GEN-LAST:event_menuEtiquetasActionPerformed
+
+    private void menuAyudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAyudaActionPerformed
+        new Ayuda();
+    }//GEN-LAST:event_menuAyudaActionPerformed
            
     private void respaldar(String ruta) {
         //crear el archivo de entrada
@@ -893,6 +912,8 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
@@ -904,6 +925,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JLabel lblBienvenida;
     private javax.swing.JMenu menuArchivo;
+    private javax.swing.JMenuItem menuAyuda;
     private javax.swing.JMenuItem menuChequeras;
     private javax.swing.JMenu menuConfiguracion;
     private javax.swing.JMenu menuEditar;

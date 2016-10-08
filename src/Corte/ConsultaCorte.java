@@ -351,6 +351,8 @@ public class ConsultaCorte extends javax.swing.JFrame {
      }
     
     private void llenarTabla(Vector<Corte> vCortes){
+        DefaultTableModel myMd = (DefaultTableModel) tabla.getModel();
+        myMd.setRowCount(0);
         for(int k=0; k<vCortes.size(); k++){
             Vector fila = new Vector();
             fila.add(vCortes.elementAt(k).getFecha());
@@ -395,7 +397,7 @@ public class ConsultaCorte extends javax.swing.JFrame {
             }
             fila.add(solucionado);
             fila.add("$"+vCortes.elementAt(k).getInOut());
-            md.addRow(fila);
+            myMd.addRow(fila);
         }
      }
     
@@ -880,7 +882,7 @@ public class ConsultaCorte extends javax.swing.JFrame {
             }
             
         }
-        this.ajustarTabla();
+        //this.ajustarTabla();
         this.llenarTabla(CortesFiltrados);
         //sacar los totales de retiros, faltante y porcentajes paraa ponerlos al final en una fila nueva
         this.filaTotales(CortesFiltrados);
@@ -894,9 +896,15 @@ public class ConsultaCorte extends javax.swing.JFrame {
         }else{
             if(indexFila!=-1){
                 if(JOptionPane.showConfirmDialog(rootPane,"¿Seguro que desea eliminar el corte seleccionado?", "Eliminar", YES_NO_OPTION) == JOptionPane.YES_OPTION){
+                    //tomar los valores del corte de la tabla
+                    String fecha = tabla.getValueAt(indexFila, 0).toString();
+                    String sucursal = tabla.getValueAt(indexFila, 1).toString();
+                    String maquina = tabla.getValueAt(indexFila, 2).toString();
                     //buscar el indice de la fila que seleccionaste en el vector de Cortes (el que tiene todos)                     
                     for(int k=0; k<Cortes.size();k++){
-                        if(CortesFiltrados.elementAt(indexFila).equals(Cortes.elementAt(k))){
+                        if(fecha.equals(Cortes.elementAt(k).getFecha()) 
+                                && sucursal.equals(Cortes.elementAt(k).getSucursal())
+                                && maquina.equals(Cortes.elementAt(k).getMaquina().getNombre())){
                          indexFila = k;
                          break;
                         }

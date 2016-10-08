@@ -44,7 +44,8 @@ public class ConsultaVales extends javax.swing.JFrame {
         }.run();
         
         this.llenarTablaVales(vales);
-        tabla.setAutoCreateRowSorter(true);        
+        tabla.setAutoCreateRowSorter(true); 
+        tabla.getTableHeader().setReorderingAllowed(false);
     }
 
     private void llenarTablaVales(ArrayList<Vale> vales){
