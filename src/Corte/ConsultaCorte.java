@@ -44,7 +44,7 @@ public class ConsultaCorte extends javax.swing.JFrame {
     DefaultTableModel md;
     StringTokenizer token;
     DateFormat dateFormat = new SimpleDateFormat("d/MM/yyyy");
-    DecimalFormat decimalFormat= new DecimalFormat("0.0");
+    DecimalFormat decimalFormat = new DecimalFormat("0.0");
     
     Vector<Maquina> maquinas = Maquina.cargarMaquinas();    
     Vector<Maquina> maquinasFiltradas;
@@ -743,10 +743,8 @@ public class ConsultaCorte extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCerrarActionPerformed
 
     private void btnFiltrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarActionPerformed
-        CortesFiltrados= new Vector<Corte>();
-        for(int k=0; k<Cortes.size(); k++){
-            CortesFiltrados.add(Cortes.elementAt(k));
-        }
+        CortesFiltrados= new Vector<Corte>(Cortes);
+        
         String sucursal = quitaEspacios(cmbSucursal.getSelectedItem().toString());
         //remover los que no correspondan a la sucursal
         if(!sucursal.equals("Todos")){
@@ -895,11 +893,15 @@ public class ConsultaCorte extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada invalida!", "Atención", JOptionPane.WARNING_MESSAGE );
         }else{
             if(indexFila!=-1){
+                //tomar los valores del corte de la tabla
+                String fecha = tabla.getValueAt(indexFila, 0).toString();
+                String sucursal = quitaEspacios(tabla.getValueAt(indexFila, 1).toString());
+                String maquina = tabla.getValueAt(indexFila, 2).toString();
+                System.out.println("fecha: " + fecha);
+                System.out.println("sucursal: " + sucursal);
+                System.out.println("maquina: " + maquina);
                 if(JOptionPane.showConfirmDialog(rootPane,"¿Seguro que desea eliminar el corte seleccionado?", "Eliminar", YES_NO_OPTION) == JOptionPane.YES_OPTION){
-                    //tomar los valores del corte de la tabla
-                    String fecha = tabla.getValueAt(indexFila, 0).toString();
-                    String sucursal = tabla.getValueAt(indexFila, 1).toString();
-                    String maquina = tabla.getValueAt(indexFila, 2).toString();
+                    //tomar los valores del corte de la tabla                    
                     //buscar el indice de la fila que seleccionaste en el vector de Cortes (el que tiene todos)                     
                     for(int k=0; k<Cortes.size();k++){
                         if(fecha.equals(Cortes.elementAt(k).getFecha()) 
@@ -1002,23 +1004,27 @@ public class ConsultaCorte extends javax.swing.JFrame {
         if(indexFila+1==tabla.getRowCount()){
             JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada invalida!", "Atención", JOptionPane.WARNING_MESSAGE );
         }else{
-             if(indexFila!=-1){                
+             if(indexFila!=-1){           
+                    //tomar los valores del corte de la tabla
+                    String fecha = tabla.getValueAt(indexFila, 0).toString();
+                    String sucursal = quitaEspacios(tabla.getValueAt(indexFila, 1).toString());
+                    String maquina = tabla.getValueAt(indexFila, 2).toString();
                     //buscar el indice de la fila que seleccionaste en el vector de Cortes (el que tiene todos)                     
                     for(int k=0; k<Cortes.size();k++){
-                        if(CortesFiltrados.elementAt(indexFila).getFecha().equals(Cortes.elementAt(k).getFecha()) &&
-                        CortesFiltrados.elementAt(indexFila).getMaquina().getNombre().equals(Cortes.elementAt(k).getMaquina().getNombre()) &&
-                        CortesFiltrados.elementAt(indexFila).getSucursal().equals(Cortes.elementAt(k).getSucursal())){
-                         indexFila=k;
+                        if(fecha.equals(Cortes.elementAt(k).getFecha()) 
+                                && sucursal.equals(Cortes.elementAt(k).getSucursal())
+                                && maquina.equals(Cortes.elementAt(k).getMaquina().getNombre())){
+                         indexFila = k;
                          break;
                         }
-                    }
+                    }           
                     //crear el filtro que corresponde y mandarlo a editarCorte
                     Filtro filtro = new Filtro(cmbSucursal.getSelectedItem().toString(), cmbNumMaquina.getSelectedItem().toString(), cmbMes.getSelectedItem().toString(), cmbAño.getYear());
                     //ya con el indice que le corresponde mandar a editar
                     EditarCorte ec = new EditarCorte(Cortes.elementAt(indexFila), Cortes, filtro);
                     ec.setLocationRelativeTo(null);
                     ec.setVisible(true);
-                   btnCerrarActionPerformed(null);
+                    btnCerrarActionPerformed(null);
             }else{
                 JOptionPane.showMessageDialog(this,"Debe seleccionar una fila","Atencion",JOptionPane.WARNING_MESSAGE);
             }

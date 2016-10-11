@@ -3,6 +3,8 @@ package Vales;
 
 import static Utilerias.Utileria.quitaGuion;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 
@@ -10,10 +12,7 @@ public class TotalesVales extends javax.swing.JFrame {
    
     public TotalesVales(ArrayList<Vale> vales) {
         initComponents();
-        ArrayList<Vale> misVales = new ArrayList<>();
-        for (Vale vale : vales) {
-            misVales.add(vale);
-        }
+        ArrayList<Vale> misVales = new ArrayList<>(vales);        
         
         ArrayList<String> sucursales = new ArrayList<>();
         for (Vale vale : misVales) {
@@ -21,6 +20,7 @@ public class TotalesVales extends javax.swing.JFrame {
                 sucursales.add(vale.getSucursal());
             }
         }
+        Collections.sort(sucursales);
         //sacar total por sucursal
         ArrayList<Float> totales = new ArrayList<>();
         for (String sucursal : sucursales) {            

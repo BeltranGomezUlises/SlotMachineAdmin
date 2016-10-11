@@ -7,6 +7,7 @@ import Inventario.Movimiento;
 import Productos.Producto;
 import Sucursal.Sucursal;
 import Utilerias.Filtro;
+import java.awt.Cursor;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -36,10 +37,8 @@ public class EditarFormato extends javax.swing.JFrame {
     public EditarFormato(Vector<Formato> Formatos,Formato miFormato, Filtro filtro) {        
         initComponents();   
         this.filtro = filtro;       
-        this.editarFormato=miFormato;
-        for (int i = 0; i < Formatos.size(); i++) {
-            misFormatos.add(Formatos.elementAt(i));
-        }                
+        this.editarFormato=miFormato;        
+        misFormatos = new Vector<>(Formatos);
         String datos[][]={};
         String cabecera[]={"Nombre","Inv. Inicial","Compras","Inv. Final"};
         int anchos[]={40,20,20,20}; //cargar la tabla
@@ -728,9 +727,11 @@ public class EditarFormato extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAceptarKeyTyped
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));                      
         ConsultaFormato cf = new ConsultaFormato(filtro);
         cf.setVisible(true);
         cf.setLocationRelativeTo(null);
+        setCursor(null);
         this.dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
     private void btnCancelarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnCancelarKeyTyped

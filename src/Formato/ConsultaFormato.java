@@ -2,7 +2,6 @@ package Formato;
 
 import ControlUsuario.Loged;
 import static Utilerias.Utileria.*;
-import ControlUsuario.Usuario;
 import Excel.ExcelManager;
 import Inventario.InventarioRutero;
 import Inventario.Movimiento;
@@ -13,11 +12,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.NoSuchElementException;
@@ -27,7 +24,6 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
-import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -94,28 +90,31 @@ public class ConsultaFormato extends javax.swing.JFrame {
     }
     
     public ConsultaFormato(Filtro filtro) {
-        initComponents();        
+        initComponents();                
         try{            
-            this.permisosUsuario(); //asignar los permisos a los botones                       
+            this.permisosUsuario(); //asignar los permisos a los botones            
+            tabla.setAutoCreateRowSorter(true); 
+            tabla.getTableHeader().setReorderingAllowed(false);
             tabla.setModel(md);//cargar la tabla            
             ajustarTamañosTabla(tabla,anchos);
             
-            Formatos = Formato.cargarFormatos();//cargar los formatos al vector              
+            Formatos = Formato.cargarFormatos(); //cargar los formatos al vector  
             
-            this.llenarComboBox();//llenar los comboBox con los datos y los vectores necesarios
-                        
-            Formato.ordenarFormatosQ(Formatos, 0, Formatos.size()-1);
-            Formato.ordenarFormatosSucursal(Formatos, sucursales);
+            this.llenarComboBox();//llenar los comboBox con los datos
+            
+            Formato.ordenarFormatosQ(Formatos, 0, Formatos.size()-1);            
+            Formatos = Formato.ordenarFormatosSucursal(Formatos, sucursales);            
             Formato.ordenarFormatosTurno(Formatos);
-            
-            this.asignarFaltantes();                        
-            //actualizarFormatos(Formatos);            
+                        
+            this.asignarFaltantes();                                           
+                                
+            //actualizarFormatos(Formatos);              
             this.llenarTabla(Formatos);
             this.agregarFilaTotales(tabla);                       
 //            tabla.setDefaultRenderer(Object.class, new TableCellTotalFinalRenderer());//cambiar el defaultTableCellRenderer
             this.MarcarTotalFinal(Formatos);
-            filtrado=Formatos;    
-            
+            filtrado=Formatos;   
+           
             //colocar los valores del filtro y mandar llamar filtrar
             cmbSucursal.setSelectedItem(filtro.getSucursal());
             cmbEncargado.setSelectedItem(filtro.getEncargado());
@@ -124,7 +123,7 @@ public class ConsultaFormato extends javax.swing.JFrame {
             try {
                 dFechaI.setDate(df.parse(filtro.getFechaIni()));
                 dFechaF.setDate(df.parse(filtro.getFechaFin()));
-            } catch (NullPointerException e) {
+            } catch (NullPointerException | ParseException e) {
                //en caso de no existir fechas omitir asignacion 
             }
             
@@ -132,9 +131,11 @@ public class ConsultaFormato extends javax.swing.JFrame {
         }      
         catch(NoSuchElementException e){
             JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable", "Error", WIDTH);
-        }catch(ParseException e){
-            JOptionPane.showMessageDialog(rootPane, "Error de conversion de fechas", "Error", WIDTH);
         }
+        
+        
+            
+        
     }                
     
     private void permisosUsuario(){
@@ -971,12 +972,16 @@ public class ConsultaFormato extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE );
         }else{
             if( indexFila != -1){
+                String fecha = String.valueOf(tabla.getValueAt(indexFila, 0));
+                char turno = tabla.getValueAt(indexFila, 1).toString().charAt(0);
+                String sucursal = quitaEspacios(String.valueOf(tabla.getValueAt(indexFila, 2)));
+                System.out.println("fecha: " + fecha);
+                System.out.println("turno: " + turno);
+                System.out.println("sucursal: " + sucursal);
                 if(JOptionPane.showConfirmDialog(rootPane,"¿Seguro que desea eliminar el formato seleccionado?", "Eliminar", YES_NO_OPTION)==JOptionPane.OK_OPTION){
                     //buscar el indice de la fila que seleccionaste en el vector del formatos (el que tiene todos)
                     //tomar la fecha turno y sucursal del seleccionado
-                    String fecha = String.valueOf(tabla.getValueAt(indexFila, 0));
-                    char turno = tabla.getValueAt(indexFila, 1).toString().charAt(0);
-                    String sucursal = String.valueOf(tabla.getValueAt(indexFila, 2));
+                    
                     for(int k = 0; k < Formatos.size(); k++){
                         if(fecha.equals(Formatos.elementAt(k).getFecha()) &&
                            turno == Formatos.elementAt(k).getTurno() &&
@@ -1199,15 +1204,23 @@ public class ConsultaFormato extends javax.swing.JFrame {
         if(indexFila+1==tabla.getRowCount()){
             JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE );
         }else{
-            if(indexFila!=-1){
-                for(int k=0; k<Formatos.size();k++){ //sacar el indice del formato adecuado en filtrado
-                        if(filtrado.elementAt(indexFila).getFecha().equals(Formatos.elementAt(k).getFecha()) &&
-                           filtrado.elementAt(indexFila).getTurno()==Formatos.elementAt(k).getTurno() &&
-                           filtrado.elementAt(indexFila).getSucursal().equals(Formatos.elementAt(k).getSucursal())){
-                          indexFila=k;
-                          break;
-                        }
+            
+            if(indexFila != -1){
+                String fecha = String.valueOf(tabla.getValueAt(indexFila, 0));
+                char turno = tabla.getValueAt(indexFila, 1).toString().charAt(0);
+                String sucursal = quitaEspacios(String.valueOf(tabla.getValueAt(indexFila, 2)));
+                System.out.println("fecha: " + fecha);
+                System.out.println("turno: " + turno);
+                System.out.println("sucursal: " + sucursal);
+                
+                for(int k = 0; k < Formatos.size(); k++){
+                    if(fecha.equals(Formatos.elementAt(k).getFecha()) &&
+                       turno == Formatos.elementAt(k).getTurno() &&
+                       sucursal.equals(Formatos.elementAt(k).getSucursal())){
+                       indexFila = k;
+                       break;
                     }
+                }
                 Filtro filtro;
                 try{
                     String fechaIni = df.format(dFechaI.getDate());
@@ -1222,7 +1235,7 @@ public class ConsultaFormato extends javax.swing.JFrame {
                 EditarFormato ef = new EditarFormato(Formatos, Formatos.elementAt(indexFila), filtro);
                 ef.setVisible(true);
                 ef.setLocationRelativeTo(this);
-                this.setVisible(false);
+                this.dispose();
             }else{
                 JOptionPane.showMessageDialog(this,"Debe seleccionar una fila","Atencion",JOptionPane.ERROR_MESSAGE);
             }
