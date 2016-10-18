@@ -19,16 +19,7 @@ public class ListaMaquinas extends javax.swing.JFrame {
         if (maquinas.size() > 0) { //preguntamos si no esta vacio el vector, si es asi omitir ordenamiento y actualizacion
             ordenarMaquinas(maquinas, 0, maquinas.size()-1);
             //una vez ordenado actualizar el archivo de maquinas
-            try {
-                FileWriter fr = new FileWriter("Archivos/Maquinas.bin");
-                try (PrintWriter pw = new PrintWriter(fr)) {
-                    for (int i = 0; i < maquinas.size(); i++) {
-                        pw.println(maquinas.elementAt(i).toString());
-                    }
-                } 
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error al actualizar el orden de las maquinas", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            Maquina.ActualizarDB(maquinas);
         }
                                         
         //llenar la tabla

@@ -19,7 +19,7 @@ public class ExcelManager {
     private JTable table;
     private String tapName;
     private DefaultTableModel modeloT = new DefaultTableModel();
-    Workbook wb;
+    private Workbook wb;
     
     public ExcelManager(File file, JTable table, String nombreTab) {
         this.file = file;
@@ -44,8 +44,7 @@ public class ExcelManager {
                         celda.setCellValue(String.valueOf(table.getColumnName(j)));
                     }else{
                         celda.setCellValue(String.valueOf(table.getValueAt(i, j)));
-                    }
-                    
+                    }                    
                 }
             }           
             FileOutputStream fos = new FileOutputStream(file);            
@@ -99,7 +98,7 @@ public class ExcelManager {
             }
             table.setModel(modeloT);
         } catch (FileNotFoundException ex) {
-            JOptionPane.showMessageDialog(null, "No Se Econtro El Archivo", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "No se econtró el archivo", "Error", JOptionPane.ERROR_MESSAGE);
         }catch(IOException e){
             JOptionPane.showMessageDialog(null, "IO Exception ocurrencia de un fallo en el archivo", "Error", JOptionPane.ERROR_MESSAGE);
         }catch (InvalidFormatException ex) {
