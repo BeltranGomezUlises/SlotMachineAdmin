@@ -86,16 +86,8 @@ public class Sucursal {
         }
     }
     
-    public int compareTo(Sucursal e){
-        int res = 0;
-        if (nombre.compareTo( e.getNombre() ) > 0) {
-            res = 1;
-        }else{
-            if (nombre.compareTo( e.getNombre() ) < 0) {
-                res = -1;
-            }
-        }
-        return res;
+    public int compareTo(Sucursal e){                
+        return nombre.compareTo( e.getNombre() );
     }
     
     public static Sucursal copy(Sucursal s){
@@ -103,7 +95,30 @@ public class Sucursal {
     }
     
     public static Vector<Sucursal> cargarSucursales(){
-        Vector<Sucursal> sucursales= new Vector<Sucursal>();
+        Vector<Sucursal> sucursales = new Vector<Sucursal>();
+        try{            
+            FileReader fr = new FileReader("Archivos/Sucursales.bin");
+            BufferedReader br= new BufferedReader(fr);
+            String linea;
+            StringTokenizer token;
+            while((linea=br.readLine())!=null){
+                token= new StringTokenizer(linea);
+                String suc=token.nextToken();                
+                int turnos = Integer.parseInt(token.nextToken());
+                int comision = Integer.parseInt(token.nextToken());
+                
+                sucursales.add(new Sucursal(suc, turnos, comision));
+            }
+            
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(null, "Error de lectura en sucursales","Error",JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+        return sucursales;
+    }
+  
+   public static Vector<Sucursal> cargarSucursalesConProductos(){
+       Vector<Sucursal> sucursales = new Vector<Sucursal>();
         try{            
             FileReader fr = new FileReader("Archivos/Sucursales.bin");
             BufferedReader br= new BufferedReader(fr);
@@ -133,6 +148,5 @@ public class Sucursal {
             e.printStackTrace();
         }
         return sucursales;
-    }
-  
+   }
 }

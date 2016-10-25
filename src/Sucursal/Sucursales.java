@@ -1,7 +1,6 @@
 package Sucursal;
 
 import ControlUsuario.Loged;
-import ControlUsuario.Usuario;
 import static Utilerias.Utileria.*;
 import java.awt.event.KeyEvent;
 import java.util.Vector;
@@ -14,29 +13,32 @@ public class Sucursales extends javax.swing.JFrame {
             
     public Sucursales() {
         initComponents();  
-        sucursales = Sucursal.cargarSucursales();
+        
+        sucursales = Sucursal.cargarSucursalesConProductos();
         ordenarSucursales(sucursales, 0, sucursales.size()-1 );
+        
         Sucursal.actualizarBD(sucursales);        
+        
         btnAgregar.setEnabled(Loged.getLoged().isEditarSucursales());
         btnEliminar.setEnabled(Loged.getLoged().isEditarSucursales());        
+        
         //llenar tabla        
         tabla.getTableHeader().setReorderingAllowed(false);
-        String datos[][]={};
-        String cabecera[]={"Sucursal", "Turnos", "Comision"};
-        int anchos[]={55,20}; //cargar la tabla
-        DefaultTableModel md = new DefaultTableModel(datos, cabecera);
-        tabla.setModel(md);        
-        for(int k=0; k<anchos.length; k++){//ajustar los tamaños
+        
+        int anchos[]={75, 20, 20}; //cargar la tabla
+        
+        for(int k=0; k < anchos.length; k++){//ajustar los tamaños
             tabla.getColumnModel().getColumn(k).setPreferredWidth(anchos[k]); 
         }
-         for (int i = 0; i < sucursales.size(); i++) {
+        
+        DefaultTableModel md = (DefaultTableModel) tabla.getModel();        
+        for (int i = 0; i < sucursales.size(); i++) {
             Vector fila = new Vector();
             fila.add(quitaGuion(sucursales.elementAt(i).getNombre()));
             fila.add(sucursales.elementAt(i).getTurnos());
             fila.add(sucursales.elementAt(i).getComision());
             md.addRow(fila);
-        }     
-        
+        }             
     }
     
     public static void ordenarSucursales(Vector<Sucursal> sucursales, int izq, int der){
@@ -63,8 +65,7 @@ public class Sucursales extends javax.swing.JFrame {
             if( i < der ) 
                 ordenarSucursales( sucursales, i, der );                                         
      }
-    
-    
+        
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -74,6 +75,7 @@ public class Sucursales extends javax.swing.JFrame {
         btnEliminar = new javax.swing.JButton();
         btnEditar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
+        btnProductos = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tabla = new javax.swing.JTable(){
             public boolean isCellEditable(int rowIndex, int colIndex) {
@@ -124,20 +126,30 @@ public class Sucursales extends javax.swing.JFrame {
             }
         });
 
+        btnProductos.setText("Productos");
+        btnProductos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProductosActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnEliminar, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-                    .addComponent(btnAgregar, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-                    .addComponent(btnEditar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnEliminar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnAgregar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnEditar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnProductos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -149,6 +161,8 @@ public class Sucursales extends javax.swing.JFrame {
                 .addComponent(btnEliminar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnEditar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnProductos)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnCancelar)
                 .addGap(22, 22, 22))
@@ -156,15 +170,20 @@ public class Sucursales extends javax.swing.JFrame {
 
         tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Sucursal", "Turnos", "Comision"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane2.setViewportView(tabla);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -173,7 +192,7 @@ public class Sucursales extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -233,11 +252,22 @@ public class Sucursales extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEditarActionPerformed
 
+    private void btnProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductosActionPerformed
+        int indexFila = tabla.getSelectedRow();
+        if (indexFila != -1) {
+            new EditarProductosSucursal( sucursales, indexFila).setVisible(true);
+        }else{
+            JOptionPane.showMessageDialog(null, "Debe de seleccionar una fila", "Atención", JOptionPane.WARNING_MESSAGE);
+        }
+                
+    }//GEN-LAST:event_btnProductosActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregar;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnProductos;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tabla;

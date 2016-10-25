@@ -86,15 +86,27 @@ public class ModificarArchivo {
         //Sucursal.actualizarBD(sucursales);
         
         //CHEQUERAS
-        ArrayList<Chequera> chequeras = Chequera.cargarChequeras();
+       /* ArrayList<Chequera> chequeras = Chequera.cargarChequeras();
         
         Chequera.actualizarDB(chequeras);
-        
+        */
         
         //VALES
         /*
         ArrayList<Vale> vales = Vale.cargarVales();
         Vale.actualizarVD(vales);
         */
+        
+        
+        Vector<Producto> productos = Producto.cargarProductos();
+        List<String> nomProductos = new ArrayList<>();
+        Vector<Sucursal> sucursales = Sucursal.cargarSucursalesConProductos();
+        for (Producto producto : productos) {
+            nomProductos.add(producto.getNombre());
+        }
+        for (Sucursal sucursal : sucursales) {
+            sucursal.setNomProductos(nomProductos);
+        }
+        Sucursal.actualizarBD(sucursales);
     }        
 }

@@ -23,17 +23,18 @@ import javax.swing.table.DefaultTableModel;
 public class CapturaFormato extends javax.swing.JFrame {
     
     int turnos;    
-    Vector<Producto> productos= new Vector<Producto>();
+    Vector<Producto> productos;
     Vector<Sucursal> sucursales;  
    
     public CapturaFormato() {
         
         initComponents();        
-        this.setTitle("Captura de Formato");        
+        this.setTitle("Captura de Formato");    
+        tabla.getTableHeader().setReorderingAllowed(false);
         //llenar los combo box con los datos de los archivos
         try{
             
-            sucursales=Sucursal.cargarSucursales();
+            sucursales = Sucursal.cargarSucursalesConProductos();
             for (int i = 0; i < sucursales.size(); i++) {
                 cmbSucursal.addItem(quitaGuion(sucursales.elementAt(i).getNombre()));
             }
@@ -46,24 +47,12 @@ public class CapturaFormato extends javax.swing.JFrame {
                 linea1=br1.readLine();
             }
             br1.close();
-            
-            productos = Producto.cargarProductos();
-            //una vez lleno el vector de productos llenar la tabla con los nombres de los productos
-            String datos[][]={};
-            String cabecera[]={"Nombre","Inv. Inicial","Compras","Inv. Final"};
+
             int anchos[]={40,20,20,20}; //cargar la tabla
-            DefaultTableModel md = new DefaultTableModel(datos, cabecera);
-            tabla.setModel(md);
-            for (int i = 0; i < productos.size(); i++) {
-                Vector fila = new Vector();
-                fila.add(quitaGuion(productos.elementAt(i).getNombre()));                    
-                fila.add("");                    
-                fila.add(0);                    
-                md.addRow(fila);
-            }
             for (int i = 0; i < anchos.length; i++) {//ajustar anchos                
                tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);             
             }
+            
         }catch(FileNotFoundException e){
             JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable-Encargados.bin", "Error", WIDTH);
         }catch(IOException e){
@@ -125,15 +114,27 @@ public class CapturaFormato extends javax.swing.JFrame {
 
         tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Nombre", "Inv. Inicial", "Compras", "Inv. Final"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, true, true, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tabla.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 tablaKeyTyped(evt);
@@ -442,163 +443,178 @@ public class CapturaFormato extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     private void cmbSucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSucursalActionPerformed
-        String nombreSuc= quitaEspacios(cmbSucursal.getSelectedItem().toString());        
-        for (int i = 0; i < sucursales.size(); i++) {
-            if (sucursales.elementAt(i).getNombre().equals(nombreSuc)) {
-                turnos=sucursales.elementAt(i).getTurnos();
-                break;
-            }
-        }
-        if(turnos==2){
+        
+        
+        turnos = sucursales.elementAt(cmbSucursal.getSelectedIndex()).getTurnos();
+                
+        if(turnos == 2){
             cmbTurno.removeAllItems();
             cmbTurno.addItem("D");
             cmbTurno.addItem("N");
-            turnos=2;
+            turnos = 2;
         }else{
             cmbTurno.removeAllItems();
             cmbTurno.addItem("D");
-            turnos=1;                
-        }                                                     
+            turnos = 1;                
+        } 
+        
+        //generar la lista de productos a poner en la tabla
+        DefaultTableModel dtm = (DefaultTableModel) tabla.getModel();
+        dtm.setRowCount(0); //para vaciar
+        
+        productos= new Vector<Producto>();
+        Vector<Producto> productosArchivo = Producto.cargarProductos();
+        for (String nomProducto : sucursales.get(cmbSucursal.getSelectedIndex()).getNomProductos()) {            
+            for (Producto producto : productosArchivo) {
+                if (producto.getNombre().equals(nomProducto)) {
+                    productos.add(producto);
+                    break;
+                }
+            }
+        }
+        for (Producto producto : productos) {
+            dtm.addRow(new String[]{quitaGuion(producto.getNombre()), "", "0"});
+        }       
     }//GEN-LAST:event_cmbSucursalActionPerformed
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-     this.setVisible(false);
+        this.setVisible(false);
     }//GEN-LAST:event_btnCancelarActionPerformed
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
-             try{
-                DateFormat df = DateFormat.getDateInstance();
-                //almacenar todos los datos en variables
-                String fecha= df.format(calendar.getDate());
-                String encargado=quitaEspacios(cmbEncargado.getSelectedItem().toString());
-                String sucursal= quitaEspacios(cmbSucursal.getSelectedItem().toString());
-                char turno=cmbTurno.getSelectedItem().toString().charAt(0);
-                float fondoInicial= Float.parseFloat(txtFondoInicial.getText());
-                float fondoFinal = Float.parseFloat(txtFondoFinal.getText());
-                Vector<Integer> invI= new Vector<Integer>();
-                Vector<Integer> invF= new Vector<Integer>();
-                Vector<Integer> compras = new Vector<Integer>();                
-                for (int i = 0; i < productos.size(); i++) {
-                     invI.add(Integer.parseInt(tabla.getValueAt(i, 1).toString()));
-                     compras.add(Integer.parseInt(tabla.getValueAt(i, 2).toString()));
-                     invF.add(Integer.parseInt(tabla.getValueAt(i, 3).toString()));
-                }                
-                boolean firmado=chkBoxFirma.isSelected();                               
-                Formato f= new Formato(fecha,sucursal,encargado,turno,productos,invI,compras,invF,firmado);
-                float retiro=Float.parseFloat(txtRetiros.getText());
-                String nota = quitaEspacios(txtNota.getText());
-                f.setRetiro(retiro);
-                f.setTurnos(turnos);
-                f.setPagado(false);
-                f.setFondoInicial(fondoInicial);
-                f.setFondoFinal(fondoFinal);
-                if (nota.equals("")) {
-                     nota="null";
+        try{
+            DateFormat df = DateFormat.getDateInstance();
+            //almacenar todos los datos en variables
+            String fecha= df.format(calendar.getDate());
+            String encargado=quitaEspacios(cmbEncargado.getSelectedItem().toString());
+            String sucursal= quitaEspacios(cmbSucursal.getSelectedItem().toString());
+            char turno=cmbTurno.getSelectedItem().toString().charAt(0);
+            float fondoInicial= Float.parseFloat(txtFondoInicial.getText());
+            float fondoFinal = Float.parseFloat(txtFondoFinal.getText());
+            Vector<Integer> invI= new Vector<Integer>();
+            Vector<Integer> invF= new Vector<Integer>();
+            Vector<Integer> compras = new Vector<Integer>();                
+            for (int i = 0; i < productos.size(); i++) {
+                 invI.add(Integer.parseInt(tabla.getValueAt(i, 1).toString()));
+                 compras.add(Integer.parseInt(tabla.getValueAt(i, 2).toString()));
+                 invF.add(Integer.parseInt(tabla.getValueAt(i, 3).toString()));
+            }                
+            boolean firmado=chkBoxFirma.isSelected();                               
+            Formato f= new Formato(fecha,sucursal,encargado,turno,productos,invI,compras,invF,firmado);
+            float retiro=Float.parseFloat(txtRetiros.getText());
+            String nota = quitaEspacios(txtNota.getText());
+            f.setRetiro(retiro);
+            f.setTurnos(turnos);
+            f.setPagado(false);
+            f.setFondoInicial(fondoInicial);
+            f.setFondoFinal(fondoFinal);
+            if (nota.equals("")) {
+                 nota="null";
+            }
+            f.setNota(nota);
+            //Validar que no exista ese formato:
+            Vector<Formato> formatos = Formato.cargarFormatos();
+
+            boolean existe=false;
+            boolean turnoDuplicado=false;
+            for(int k=0; k<formatos.size(); k++){                    
+                if(formatos.elementAt(k).getFecha().equals(f.getFecha()) && formatos.elementAt(k).getTurno()==f.getTurno() && formatos.elementAt(k).getSucursal().equals(f.getSucursal())){
+                    existe=true;
                 }
-                f.setNota(nota);
-                //Validar que no exista ese formato:
-                Vector<Formato> formatos = Formato.cargarFormatos();
-                
-                boolean existe=false;
-                boolean turnoDuplicado=false;
-                for(int k=0; k<formatos.size(); k++){                    
-                    if(formatos.elementAt(k).getFecha().equals(f.getFecha()) && formatos.elementAt(k).getTurno()==f.getTurno() && formatos.elementAt(k).getSucursal().equals(f.getSucursal())){
-                        existe=true;
+                if(formatos.elementAt(k).getFecha().equals(f.getFecha()) && formatos.elementAt(k).getTurno()==f.getTurno() && formatos.elementAt(k).getEncargado().equals(quitaGuion(f.getEncargado()))){
+                    turnoDuplicado=true;
+                }
+            }                               
+
+            //Escribir en el archivo de base de datos                 
+            if(!existe && !turnoDuplicado){                    
+                boolean comp=false;                    
+                for (int i = 0; i < f.getCompras().size(); i++) {                        
+                    if (f.getCompras().elementAt(i).compareTo(new Integer(0))!=0) {
+                        comp=true;
                     }
-                    if(formatos.elementAt(k).getFecha().equals(f.getFecha()) && formatos.elementAt(k).getTurno()==f.getTurno() && formatos.elementAt(k).getEncargado().equals(quitaGuion(f.getEncargado()))){
-                        turnoDuplicado=true;
+                }                    
+                if (comp){                                    
+                    String entregador;
+                    //cargar un arreglo con los ruteros
+                    Vector<InventarioRutero> invRuteros = InventarioRutero.cargarInvRuteros();
+
+                    String nombreRuteros[] = new String[invRuteros.size()];
+                    for (int i = 0; i < invRuteros.size(); i++) {
+                        nombreRuteros[i]=quitaGuion(invRuteros.elementAt(i).getRutero());
+                    }                        
+                    entregador=quitaEspacios((String)JOptionPane.showInputDialog(null, "Seleccione el rutero","Ruteros", JOptionPane.QUESTION_MESSAGE,null, nombreRuteros, 0));                                               
+                    f.setEntregador(entregador);                       
+                    //generar movimiento si existe entrega en el turno
+                    //tomar las compras de los productos y dividirlos en su presentacion                        
+                    Vector<Integer> cantProductos = new Vector<>();
+                    for (int i = 0; i < productos.size(); i++) {
+                        cantProductos.add(f.getCompras().elementAt(i) / productos.elementAt(i).getPresentacion());
                     }
-                }                               
-                
-                //Escribir en el archivo de base de datos                 
-                if(!existe && !turnoDuplicado){                    
-                    boolean comp=false;                    
-                    for (int i = 0; i < f.getCompras().size(); i++) {                        
-                        if (f.getCompras().elementAt(i).compareTo(new Integer(0))!=0) {
-                            comp=true;
+                    Movimiento mov = new Movimiento(f.getFecha(),f.getTurno(),"Entrega_Sucursal",entregador,f.getSucursal(),
+                                                    "null",f.NombresProductos(), cantProductos,encargado,quitaEspacios(Loged.getLoged().getUsuario()),"null","null");                        
+                    //buscar que el movimiento no exista ya
+                    boolean movExiste=false;
+                    int indiceMovRepetido=-1;
+                    Vector<Movimiento> movs = Movimiento.CargarMovimientos();
+                    for (int i = 0; i < movs.size(); i++) {
+                        if (mov.equals(movs.elementAt(i))) {
+                            movExiste=true;
+                            indiceMovRepetido=i;
                         }
-                    }                    
-                    if (comp){                                    
-                        String entregador;
-                        //cargar un arreglo con los ruteros
-                        Vector<InventarioRutero> invRuteros = InventarioRutero.cargarInvRuteros();
-                         
-                        String nombreRuteros[] = new String[invRuteros.size()];
-                        for (int i = 0; i < invRuteros.size(); i++) {
-                            nombreRuteros[i]=quitaGuion(invRuteros.elementAt(i).getRutero());
-                        }                        
-                        entregador=quitaEspacios((String)JOptionPane.showInputDialog(null, "Seleccione el rutero","Ruteros", JOptionPane.QUESTION_MESSAGE,null, nombreRuteros, 0));                                               
-                        f.setEntregador(entregador);                       
-                        //generar movimiento si existe entrega en el turno
-                        //tomar las compras de los productos y dividirlos en su presentacion                        
-                        Vector<Integer> cantProductos = new Vector<>();
-                        for (int i = 0; i < productos.size(); i++) {
-                            cantProductos.add(f.getCompras().elementAt(i) / productos.elementAt(i).getPresentacion());
-                        }
-                        Movimiento mov = new Movimiento(f.getFecha(),f.getTurno(),"Entrega_Sucursal",entregador,f.getSucursal(),
-                                                        "null",f.NombresProductos(), cantProductos,encargado,quitaEspacios(Loged.getLoged().getUsuario()),"null","null");                        
-                        //buscar que el movimiento no exista ya
-                        boolean movExiste=false;
-                        int indiceMovRepetido=-1;
-                        Vector<Movimiento> movs = Movimiento.CargarMovimientos();
-                        for (int i = 0; i < movs.size(); i++) {
-                            if (mov.equals(movs.elementAt(i))) {
-                                movExiste=true;
-                                indiceMovRepetido=i;
-                            }
-                        }
-                        if (movExiste) {
-                            JOptionPane.showMessageDialog(null, "Ya existe el movimiento se omitirá el registro al inventario","Atención",JOptionPane.WARNING_MESSAGE);
-                            //comparar el mov con el que ya existe en movs
-                            boolean discrepancia = false;
-                            for (int i = 0; i < movs.elementAt(indiceMovRepetido).getProductos().size(); i++) {
-                                for (int j = 0; j < mov.getProductos().size(); j++) {
-                                    if (movs.elementAt(indiceMovRepetido).getProductos().elementAt(i).equals(mov.getProductos().elementAt(j))) { //si son el mismo producto
-                                        if (movs.elementAt(indiceMovRepetido).getCantidades().elementAt(i)-mov.getCantidades().elementAt(j)!=0) {
-                                            discrepancia = true;
-                                        }
+                    }
+                    if (movExiste) {
+                        JOptionPane.showMessageDialog(null, "Ya existe el movimiento se omitirá el registro al inventario","Atención",JOptionPane.WARNING_MESSAGE);
+                        //comparar el mov con el que ya existe en movs
+                        boolean discrepancia = false;
+                        for (int i = 0; i < movs.elementAt(indiceMovRepetido).getProductos().size(); i++) {
+                            for (int j = 0; j < mov.getProductos().size(); j++) {
+                                if (movs.elementAt(indiceMovRepetido).getProductos().elementAt(i).equals(mov.getProductos().elementAt(j))) { //si son el mismo producto
+                                    if (movs.elementAt(indiceMovRepetido).getCantidades().elementAt(i)-mov.getCantidades().elementAt(j)!=0) {
+                                        discrepancia = true;
                                     }
                                 }
                             }
-                            if (discrepancia) {
-                                JOptionPane.showMessageDialog(null, "El Movimiento Generado por el formato, no coincide con los datos del movimiento capturado por importación, reviselo","Atención",JOptionPane.WARNING_MESSAGE);
-                            }
-                        }else{
-                            //Agregar al archivo
-                            FileWriter frMov = new FileWriter("Archivos/Movimientos.data",true);
-                            PrintWriter pwMov= new PrintWriter(frMov);
-                            pwMov.println(mov.toString());
-                            pwMov.close();                             
-                            //actualizar el inventario del rutero
-                            for (int i = 0; i < invRuteros.size(); i++) {
-                                if (invRuteros.elementAt(i).getRutero().equals(entregador)) {  //i=entregador                                  
-                                     invRuteros.elementAt(i).reducirExistencia( mov );                                    
-                                }
-                            }
-                            InventarioRutero.actualizarBD(invRuteros);                            
                         }
-                    }        
-                    
-                    FileWriter fr = new FileWriter("Archivos/Formatos.bin",true);
-                    PrintWriter pw= new PrintWriter(fr);
-                    pw.println(f.toString());
-                    pw.close();                    
-                    
-                    JOptionPane.showMessageDialog(rootPane, "Formato Agregado con Éxito", "Éxito", WIDTH);//mostrar mensaje y limpiar pantalla
-                    this.limpiarCaptura();                   
-                }else{
-                    if(turnoDuplicado){
-                        JOptionPane.showMessageDialog(rootPane, "El encargado que ingresó ya trabajó en esa fecha", "Error", WIDTH);
+                        if (discrepancia) {
+                            JOptionPane.showMessageDialog(null, "El Movimiento Generado por el formato, no coincide con los datos del movimiento capturado por importación, reviselo","Atención",JOptionPane.WARNING_MESSAGE);
+                        }
+                    }else{
+                        //Agregar al archivo
+                        FileWriter frMov = new FileWriter("Archivos/Movimientos.data",true);
+                        PrintWriter pwMov= new PrintWriter(frMov);
+                        pwMov.println(mov.toString());
+                        pwMov.close();                             
+                        //actualizar el inventario del rutero
+                        for (int i = 0; i < invRuteros.size(); i++) {
+                            if (invRuteros.elementAt(i).getRutero().equals(entregador)) {  //i=entregador                                  
+                                 invRuteros.elementAt(i).reducirExistencia( mov );                                    
+                            }
+                        }
+                        InventarioRutero.actualizarBD(invRuteros);                            
                     }
-                    if(existe){
-                      JOptionPane.showMessageDialog(rootPane, "El Formato que está ingresando ya existe", "Error", WIDTH); 
-                    }                    
+                }        
+
+                FileWriter fr = new FileWriter("Archivos/Formatos.bin",true);
+                PrintWriter pw= new PrintWriter(fr);
+                pw.println(f.toString());
+                pw.close();                    
+
+                JOptionPane.showMessageDialog(rootPane, "Formato Agregado con Éxito", "Éxito", WIDTH);//mostrar mensaje y limpiar pantalla
+                this.limpiarCaptura();                   
+            }else{
+                if(turnoDuplicado){
+                    JOptionPane.showMessageDialog(rootPane, "El encargado que ingresó ya trabajó en esa fecha", "Error", WIDTH);
                 }
-                }catch(NullPointerException e){
-                     JOptionPane.showMessageDialog(rootPane, "No ingresó Fecha al Formato ó existe un valor en blanco de la tabla", "ERROR", WIDTH);                     
-                }catch(NumberFormatException e){
-                     JOptionPane.showMessageDialog(rootPane, "Ingresa todos los datos correctamente por favor", "ERROR", WIDTH);                                            
-                }catch(IOException e){
-                    JOptionPane.showMessageDialog(rootPane, "Base de datos no existe o es inutilisable", "ERROR", WIDTH);
-                }
+                if(existe){
+                  JOptionPane.showMessageDialog(rootPane, "El Formato que está ingresando ya existe", "Error", WIDTH); 
+                }                    
+            }
+        }catch(NullPointerException e){
+             JOptionPane.showMessageDialog(rootPane, "No ingresó Fecha al Formato ó existe un valor en blanco de la tabla", "ERROR", WIDTH);                     
+        }catch(NumberFormatException e){
+             JOptionPane.showMessageDialog(rootPane, "Ingresa todos los datos correctamente por favor", "ERROR", WIDTH);                                            
+        }catch(IOException e){
+            JOptionPane.showMessageDialog(rootPane, "Base de datos no existe o es inutilisable", "ERROR", WIDTH);
+        }
     }//GEN-LAST:event_btnAceptarActionPerformed
     private void txtFondoInicialKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFondoInicialKeyTyped
         char tecla;
