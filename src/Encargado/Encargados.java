@@ -9,6 +9,9 @@ import static Utilerias.Utileria.quitaGuion;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +23,7 @@ import javax.swing.table.TableModel;
 
 public class Encargados extends javax.swing.JFrame {
         
-    Vector<Encargado> encargados;
+    List<Encargado> encargados;
         
     String datos[][]={};
     String cabecera[]={"Nombre"};
@@ -35,43 +38,24 @@ public class Encargados extends javax.swing.JFrame {
         encargados = Encargado.cargarEncargados();
         
         
-        ordenarEncargados(encargados, 0, encargados.size()-1); //ordena nombres alfabeticamente
+        Collections.sort(encargados, new Comparator<Encargado>() {
+            @Override
+            public int compare(Encargado o1, Encargado o2) {
+                return o1.compareTo(o2);
+            }
+        });
+        
         this.ajustarTabla(); //llena la tabla con los valores y da formato
         Encargado.actualizarBD(encargados);
         
         
-    }
-    
-    public static void ordenarEncargados(Vector<Encargado> encargados, int izq, int der){
-            //este metodo ordena los cortes por fecha
-            int i = izq; 
-            int j = der; 
-            Encargado x = encargados.elementAt((izq + der) /2 ); 
-            Encargado aux;
-            do{ 
-                while( (encargados.elementAt(i).compareTo(x) < 0) && (j <= der) ){ 
-                       i++;} 
-                while( (encargados.elementAt(j).compareTo(x)>0) && (j > izq) ){ 
-                       j--;} 
-                if( i <= j ){                                        
-                    aux = Encargado.copy(encargados.elementAt(i));                                        
-                    encargados.setElementAt(encargados.elementAt(j), i);
-                    encargados.setElementAt(aux,j);
-                            
-                    i++;  j--; 
-                } 
-            }while( i <= j ); 
-            if( izq < j ) 
-                ordenarEncargados( encargados, izq, j ); 
-            if( i < der ) 
-                ordenarEncargados( encargados, i, der );                                         
-     }
+    }      
     
     private void ajustarTabla(){
         DefaultTableModel md= new DefaultTableModel(datos,cabecera);       
         for (int i = 0; i < encargados.size(); i++) {
             Vector fila = new Vector();
-            fila.add(quitaGuion(encargados.elementAt(i).getNombre()));
+            fila.add(quitaGuion(encargados.get(i).getNombre()));
             md.addRow(fila);
         }
          tablaEncargados.setModel(md);
@@ -206,7 +190,7 @@ public class Encargados extends javax.swing.JFrame {
         int indexFila=tablaEncargados.getSelectedRow();       
             if(indexFila!=-1){
                 if(JOptionPane.showConfirmDialog(null, "¿Seguro que desea eliminar el encargado seleccionado?", "Eliminar", YES_NO_OPTION)==0){                    
-                   encargados.removeElementAt(indexFila);                   
+                   encargados.remove(indexFila);                   
                    Encargado.actualizarBD(encargados);
                    this.ajustarTabla();
                 }
@@ -219,9 +203,7 @@ public class Encargados extends javax.swing.JFrame {
         AgregarEncargado ae = new AgregarEncargado( );
         ae.setVisible(true);
         ae.setLocationRelativeTo(this);
-        this.dispose();
-            
-        
+        this.dispose();                    
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarActionPerformed
@@ -233,7 +215,7 @@ public class Encargados extends javax.swing.JFrame {
             File archivo;
             JFileChooser fc = new JFileChooser();
             fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            if(JFileChooser.APPROVE_OPTION==fc.showDialog(this,"Encargados")){
+            if(JFileChooser.APPROVE_OPTION==fc.showDialog(this,"Exportar")){
                 archivo= new File(fc.getSelectedFile().toString().concat("/"+nombreArchivo+".xlsx"));                 
                 new ExcelManager(archivo,tablaEncargados,"Formatos").exportar();
             try {

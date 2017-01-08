@@ -200,6 +200,29 @@ public class Utileria {
         }
         return cal.getTime();  
     }
+    public static Date lunesAnterior(Date fecha){              
+        GregorianCalendar cal = new GregorianCalendar();                
+        try {
+            cal.setTime(fecha);    
+        } catch (Exception e) {
+        }           
+        while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) { //mientras sea mayor que lunes           
+            cal.add(Calendar.DATE, -1); //restar un dia
+        }
+        return cal.getTime();                
+    }
+    
+    public static Date domingoPosterior(Date fecha){
+        GregorianCalendar cal = new GregorianCalendar();                
+        try {
+            cal.setTime(fecha);    
+        } catch (Exception e) {
+        } 
+        while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) { //mientras sea mayor que lunes           
+            cal.add(Calendar.DATE, 1); //restar un dia
+        }
+        return cal.getTime();  
+    }
  
      public static boolean belongsDateToWeek(String date, String week){
         boolean res = false;

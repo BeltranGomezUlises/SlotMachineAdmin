@@ -3,6 +3,7 @@ package Main;
 import ControlUsuario.Loged;
 import ControlUsuario.Usuario;
 import Utilerias.Utileria;
+import static Utilerias.Utileria.quitaEspacios;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -26,19 +27,7 @@ public class Login extends javax.swing.JFrame {
             cmbUsuario.addItem(usuarios.get(i).getUsuario());
         }               
         //JOptionPane.showConfirmDialog(null, "icono", "icono", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconPantalla);                
-    }
-    
-     public static String quitaEspacios(String s){
-           String sinEspacio="";
-           for(int k=0; k<s.length(); k++){
-               if(s.charAt(k)==' '){
-                   sinEspacio+="_";
-               }else{
-                   sinEspacio+=s.charAt(k);
-               }
-           }
-           return sinEspacio;
-       }
+    }    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -140,8 +129,8 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnIngresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIngresarActionPerformed
-        String usuario=this.quitaEspacios(cmbUsuario.getSelectedItem().toString());
-        String pass=this.quitaEspacios(txtPass.getText());
+        String usuario = quitaEspacios(cmbUsuario.getSelectedItem().toString());
+        String pass = quitaEspacios(txtPass.getText());
         boolean encontrado=false;
         //buscar en el vector de usuarios y contraseñas si coincide alguno
         for (int i = 0; i < usuarios.size(); i++) {

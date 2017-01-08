@@ -103,11 +103,12 @@ public class AgregarEncargado extends javax.swing.JFrame {
                 PrintWriter pw = new PrintWriter( fr );
                 pw.println(encargado.toString());
                 pw.close();
+                
+                JOptionPane.showMessageDialog(null, "Encargado agregado con éxito", "Exito", JOptionPane.INFORMATION_MESSAGE);
+                btnCancelarActionPerformed( null );
             }catch(IOException e){
                 
-            }
-            JOptionPane.showMessageDialog(null, "Encargado agregado con éxito", "Exito", JOptionPane.INFORMATION_MESSAGE);
-            btnCancelarActionPerformed( null );
+            }            
         }else{
             JOptionPane.showMessageDialog(null, "Debe de ingresar un nombre", "Atención", JOptionPane.WARNING_MESSAGE);
         }

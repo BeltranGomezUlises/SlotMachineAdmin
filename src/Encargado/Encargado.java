@@ -1,25 +1,36 @@
-
 package Encargado;
 
-import static Utilerias.Utileria.quitaGuion;
-import static java.awt.image.ImageObserver.WIDTH;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import javax.swing.JOptionPane;
-
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class Encargado {
-        
+
     String nombre;
+    float pendiente;
+
+    public Encargado() {
+
+    }
 
     public Encargado(String nombre) {
         this.nombre = nombre;
+    }
+
+    public float getPendiente() {
+        return pendiente;
+    }
+
+    public void setPendiente(float pendiente) {
+        this.pendiente = pendiente;
     }
 
     public String getNombre() {
@@ -29,61 +40,46 @@ public class Encargado {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
-    @Override
-    public String toString(){
-        return nombre;
+
+    public int compareTo(Encargado e) {
+        return nombre.compareTo(e.getNombre());
     }
-    
-    public int compareTo(Encargado e){
-        int res = 0;
-        if (nombre.compareTo( e.getNombre() ) > 0) {
-            res = 1;
-        }else{
-            if (nombre.compareTo( e.getNombre() ) < 0) {
-                res = -1;
-            }
-        }
-        return res;
-    }
-    
-    public static Encargado copy(Encargado e){
-        return new Encargado( e.getNombre() );
-    }
-    
-    public static Vector<Encargado> cargarEncargados(){
-        Vector<Encargado> encargados = new Vector<>();
-        try{
-            FileReader fr = new FileReader( "Archivos/Encargados.bin" );
-            BufferedReader br = new BufferedReader( fr );
+
+    public static List<Encargado> cargarEncargados() {
+        List<Encargado> encargados = new ArrayList<>();
+        try {
+            FileReader fr = new FileReader("Archivos/Encargados.bin");
+            BufferedReader br = new BufferedReader(fr);
             String linea;
             StringTokenizer token;
-            while( (linea = br.readLine() )!=null){
-                token = new StringTokenizer(linea);
-                encargados.add(new Encargado(  linea  ) );               
-            }                   
+            ObjectMapper mapper = new ObjectMapper();
+            while ((linea = br.readLine()) != null) {
+                Encargado a = mapper.readValue(linea, Encargado.class);
+                encargados.add(a);
+            }
             br.close();
-        }catch(FileNotFoundException e){
-            JOptionPane.showMessageDialog(null,"Base de datos de empleados no existe o es inutilizable", "Error", JOptionPane.ERROR_MESSAGE );
-        }catch(IOException e){
-            JOptionPane.showMessageDialog(null,"Error de I/O en archivo de encargados", "Error", JOptionPane.ERROR_MESSAGE );
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "Base de datos de empleados no existe o es inutilizable", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error de I/O en archivo de encargados", "Error", JOptionPane.ERROR_MESSAGE);
         }
         return encargados;
     }
-    
-    
-    public static void actualizarBD(Vector<Encargado> encargados){
-        try {                                                                                         
+
+    public static void actualizarBD(List<Encargado> encargados) {
+        try {
             FileWriter out = new FileWriter("Archivos/Encargados.bin");
-            PrintWriter pw = new PrintWriter(out);                        
-            for(int k=0;k<encargados.size();k++){
-                pw.println(encargados.elementAt(k).toString());
+            PrintWriter pw = new PrintWriter(out);
+            ObjectMapper mapper = new ObjectMapper();
+            for (int k = 0; k < encargados.size(); k++) {
+                pw.println(mapper.writeValueAsString(encargados.get(k)));
             }
-            pw.close(); 
+            pw.close();
         } catch (IOException ex) {
-           JOptionPane.showMessageDialog(null, "Ocurrió un error con el archivo", "Error de Archvo",JOptionPane.ERROR_MESSAGE);
-        }catch(NullPointerException e){
-           e.printStackTrace();
-        }        
+            JOptionPane.showMessageDialog(null, "Ocurrió un error con el archivo", "Error de Archvo", JOptionPane.ERROR_MESSAGE);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 }

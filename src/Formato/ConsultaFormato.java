@@ -331,7 +331,9 @@ public class ConsultaFormato extends javax.swing.JFrame {
     
     public final void llenarTabla(Vector<Formato> filtrado){
         //vaciar tabla
+       
         DefaultTableModel md = (DefaultTableModel) tabla.getModel();
+        
         md.setRowCount(0);
         //llenar las filas de las tablas con con cada formato
             for(int k=0; k<filtrado.size();k++){
@@ -814,7 +816,6 @@ public class ConsultaFormato extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
     private void cmbSucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSucursalActionPerformed
         
     }//GEN-LAST:event_cmbSucursalActionPerformed
@@ -1147,7 +1148,6 @@ public class ConsultaFormato extends javax.swing.JFrame {
             this.btnCerrarActionPerformed(null);
         }
     }//GEN-LAST:event_btnCerrarKeyTyped
-
     private void btnExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarActionPerformed
         //exportar a excel usar un exportador        
         String nombreArchivo=JOptionPane.showInputDialog(rootPane, "Ingrese el nombre del archivo a crear", "Ingresar Nombre",JOptionPane.INFORMATION_MESSAGE);
@@ -1194,8 +1194,6 @@ public class ConsultaFormato extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane,"Debe seleccionar por lo menos una fila","Atencion",JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_btnUtilidadActionPerformed
-
-
     private void btnUtilidadKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnUtilidadKeyTyped
         // TODO add your handling code here:
     }//GEN-LAST:event_btnUtilidadKeyTyped
