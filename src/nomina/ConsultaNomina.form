@@ -126,6 +126,10 @@
                                       </Group>
                                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                   </Group>
+                                  <Group type="102" attributes="0">
+                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      <Component id="chkPagarConComision" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
                           </Group>
                       </Group>
@@ -149,6 +153,8 @@
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Component id="jScrollPane4" min="-2" pref="118" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="chkPagarConComision" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="jScrollPane5" pref="0" max="32767" attributes="0"/>
                           </Group>
                           <Component id="jScrollPane2" pref="439" max="32767" attributes="0"/>
@@ -258,10 +264,11 @@
                 <Component class="javax.swing.JTable" name="tablaPrestamos">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="3" rowCount="0">
-                        <Column editable="true" title="Fecha" type="java.lang.Object"/>
-                        <Column editable="true" title="Autoriz&#xf3;" type="java.lang.Object"/>
-                        <Column editable="true" title="Cantidad" type="java.lang.Object"/>
+                      <Table columnCount="4" rowCount="0">
+                        <Column editable="false" title="Fecha" type="java.lang.String"/>
+                        <Column editable="false" title="Autoriz&#xf3;" type="java.lang.String"/>
+                        <Column editable="false" title="Nota" type="java.lang.String"/>
+                        <Column editable="false" title="Cantidad" type="java.lang.Integer"/>
                       </Table>
                     </Property>
                   </Properties>
@@ -279,9 +286,9 @@
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="3" rowCount="0">
-                        <Column editable="false" title="Fecha" type="java.lang.Object"/>
-                        <Column editable="false" title="Nota" type="java.lang.Object"/>
-                        <Column editable="false" title="Cantidad" type="java.lang.Object"/>
+                        <Column editable="false" title="Fecha" type="java.lang.String"/>
+                        <Column editable="false" title="Nota" type="java.lang.String"/>
+                        <Column editable="false" title="Cantidad" type="java.lang.Integer"/>
                       </Table>
                     </Property>
                     <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
@@ -344,6 +351,14 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Component class="javax.swing.JCheckBox" name="chkPagarConComision">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Pagar con comisi&#xf3;n"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkPagarConComisionActionPerformed"/>
+              </Events>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="panelDeudores">

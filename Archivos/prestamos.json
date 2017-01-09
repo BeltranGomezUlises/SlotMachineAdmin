@@ -5,3 +5,4 @@
 {"fecha":"7/05/2016","encargado":"ARTURO A GONZALEZ","autorizador":"PANCHO","cantidad":100,"pagado":true}
 {"fecha":"1/01/2017","encargado":"ADAN ABRAM TORRES","autorizador":"PANCHO","cantidad":500,"pagado":true}
 {"fecha":"1/12/2016","encargado":"ADAN ABRAM TORRES","autorizador":"JAVIER","cantidad":300,"pagado":true}
+{"fecha":"1/01/2017","encargado":"ADAN ABRAM TORRES","autorizador":"SOFIA","nota":"la ultima nota agregada a un prestamo, no sabemos la verdadera razon de por que es tan larga","cantidad":200,"pagado":false}

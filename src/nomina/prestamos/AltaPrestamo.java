@@ -64,6 +64,8 @@ public class AltaPrestamo extends javax.swing.JFrame {
         cmbAutorizo = new javax.swing.JComboBox<>();
         jLabel4 = new javax.swing.JLabel();
         cmbEncargado = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
+        txtNota = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         btnAceptar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
@@ -88,6 +90,8 @@ public class AltaPrestamo extends javax.swing.JFrame {
 
         jLabel4.setText("Prestar a:");
 
+        jLabel5.setText("Nota:");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -95,17 +99,19 @@ public class AltaPrestamo extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5)
                     .addComponent(jLabel3)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(jLabel4))
                 .addGap(12, 12, 12)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(txtCantidad, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
-                    .addComponent(dateChooserFecha, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
-                    .addComponent(cmbAutorizo, 0, 170, Short.MAX_VALUE)
-                    .addComponent(cmbEncargado, 0, 170, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cmbAutorizo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 234, Short.MAX_VALUE)
+                    .addComponent(cmbEncargado, javax.swing.GroupLayout.Alignment.TRAILING, 0, 234, Short.MAX_VALUE)
+                    .addComponent(dateChooserFecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txtCantidad)
+                    .addComponent(txtNota))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -126,7 +132,11 @@ public class AltaPrestamo extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(cmbAutorizo)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtNota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -150,11 +160,11 @@ public class AltaPrestamo extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(33, 33, 33)
                 .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE)
                 .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(27, 27, 27))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -212,13 +222,15 @@ public class AltaPrestamo extends javax.swing.JFrame {
             String encargado = cmbEncargado.getSelectedItem().toString();
             int cantidad = Integer.parseInt(txtCantidad.getText());
             String autorizador = cmbAutorizo.getSelectedItem().toString();
-
+            String nota = txtNota.getText();
+            
             Prestamo prestamo = new Prestamo();
             prestamo.setFecha(fecha);
             prestamo.setCantidad(cantidad);
             prestamo.setAutorizador(autorizador);
             prestamo.setEncargado(encargado);
-
+            prestamo.setNota(nota);
+            
             ObjectMapper mapper = new ObjectMapper();
 
             //Object to JSON in String
@@ -252,8 +264,10 @@ public class AltaPrestamo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JTextField txtCantidad;
+    private javax.swing.JTextField txtNota;
     // End of variables declaration//GEN-END:variables
 }

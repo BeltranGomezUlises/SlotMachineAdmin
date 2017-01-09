@@ -143,8 +143,7 @@ public class ConsultaFormato extends javax.swing.JFrame {
              @Override
              public void run() {
                   //Permisos de usuario
-                    btnEliminar.setEnabled(Loged.getLoged().isEliminarFormato());
-                    btnPagar.setEnabled(Loged.getLoged().isPagarFormato());
+                    btnEliminar.setEnabled(Loged.getLoged().isEliminarFormato());                    
                     btnExportar.setEnabled(Loged.getLoged().isExportarFormatos());
                     btnEditar.setEnabled(Loged.getLoged().isEditarFormato());
              }             
@@ -483,7 +482,6 @@ public class ConsultaFormato extends javax.swing.JFrame {
         btnEntregas = new javax.swing.JButton();
         btnUtilidad = new javax.swing.JButton();
         btnTotal = new javax.swing.JButton();
-        btnPagar = new javax.swing.JButton();
         btnExportar = new javax.swing.JButton();
         btnCerrar = new javax.swing.JButton();
 
@@ -693,19 +691,6 @@ public class ConsultaFormato extends javax.swing.JFrame {
             }
         });
 
-        btnPagar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/pagar_.png"))); // NOI18N
-        btnPagar.setText("            Pagar      ");
-        btnPagar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPagarActionPerformed(evt);
-            }
-        });
-        btnPagar.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                btnPagarKeyTyped(evt);
-            }
-        });
-
         btnExportar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/excel_final.png"))); // NOI18N
         btnExportar.setText("Exportar a Excel");
         btnExportar.addActionListener(new java.awt.event.ActionListener() {
@@ -739,11 +724,10 @@ public class ConsultaFormato extends javax.swing.JFrame {
                     .addComponent(btnMostrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnUtilidad, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnTotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnPagar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnExportar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnEntregas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -762,11 +746,9 @@ public class ConsultaFormato extends javax.swing.JFrame {
                 .addComponent(btnUtilidad, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
                 .addComponent(btnTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
-                .addComponent(btnPagar, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnExportar, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 106, Short.MAX_VALUE)
                 .addComponent(btnCerrar, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(19, 19, 19))
         );
@@ -1078,39 +1060,6 @@ public class ConsultaFormato extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this,"Debe Seleccionar una fila","Atención",JOptionPane.ERROR_MESSAGE);
             }
     }//GEN-LAST:event_btnTotalActionPerformed
-    private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
-        int indexFila=tabla.getSelectedRow();
-        if(indexFila!=-1){
-            if(JOptionPane.showConfirmDialog(rootPane,"¿Seguro de Marcar como pagado los formatos seleccionados?", "Pagar", YES_NO_OPTION)==0){
-                int[] filas=tabla.getSelectedRows();
-                for(int f=0;f<filas.length; f++){
-                    for(int k=0; k<Formatos.size();k++){
-                            if(filtrado.elementAt(filas[f]).getFecha().equals(Formatos.elementAt(k).getFecha()) &&
-                               filtrado.elementAt(filas[f]).getTurno()==Formatos.elementAt(k).getTurno() &&
-                               filtrado.elementAt(filas[f]).getSucursal().equals(Formatos.elementAt(k).getSucursal())){
-                               Formatos.elementAt(k).setPagado(true);
-                               break;
-                            }
-                        }
-                }
-                //actualizar en el archivo
-                try {
-                   FileWriter out = new FileWriter("Archivos/Formatos.bin");
-                   PrintWriter pw = new PrintWriter(out);
-                   for(int k=0;k<Formatos.size();k++){
-                       pw.println(Formatos.elementAt(k).toString());
-                   }
-                   pw.close();
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, "Ocurrió un error con el archivo", "Error de Archvo",JOptionPane.ERROR_MESSAGE);
-                }
-                //filtrar
-                btnFiltrarActionPerformed(null);
-            }
-        }else{
-            JOptionPane.showMessageDialog(rootPane,"Debe de seleccionar una fila","Atencion",WIDTH);
-        }    
-    }//GEN-LAST:event_btnPagarActionPerformed
   
     private void btnFiltrarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnFiltrarKeyTyped
         char tecla=evt.getKeyChar();
@@ -1136,12 +1085,6 @@ public class ConsultaFormato extends javax.swing.JFrame {
             this.btnTotalActionPerformed(null);
         }
     }//GEN-LAST:event_btnTotalKeyTyped
-    private void btnPagarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnPagarKeyTyped
-       char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
-            this.btnPagarActionPerformed(null);
-        }
-    }//GEN-LAST:event_btnPagarKeyTyped
     private void btnCerrarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnCerrarKeyTyped
        char tecla=evt.getKeyChar();
         if(tecla==KeyEvent.VK_ENTER){
@@ -1283,7 +1226,6 @@ public class ConsultaFormato extends javax.swing.JFrame {
     private javax.swing.JButton btnExportar;
     private javax.swing.JButton btnFiltrar;
     private javax.swing.JButton btnMostrar;
-    private javax.swing.JButton btnPagar;
     private javax.swing.JButton btnTotal;
     private javax.swing.JButton btnUtilidad;
     private javax.swing.JComboBox cmbEncargado;

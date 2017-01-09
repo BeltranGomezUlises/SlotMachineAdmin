@@ -24,9 +24,18 @@ public class Prestamo {
     private String fecha;
     private String encargado;
     private String autorizador;
+    private String nota;
     private int cantidad;
 
     private boolean pagado;
+
+    public String getNota() {
+        return nota;
+    }
+
+    public void setNota(String nota) {
+        this.nota = nota;
+    }
 
     public boolean isPagado() {
         return pagado;

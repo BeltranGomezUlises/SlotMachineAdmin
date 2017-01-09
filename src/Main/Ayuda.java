@@ -49,11 +49,11 @@ public class Ayuda extends javax.swing.JFrame {
 
         lbVersion.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
         lbVersion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbVersion.setText("V 1.3.3");
+        lbVersion.setText("V 1.3.5");
 
         lbFecha.setFont(new java.awt.Font("Serif", 2, 14)); // NOI18N
         lbFecha.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbFecha.setText("10/12/2016");
+        lbFecha.setText("8/01/2017");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);

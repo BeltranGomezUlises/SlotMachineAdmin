@@ -897,8 +897,10 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_menuAyudaActionPerformed
 
     private void btnNominaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNominaActionPerformed
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         ConsultaNomina nomina = new ConsultaNomina();
-        nomina.setVisible(true);
+        nomina.setVisible(true);        
+        this.setCursor(null);
     }//GEN-LAST:event_btnNominaActionPerformed
 
     private void btnIncidentePrestamoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIncidentePrestamoActionPerformed
