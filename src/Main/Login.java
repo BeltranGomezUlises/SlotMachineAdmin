@@ -2,13 +2,9 @@ package Main;
 
 import ControlUsuario.Loged;
 import ControlUsuario.Usuario;
-import Utilerias.Utileria;
 import static Utilerias.Utileria.quitaEspacios;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import java.util.ArrayList;
-import java.util.Vector;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 public class Login extends javax.swing.JFrame {
@@ -18,7 +14,7 @@ public class Login extends javax.swing.JFrame {
 //    Icon iconCont = new ImageIcon(getClass().getResource("/Images/cont.jpg"));
 //    Icon iconAvanceCont = new ImageIcon(getClass().getResource("/Images/avanceCont.gif"));
 //    Icon iconPantalla = new ImageIcon(getClass().getResource("/Images/pant.jpg"));
-    public Login() {
+    public Login() {        
         initComponents();                
         this.setLocationRelativeTo(null);                
         usuarios = Usuario.cargarUsuarios();

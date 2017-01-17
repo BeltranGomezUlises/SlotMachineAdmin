@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
@@ -14,15 +15,85 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 public class Encargado {
 
-    String nombre;
-    float pendiente;
+    private String nombre;
+    private String nombreCompleto;
+    private String telefono;
+    private String familiar;
+    private String telFamiliar;
+    private String foto;
+    private Date fechaNac;
+    private float pendiente;
+    private Date fechaPendiente;
 
-    public Encargado() {
-
+    public Encargado(){
+        
+    }
+    
+    public Encargado(String nombre, String nombreCompleto, String telefono, String familiar, String telFamiliar, Date fechaNac) {
+        this.nombre = nombre;
+        this.nombreCompleto = nombreCompleto;
+        this.telefono = telefono;
+        this.familiar = familiar;
+        this.telFamiliar = telFamiliar;
+        this.fechaNac = fechaNac;
+        this.pendiente = 0f;
+        this.fechaPendiente = new Date();
     }
 
-    public Encargado(String nombre) {
-        this.nombre = nombre;
+    public Date getFechaNac() {
+        return fechaNac;
+    }
+
+    public void setFechaNac(Date fechaNac) {
+        this.fechaNac = fechaNac;
+    }
+
+    public String getNombreCompleto() {
+        return nombreCompleto;
+    }
+
+    public void setNombreCompleto(String nombreCompleto) {
+        this.nombreCompleto = nombreCompleto;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getFamiliar() {
+        return familiar;
+    }
+
+    public void setFamiliar(String familiar) {
+        this.familiar = familiar;
+    }
+
+    public String getTelFamiliar() {
+        return telFamiliar;
+    }
+
+    public void setTelFamiliar(String telFamiliar) {
+        this.telFamiliar = telFamiliar;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+
+    public Date getFechaPendiente() {
+        return fechaPendiente;
+    }
+
+    public void setFechaPendiente(Date fechaPendiente) {
+        this.fechaPendiente = fechaPendiente;
     }
 
     public float getPendiente() {
@@ -82,4 +153,5 @@ public class Encargado {
             e.printStackTrace();
         }
     }
+
 }

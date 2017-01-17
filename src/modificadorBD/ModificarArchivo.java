@@ -8,15 +8,24 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import org.codehaus.jackson.map.ObjectMapper;
 
-
 public class ModificarArchivo {
-    
+
+    /*
     public static void main(String[] args) {  
         //Cambio de modelo de encargado a modelo nuevo con json 
         List<Encargado> encargados = new ArrayList<>();
@@ -50,6 +59,16 @@ public class ModificarArchivo {
     
     
     }       
-      
-    
+     */
+    public static void main(String[] args) {
+        JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        //fc.setCurrentDirectory();
+        fc.setToolTipText("Selecciona la carpeta con los archivos a restaurar");        
+        if(JFileChooser.APPROVE_OPTION == fc.showDialog(null,"Seleccionar")){            
+            
+        }
+
+    }
+   
 }

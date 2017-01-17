@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import nomina.incidentes.Incidente;
 import nomina.prestamos.Prestamo;
@@ -63,10 +65,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
     public ConsultaNomina() {
         initComponents();
         this.myInitComponents();
-        this.setLocationRelativeTo(null);
-        this.setExtendedState(MAXIMIZED_BOTH);
-        this.chkPagarConComision.setSelected(true);
-        this.tablaTotales.setDefaultRenderer(Object.class, new TablaTotalesRenderer());
+
         formatos = Formato.cargarFormatos();
         prestamos = Prestamo.cargarPrestamos();
         incidentes = Incidente.cargarIncidentes();
@@ -93,26 +92,67 @@ public class ConsultaNomina extends javax.swing.JFrame {
         tablaFormatos.setAutoCreateRowSorter(true);
         tablaIncidentes.setAutoCreateRowSorter(true);
         tablaPrestamos.setAutoCreateRowSorter(true);
+        this.setLocationRelativeTo(null);
+        this.setExtendedState(MAXIMIZED_BOTH);
+        this.chkPagarConComision.setSelected(true);
+        this.tablaTotales.setDefaultRenderer(Object.class, new TablaTotalesRenderer());
 
         datechooserGeneral.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("date")) {
                     lbRangofechas.setText("Del: " + sdf.format(Utileria.lunesAnterior((Date) evt.getNewValue())) + " al: " + sdf.format(Utileria.domingoPosterior((Date) evt.getNewValue())));
+                    Date d = datechooserGeneral.getDate();
+                    if (d != null) {
+
+                        lunesAnterior = Utileria.lunesAnterior(d);
+                        domingoPosterior = Utileria.domingoPosterior(d);
+
+                        formatosFiltrados = filtrarFormatos(lunesAnterior, domingoPosterior);
+                        incidentesFiltrados = filtrarIncidentes(lunesAnterior, domingoPosterior);
+                        prestamosFiltrados = filtrarPrestamos(lunesAnterior, domingoPosterior);
+
+                        //llenar el combobox de empleados
+                        ArrayList<String> nombreEmpleados = new ArrayList<>();
+                        formatosFiltrados.stream().filter((formatosFiltrado) -> (!nombreEmpleados.contains(quitaGuion(formatosFiltrado.getEncargado())))).forEach((formatosFiltrado) -> {
+                            nombreEmpleados.add(quitaGuion(formatosFiltrado.getEncargado()));
+                        });
+
+                        Collections.sort(nombreEmpleados);
+
+                        DefaultComboBoxModel boxModel = (DefaultComboBoxModel) cmbEmpleado.getModel();
+                        boxModel.removeAllElements();
+                        nombreEmpleados.stream().forEach(nombreEmpleado -> {
+                            boxModel.addElement(nombreEmpleado);
+                        });
+                        cmbEmpleado.setModel(boxModel);
+
+                        //generar la tabla general
+                        GeneralThread generalThread = new GeneralThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados, nombreEmpleados);
+                        generalThread.start();
+
+                        //generar tabla de nomina por empleado
+                        EmployeeThread employeeThread = new EmployeeThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados);
+                        employeeThread.start();
+
+                        //generar la lista de deudores
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Necesita asignar una fecha", "Atención", JOptionPane.WARNING_MESSAGE);
+                    }
                 }
             }
         });
     }
 
     private Vector<Formato> filtrarFormatos(Date inicio, Date fin) {
-        Vector<Formato> formatosFiltrados = new Vector(formatos);
+        Vector<Formato> misFormatosFiltrados = new Vector(formatos);
         int i = 0;
-        while (i < formatosFiltrados.size()) {
+        while (i < misFormatosFiltrados.size()) {
             try {
-                Date fechaFormato = sdf.parse(formatosFiltrados.elementAt(i).getFecha());
+                Date fechaFormato = sdf.parse(misFormatosFiltrados.elementAt(i).getFecha());
 
                 if (fechaFormato.before(inicio) || fechaFormato.after(fin)) {
-                    formatosFiltrados.remove(i);
+                    misFormatosFiltrados.remove(i);
                 } else {
                     i++;
                 }
@@ -120,7 +160,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 Logger.getLogger(ConsultaNomina.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return formatosFiltrados;
+        return misFormatosFiltrados;
     }
 
     private ArrayList<Incidente> filtrarIncidentes(Date inicio, Date fin) {
@@ -142,13 +182,13 @@ public class ConsultaNomina extends javax.swing.JFrame {
     }
 
     private ArrayList<Prestamo> filtrarPrestamos(Date inicio, Date fin) {
-        ArrayList<Prestamo> prestamosFiltrados = new ArrayList<>(prestamos);
+        ArrayList<Prestamo> misPrestamosFiltrados = new ArrayList<>(prestamos);
         int i = 0;
-        while (i < prestamosFiltrados.size()) {
+        while (i < misPrestamosFiltrados.size()) {
             try {
-                Date fechaPrestamo = sdf.parse(prestamosFiltrados.get(i).getFecha());
+                Date fechaPrestamo = sdf.parse(misPrestamosFiltrados.get(i).getFecha());
                 if (fechaPrestamo.before(inicio) || fechaPrestamo.after(fin)) {
-                    prestamosFiltrados.remove(i);
+                    misPrestamosFiltrados.remove(i);
                 } else {
                     i++;
                 }
@@ -156,7 +196,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 Logger.getLogger(ConsultaNomina.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return prestamosFiltrados;
+        return misPrestamosFiltrados;
     }
 
     private Vector<Formato> filtrarFormatosEmpleado(String nombreEmpleado) {
@@ -314,7 +354,6 @@ public class ConsultaNomina extends javax.swing.JFrame {
         chkPagarConComision = new javax.swing.JCheckBox();
         panelDeudores = new javax.swing.JPanel();
         panelFiltro = new javax.swing.JPanel();
-        btnGenerarGeneral = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         datechooserGeneral = new com.toedter.calendar.JDateChooser();
         lbRangofechas = new javax.swing.JLabel();
@@ -578,13 +617,6 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
         panelFiltro.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        btnGenerarGeneral.setText("Generar");
-        btnGenerarGeneral.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGenerarGeneralActionPerformed(evt);
-            }
-        });
-
         jLabel1.setText("Semana:");
 
         lbRangofechas.setText("del: al:");
@@ -598,8 +630,6 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(datechooserGeneral, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnGenerarGeneral)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbRangofechas)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -607,13 +637,15 @@ public class ConsultaNomina extends javax.swing.JFrame {
         panelFiltroLayout.setVerticalGroup(
             panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelFiltroLayout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(datechooserGeneral, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnGenerarGeneral)
-                        .addComponent(lbRangofechas))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelFiltroLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(datechooserGeneral, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(panelFiltroLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lbRangofechas)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -639,50 +671,9 @@ public class ConsultaNomina extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnGenerarGeneralActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarGeneralActionPerformed
-
-        Date d = datechooserGeneral.getDate();
-        if (d != null) {
-
-            lunesAnterior = Utileria.lunesAnterior(d);
-            domingoPosterior = Utileria.domingoPosterior(d);
-
-            formatosFiltrados = this.filtrarFormatos(lunesAnterior, domingoPosterior);
-            incidentesFiltrados = this.filtrarIncidentes(lunesAnterior, domingoPosterior);
-            prestamosFiltrados = this.filtrarPrestamos(lunesAnterior, domingoPosterior);
-
-            //llenar el combobox de empleados
-            ArrayList<String> nombreEmpleados = new ArrayList<>();
-            for (Formato formatosFiltrado : formatosFiltrados) {
-                if (!nombreEmpleados.contains(quitaGuion(formatosFiltrado.getEncargado()))) {
-                    nombreEmpleados.add(quitaGuion(formatosFiltrado.getEncargado()));
-                }
-            }
-
-            Collections.sort(nombreEmpleados);
-
-            for (String nombreEmpleado : nombreEmpleados) {
-
-                cmbEmpleado.addItem(nombreEmpleado);
-            }
-
-            //generar la tabla general
-            GeneralThread generalThread = new GeneralThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados, nombreEmpleados);
-            generalThread.run();
-
-            //generar tabla de nomina por empleado
-            EmployeeThread employeeThread = new EmployeeThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados);
-            employeeThread.run();
-
-            //generar la lista de deudores
-        } else {
-            JOptionPane.showMessageDialog(null, "Necesita asignar una fecha", "Atención", JOptionPane.WARNING_MESSAGE);
-        }
-    }//GEN-LAST:event_btnGenerarGeneralActionPerformed
-
     private void cmbEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbEmpleadoActionPerformed
         EmployeeThread employeeThread = new EmployeeThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados);
-        employeeThread.run();
+        employeeThread.start();
     }//GEN-LAST:event_cmbEmpleadoActionPerformed
 
     private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
@@ -692,14 +683,11 @@ public class ConsultaNomina extends javax.swing.JFrame {
             empleado = cmbEmpleado.getSelectedItem().toString();
             Object res = JOptionPane.showInputDialog("Ingrese la cantidad a pagar de " + empleado + ":", "0");
             int pago = 0;
-            if ( res != null) {
+            if (res != null) {
                 pago = Integer.valueOf(res.toString());
-            }else{
+            } else {
                 return;
             }
-            
-            
-            
 
             if (JOptionPane.showConfirmDialog(null, "¿Seguro que desea pagar a " + empleado + " la cantidad de $" + pago, "Confirmación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 
@@ -741,12 +729,11 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 ConsultaFormato.actualizarFormatos(formatos); //actualizar los pagado
                 Prestamo.actualizarDB(prestamos); //actualizar los pagado
                 Incidente.actualizarDB(incidentes); //actualizar los pagado
-                
+
                 //actualizar la pantalla de empleado
-                
                 EmployeeThread employeeThread = new EmployeeThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados);
-                employeeThread.run();
-                
+                employeeThread.start();
+
             }
         } catch (NullPointerException e) {
             JOptionPane.showMessageDialog(null, "Debe de existir un empleado en lista", "Atención", JOptionPane.WARNING_MESSAGE);
@@ -763,12 +750,12 @@ public class ConsultaNomina extends javax.swing.JFrame {
         employeeThread.run();
     }//GEN-LAST:event_chkPagarConComisionActionPerformed
 
-    private class GeneralThread implements Runnable {
+    private class GeneralThread extends Thread {
 
-        private Vector<Formato> formatosFiltrados;
-        private ArrayList<Incidente> incidentesFiltrados;
-        private ArrayList<Prestamo> prestamosFiltrados;
-        private ArrayList<String> nombreEmpleados;
+        private final Vector<Formato> formatosFiltrados;
+        private final ArrayList<Incidente> incidentesFiltrados;
+        private final ArrayList<Prestamo> prestamosFiltrados;
+        private final ArrayList<String> nombreEmpleados;
 
         public GeneralThread(Vector<Formato> formatosFiltrados, ArrayList<Incidente> incidentesFiltrados, ArrayList<Prestamo> prestamosFiltrados, ArrayList<String> nombreEmpleados) {
             this.formatosFiltrados = formatosFiltrados;
@@ -878,7 +865,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
         }
     }
 
-    private class EmployeeThread implements Runnable {
+    private class EmployeeThread extends Thread {
 
         private Vector<Formato> formatosFiltrados;
         private ArrayList<Incidente> incidentesFiltrados;
@@ -942,82 +929,110 @@ public class ConsultaNomina extends javax.swing.JFrame {
         }
 
         private void llenarTablaTotales(float totalFormatos, float totalComisiones, float totalIncidentes, float totalPrestamos, float pendiente, float totalGeneral) {
-            DefaultTableModel dtm = (DefaultTableModel) tablaTotales.getModel();
-            dtm.setRowCount(0);
-            Vector fila = new Vector();
-            //formatos
-            fila.add("Formatos");
-            fila.add(totalFormatos);
-            dtm.addRow(fila);
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultTableModel dtm = (DefaultTableModel) tablaTotales.getModel();
+                    dtm.setRowCount(0);
+                    Vector fila = new Vector();
+                    //formatos
+                    fila.add("Formatos");
+                    fila.add(totalFormatos);
+                    dtm.addRow(fila);
 
-            fila = new Vector();
-            //formatos
-            fila.add("Comisiones");
-            fila.add(totalComisiones);
-            dtm.addRow(fila);
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Comisiones");
+                    fila.add(totalComisiones);
+                    dtm.addRow(fila);
 
-            fila = new Vector();
-            //formatos
-            fila.add("Incidentes");
-            fila.add(totalIncidentes);
-            dtm.addRow(fila);
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Incidentes");
+                    fila.add(totalIncidentes);
+                    dtm.addRow(fila);
 
-            fila = new Vector();
-            //formatos
-            fila.add("Prestamos");
-            fila.add(totalPrestamos);
-            dtm.addRow(fila);
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Prestamos");
+                    fila.add(totalPrestamos);
+                    dtm.addRow(fila);
 
-            fila = new Vector();
-            //formatos
-            fila.add("Pendiente");
-            fila.add(pendiente);
-            dtm.addRow(fila);
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Pendiente");
+                    fila.add(pendiente);
+                    dtm.addRow(fila);
 
-            fila = new Vector();
-            //formatos
-            fila.add("Total");
-            fila.add(totalGeneral);
-            dtm.addRow(fila);
-
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Total");
+                    fila.add(totalGeneral);
+                    dtm.addRow(fila);
+                }
+            });
         }
 
         private void llenarTablaEmpleados() {
-            DefaultTableModel dtm = (DefaultTableModel) tablaFormatos.getModel();
-            dtm.setRowCount(0);
-            for (Formato formatosFiltrado : this.formatosFiltrados) {
-                Vector fila = new Vector();
-                fila.add(formatosFiltrado.getFecha() + " - " + formatosFiltrado.getTurno());
-                fila.add(quitaGuion(formatosFiltrado.getSucursal()));
-                fila.add(formatosFiltrado.getComision());
-                fila.add(formatosFiltrado.obtenerTotalFinal());
-                dtm.addRow(fila);
-            }
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultTableModel dtm = (DefaultTableModel) tablaFormatos.getModel();
+                    dtm.setRowCount(0);
+                    formatosFiltrados.stream().map((formatosFiltrado) -> {
+                        Vector fila = new Vector();
+                        fila.add(formatosFiltrado.getFecha() + " - " + formatosFiltrado.getTurno());
+                        fila.add(quitaGuion(formatosFiltrado.getSucursal()));
+                        fila.add(formatosFiltrado.getComision());
+                        fila.add(formatosFiltrado.obtenerTotalFinal());
+                        return fila;
+                    }).forEach((fila) -> {
+                        dtm.addRow(fila);
+                    });
+                }
+            });
+
         }
 
         private void llenarTablaIncidentes() {
-            DefaultTableModel dtm = (DefaultTableModel) tablaIncidentes.getModel();
-            dtm.setRowCount(0);
-            for (Incidente incidentesFiltrado : this.incidentesFiltrados) {
-                Vector fila = new Vector();
-                fila.add(incidentesFiltrado.getFecha());
-                fila.add(incidentesFiltrado.getNota());
-                fila.add(incidentesFiltrado.getCantidad());
-                dtm.addRow(fila);
-            }
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultTableModel dtm = (DefaultTableModel) tablaIncidentes.getModel();
+                    dtm.setRowCount(0);
+                    incidentesFiltrados.stream().map((incidentesFiltrado) -> {
+                        Vector fila = new Vector();
+                        fila.add(incidentesFiltrado.getFecha());
+                        fila.add(incidentesFiltrado.getNota());
+                        fila.add(incidentesFiltrado.getCantidad());
+                        return fila;
+                    }).forEach((fila) -> {
+                        dtm.addRow(fila);
+                    });
+                }
+            });
+
         }
 
         private void llenarTablaPrestamos() {
-            DefaultTableModel dtm = (DefaultTableModel) tablaPrestamos.getModel();
-            dtm.setRowCount(0);
-            for (Prestamo prestamoFiltrado : this.prestamosFiltrados) {
-                Vector fila = new Vector();
-                fila.add(prestamoFiltrado.getFecha());
-                fila.add(prestamoFiltrado.getAutorizador());
-                fila.add(prestamoFiltrado.getNota());
-                fila.add(prestamoFiltrado.getCantidad());
-                dtm.addRow(fila);
-            }
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultTableModel dtm = (DefaultTableModel) tablaPrestamos.getModel();
+                    dtm.setRowCount(0);
+                    prestamosFiltrados.stream().map((prestamoFiltrado) -> {
+                        Vector fila = new Vector();
+                        fila.add(prestamoFiltrado.getFecha());
+                        fila.add(prestamoFiltrado.getAutorizador());
+                        fila.add(prestamoFiltrado.getNota());
+                        fila.add(prestamoFiltrado.getCantidad());
+                        return fila;
+                    }).forEach((fila) -> {
+                        dtm.addRow(fila);
+                    });
+                }
+            });
+
         }
 
     }
@@ -1080,7 +1095,6 @@ public class ConsultaNomina extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnGenerarGeneral;
     private javax.swing.JButton btnPagar;
     private javax.swing.JCheckBox chkPagarConComision;
     private javax.swing.JComboBox<String> cmbEmpleado;
