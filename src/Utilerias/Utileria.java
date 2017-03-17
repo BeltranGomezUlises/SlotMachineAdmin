@@ -1,8 +1,6 @@
 
 package Utilerias;
 
-import Formato.Formato;
-import static Formato.Formato.ordenarFormatosQ;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,7 +11,7 @@ import javax.swing.JOptionPane;
 
 public class Utileria {
     
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d/MM/yyyy");
+    public static SimpleDateFormat SDF = new SimpleDateFormat("d/MM/yyyy");
     
     public static String quitaGuion(String s){
        String sinGuion="";
@@ -125,7 +123,7 @@ public class Utileria {
         ArrayList<Date> dates = new ArrayList<>();        
         for (String s  : lista) {
             try {
-                dates.add(simpleDateFormat.parse(s));
+                dates.add(SDF.parse(s));
             } catch (ParseException ex) {
                 JOptionPane.showMessageDialog(null, "Error de converion de fecha al ordenar por burbuja");
             }
@@ -149,7 +147,7 @@ public class Utileria {
     public static void QSortStringDates(ArrayList<String> dates) throws ParseException{
         ArrayList<Date> miDates = new ArrayList<>();
         for (String date : dates) {
-            miDates.add(simpleDateFormat.parse(date));
+            miDates.add(SDF.parse(date));
         }
         QuickSortStringOfDates(miDates, 0, miDates.size() - 1);
     }
@@ -165,7 +163,7 @@ public class Utileria {
                 while( (lista.get(j).compareTo(x) > 0) && (j > izq) ){ 
                        j--;} 
                 if( i <= j ){ 
-                    aux = simpleDateFormat.parse(simpleDateFormat.format(lista.get(i)));                            
+                    aux = SDF.parse(SDF.format(lista.get(i)));                            
                     lista.set(i, lista.get(j));
                     lista.set(j, aux);                            
                     i++;  j--; 
@@ -180,7 +178,7 @@ public class Utileria {
     public static Date lunesAnterior(String fecha){              
         GregorianCalendar cal = new GregorianCalendar();                
         try {
-            cal.setTime(simpleDateFormat.parse(fecha));    
+            cal.setTime(SDF.parse(fecha));    
         } catch (Exception e) {
         }           
         while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) { //mientras sea mayor que lunes           
@@ -192,7 +190,7 @@ public class Utileria {
     public static Date lunesPosterior(String fecha){
         GregorianCalendar cal = new GregorianCalendar();                
         try {
-            cal.setTime(simpleDateFormat.parse(fecha));    
+            cal.setTime(SDF.parse(fecha));    
         } catch (Exception e) {
         } 
         while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) { //mientras sea mayor que lunes           
@@ -230,8 +228,8 @@ public class Utileria {
             GregorianCalendar calDate = new GregorianCalendar();           
             GregorianCalendar calWeek = new GregorianCalendar();           
 
-            calDate.setTime(simpleDateFormat.parse(date));                            
-            calWeek.setTime(simpleDateFormat.parse(week));    
+            calDate.setTime(SDF.parse(date));                            
+            calWeek.setTime(SDF.parse(week));    
             
             if (calDate.get(Calendar.WEEK_OF_YEAR) == calWeek.get(Calendar.WEEK_OF_YEAR)) {
                 res = true;

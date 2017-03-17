@@ -77,6 +77,8 @@ public class Principal extends javax.swing.JFrame {
         this.menuPerifericos.setEnabled(Loged.getLoged().isConsultaPerifericos());
         this.menuChequeras.setEnabled(Loged.getLoged().isConsultaChequeras());
         
+        this.btnNomina.setEnabled(Loged.getLoged().isConsultaNomina());
+        
     }
     
     @SuppressWarnings("unchecked")

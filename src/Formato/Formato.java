@@ -4,7 +4,9 @@ import Productos.Producto;
 import static Utilerias.Utileria.quitaEspacios;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.StringTokenizer;
@@ -569,6 +571,19 @@ public class Formato {
             e.printStackTrace();
         }
         return formatos;
+    }
+
+    public static void actualizarFormatos(Vector<Formato> formatos) {
+        try {
+            FileWriter out = new FileWriter("Archivos/Formatos.bin");
+            PrintWriter pw = new PrintWriter(out);
+            for (Formato formato : formatos) {
+                pw.println(formato);
+            }
+            pw.close();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Ocurrió un error con el archivo", "Error de Archvo", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public static void ordenarFormatosQ(Vector<Formato> formatos, int izq, int der) {

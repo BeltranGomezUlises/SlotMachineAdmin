@@ -2,6 +2,7 @@ package Main;
 
 import ControlUsuario.Loged;
 import ControlUsuario.Usuario;
+import Utilerias.Utileria;
 import static Utilerias.Utileria.quitaEspacios;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import java.util.ArrayList;
@@ -130,7 +131,7 @@ public class Login extends javax.swing.JFrame {
         boolean encontrado=false;
         //buscar en el vector de usuarios y contraseñas si coincide alguno
         for (int i = 0; i < usuarios.size(); i++) {
-            if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContraseña().equals(pass)){
+            if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContra().equals(Utileria.stringToBinary(pass))){
                 Loged.setLoged(usuarios.get(i));
                 Principal p = new Principal();                
                 p.setLocationRelativeTo(null);

@@ -5,6 +5,7 @@
  */
 package nomina;
 
+import ControlUsuario.Loged;
 import nomina.incidentes.AltaIncidente;
 import nomina.incidentes.ConsultaIncidente;
 import nomina.prestamos.AltaPrestamo;
@@ -19,9 +20,15 @@ public class SeleccionDeAltasConsultas extends javax.swing.JFrame {
     public SeleccionDeAltasConsultas() {
         initComponents();
         this.setLocationRelativeTo(null);
-        
+        this.permisosUsuario();
     }
 
+    private void permisosUsuario(){
+        this.btnAltaIncidente.setEnabled(Loged.getLoged().isCapturaIncidentes());
+        this.btnConsultaIncidente.setEnabled(Loged.getLoged().isConsultaIncidentes());                
+        this.btnAltaPrestamo.setEnabled(Loged.getLoged().isCapturaPrestamos());
+        this.btnConsultaPrestamo.setEnabled(Loged.getLoged().isConsultaPrestamos());  
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

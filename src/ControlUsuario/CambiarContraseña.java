@@ -118,9 +118,9 @@ public class CambiarContraseña extends javax.swing.JFrame {
         String passNuevo=quitaEspacios(txtPassNuevo.getText());
         boolean correcto=false;
         for (int i = 0; i < usuarios.size(); i++) {
-            if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContraseña().equals(pass)
+            if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContra().equals(pass)
                     && !passNuevo.equals("")){
-                usuarios.get(i).setContraseña(passNuevo);
+                usuarios.get(i).setContra(passNuevo);
                 correcto=true;
                 Usuario.actualizarDB(usuarios);
                 break;

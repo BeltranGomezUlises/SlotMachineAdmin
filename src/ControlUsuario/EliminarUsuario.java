@@ -115,7 +115,7 @@ public class EliminarUsuario extends javax.swing.JFrame {
         String pass=quitaEspacios(txtPass.getText());
         boolean eliminado=false;
         for (int i = 0; i < usuarios.size(); i++) {
-            if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContraseña().equals(pass)){
+            if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContra().equals(pass)){
                 usuarios.remove(i);
                 eliminado=true;
                 //Actualizar el archivo de control

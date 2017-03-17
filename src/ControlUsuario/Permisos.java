@@ -8,17 +8,20 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class Permisos extends javax.swing.JFrame {
+
     ArrayList<Usuario> usuarios;
     Usuario selected;
+
     public Permisos() {
         initComponents();
     }
-     public Permisos(ArrayList<Usuario> usuarios,Usuario usuario) {
-        this.usuarios=usuarios;
-        selected=usuario;
+
+    public Permisos(ArrayList<Usuario> usuarios, Usuario usuario) {
+        this.usuarios = usuarios;
+        selected = usuario;
         initComponents();
-        
-        lbUsuario.setText("Permisos del Usuario: "+usuario.getUsuario());
+
+        lbUsuario.setText("Permisos del Usuario: " + usuario.getUsuario());
         chkEliminarFormato.setSelected(usuario.isEliminarFormato());
         chkPagarFormato.setSelected(usuario.isPagarFormato());
         chkExportarFormato.setSelected(usuario.isExportarFormatos());
@@ -44,33 +47,41 @@ public class Permisos extends javax.swing.JFrame {
         chkEditarPerifericos.setSelected(usuario.isEditarPerifericos());
         chkEditarEtiquetas.setSelected(usuario.isEditarEtiquetas());
         chkEditarChequeras.setSelected(usuario.isEditarChequeras());
-        
+
         this.chkEditarRutero.setSelected(usuario.isEditarRutero());
         this.chkConsultarRuteros.setSelected(usuario.isConsultaRutero());
-        
+
         this.chkCapturaFormato.setSelected(usuario.isCapturaFormato());
         this.chkConsultaFormatos.setSelected(usuario.isConsultaFormato());
-        
+
         this.chkCapturaCorte.setSelected(usuario.isCapturaCorte());
         this.chkConsultaCortes.setSelected(usuario.isConsultaCorte());
-        
+
         this.chkCapturaMovimiento.setSelected(usuario.isCapturaMovimiento());
         this.chkConsultaMovimientos.setSelected(usuario.isConsultaMovimiento());
-        
+
         chkEliminarMovimiento.setSelected(usuario.isEliminarMovimiento());
         chkImportarMovimiento.setSelected(usuario.isImportarMovimiento());
         chkAjusteMovimiento.setSelected(usuario.isAjusteMovimiento());
-        
+
         chkEstadisticas.setSelected(usuario.isConsultaEstadisticas());
         chkEncargados.setSelected(usuario.isConsultaEncargados());
-        
+
         chkCapturaVale.setSelected(usuario.isCapturaVales());
         chkConsultaVales.setSelected(usuario.isConsultaVales());
-        
+
         chkEditarVale.setSelected(usuario.isEditarVales());
+
+        //nomina
+        chkNomina.setSelected(usuario.isConsultaNomina());
+        chkConsIncidentes.setSelected(usuario.isConsultaIncidentes());
+        chkConsPrestamos.setSelected(usuario.isConsultaPrestamos());
+        chkCapIncidentes.setSelected(usuario.isCapturaIncidentes());
+        chkCapPrestamos.setSelected(usuario.isCapturaPrestamos());                        
         
         chkRespaldo.setSelected(usuario.isRespaldar());
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -107,6 +118,12 @@ public class Permisos extends javax.swing.JFrame {
         chkCapturaVale = new javax.swing.JCheckBox();
         chkConsultaVales = new javax.swing.JCheckBox();
         chkEditarVale = new javax.swing.JCheckBox();
+        jPanel12 = new javax.swing.JPanel();
+        chkNomina = new javax.swing.JCheckBox();
+        chkConsIncidentes = new javax.swing.JCheckBox();
+        chkConsPrestamos = new javax.swing.JCheckBox();
+        chkCapIncidentes = new javax.swing.JCheckBox();
+        chkCapPrestamos = new javax.swing.JCheckBox();
         jPanel11 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         chkConsultarEmpleados = new javax.swing.JCheckBox();
@@ -368,6 +385,46 @@ public class Permisos extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        jPanel12.setBorder(javax.swing.BorderFactory.createTitledBorder("Nómina"));
+
+        chkNomina.setText("Nómina");
+
+        chkConsIncidentes.setText("Cons. Incidentes");
+
+        chkConsPrestamos.setText("Cons. Prestamos");
+
+        chkCapIncidentes.setText("Cap. Incidente");
+
+        chkCapPrestamos.setText("Cap. Prestamos");
+
+        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
+        jPanel12.setLayout(jPanel12Layout);
+        jPanel12Layout.setHorizontalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(chkNomina)
+                    .addComponent(chkConsPrestamos)
+                    .addComponent(chkConsIncidentes)
+                    .addComponent(chkCapIncidentes)
+                    .addComponent(chkCapPrestamos))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel12Layout.setVerticalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addComponent(chkNomina)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chkConsIncidentes)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chkConsPrestamos)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chkCapIncidentes)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(chkCapPrestamos))
+        );
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -382,7 +439,9 @@ public class Permisos extends javax.swing.JFrame {
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -400,7 +459,8 @@ public class Permisos extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -704,77 +764,71 @@ public class Permisos extends javax.swing.JFrame {
 
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
 
-       selected.setEliminarFormato(chkEliminarFormato.isSelected());
-       selected.setPagarFormato(chkPagarFormato.isSelected());
-       selected.setExportarFormatos(chkExportarFormato.isSelected());
-       selected.setEliminarCorte(chkEliminarCorte.isSelected());
-       selected.setAsignarFalloCortes(chkAsignarFallo.isSelected());
-       selected.setExportarCortes(chkExportarCortes.isSelected());
-       selected.setImportarCortes(chkImportarCortes.isSelected());
-       selected.setConsultarEmpleados(chkConsultarEmpleados.isSelected());
-       selected.setConsultarSucursales(chkConsultarSucursales.isSelected());
-       selected.setConsultarProducto(chkConsultarProducto.isSelected());
-       selected.setConsultarMaquinas(chkConsultarMaquinas.isSelected());
-       selected.setConsultarTarjetas(chkConsultarTarjetas.isSelected());
-       selected.setConsultaPerifericos(chkConsultaPerifericos.isSelected());
-       selected.setConsultaEtiquetas(chkConsultaEtiquetas.isSelected());
-       selected.setConsultaChequeras(chkConsultarChequeras.isSelected());
-       selected.setEditarEmpleados(chkEditarEmpleados.isSelected());
-       selected.setEditarSucursales(chkEditarSucursales.isSelected());
-       selected.setEditarProducto(chkEditarProductos.isSelected());
-       selected.setEditarMaquinas(chkEditarMaquinas.isSelected());
-       selected.setEditarTarjetas(chkEditarTarjetas.isSelected());
-       selected.setEditarFormato(chkEditarFormato.isSelected());
-       selected.setEditarCorte(chkEditarCorte.isSelected());
-       selected.setEditarPerifericos(chkEditarPerifericos.isSelected());
-       selected.setEditarEtiquetas(chkEditarEtiquetas.isSelected());
-       selected.setEditarChequeras(chkEditarChequeras.isSelected());
-       selected.setRespaldar(chkRespaldo.isSelected());
-       
-       selected.setEditarRutero(chkEditarRutero.isSelected());
-       selected.setConsultaRutero(chkConsultarRuteros.isSelected());
-       
-       selected.setCapturaCorte(chkCapturaCorte.isSelected());
-       selected.setConsultaCorte(chkConsultaCortes.isSelected());
-       
-       selected.setCapturaFormato(chkCapturaFormato.isSelected());
-       selected.setConsultaFormato(chkConsultaFormatos.isSelected());
-       
-       selected.setCapturaMovimiento(chkCapturaMovimiento.isSelected());
-       selected.setConsultaMovimiento(chkConsultaMovimientos.isSelected());
-              
-       selected.setEliminarMovimiento(chkEliminarMovimiento.isSelected());
-       selected.setImportarMovimiento(chkImportarMovimiento.isSelected());
-       selected.setAjusteMovimiento(chkAjusteMovimiento.isSelected());
-       
-       selected.setConsultaEstadisticas(chkEstadisticas.isSelected());
-       selected.setConsultaEncargados(chkEncargados.isSelected());
-       selected.setCapturaVales(chkCapturaVale.isSelected());
-       selected.setConsultaVales(chkConsultaVales.isSelected());
-       
-       selected.setEditarVales(chkEditarVale.isSelected());
-       
-       //buscar y actualizar en el vector de usuarios
-        for (int i = 0; i <usuarios.size(); i++) {
-            if(usuarios.get(i).getUsuario().equals(selected.getUsuario())){
+        selected.setEliminarFormato(chkEliminarFormato.isSelected());
+        selected.setPagarFormato(chkPagarFormato.isSelected());
+        selected.setExportarFormatos(chkExportarFormato.isSelected());
+        selected.setEliminarCorte(chkEliminarCorte.isSelected());
+        selected.setAsignarFalloCortes(chkAsignarFallo.isSelected());
+        selected.setExportarCortes(chkExportarCortes.isSelected());
+        selected.setImportarCortes(chkImportarCortes.isSelected());
+        selected.setConsultarEmpleados(chkConsultarEmpleados.isSelected());
+        selected.setConsultarSucursales(chkConsultarSucursales.isSelected());
+        selected.setConsultarProducto(chkConsultarProducto.isSelected());
+        selected.setConsultarMaquinas(chkConsultarMaquinas.isSelected());
+        selected.setConsultarTarjetas(chkConsultarTarjetas.isSelected());
+        selected.setConsultaPerifericos(chkConsultaPerifericos.isSelected());
+        selected.setConsultaEtiquetas(chkConsultaEtiquetas.isSelected());
+        selected.setConsultaChequeras(chkConsultarChequeras.isSelected());
+        selected.setEditarEmpleados(chkEditarEmpleados.isSelected());
+        selected.setEditarSucursales(chkEditarSucursales.isSelected());
+        selected.setEditarProducto(chkEditarProductos.isSelected());
+        selected.setEditarMaquinas(chkEditarMaquinas.isSelected());
+        selected.setEditarTarjetas(chkEditarTarjetas.isSelected());
+        selected.setEditarFormato(chkEditarFormato.isSelected());
+        selected.setEditarCorte(chkEditarCorte.isSelected());
+        selected.setEditarPerifericos(chkEditarPerifericos.isSelected());
+        selected.setEditarEtiquetas(chkEditarEtiquetas.isSelected());
+        selected.setEditarChequeras(chkEditarChequeras.isSelected());
+        selected.setRespaldar(chkRespaldo.isSelected());
+
+        selected.setEditarRutero(chkEditarRutero.isSelected());
+        selected.setConsultaRutero(chkConsultarRuteros.isSelected());
+
+        selected.setCapturaCorte(chkCapturaCorte.isSelected());
+        selected.setConsultaCorte(chkConsultaCortes.isSelected());
+
+        selected.setCapturaFormato(chkCapturaFormato.isSelected());
+        selected.setConsultaFormato(chkConsultaFormatos.isSelected());
+
+        selected.setCapturaMovimiento(chkCapturaMovimiento.isSelected());
+        selected.setConsultaMovimiento(chkConsultaMovimientos.isSelected());
+
+        selected.setEliminarMovimiento(chkEliminarMovimiento.isSelected());
+        selected.setImportarMovimiento(chkImportarMovimiento.isSelected());
+        selected.setAjusteMovimiento(chkAjusteMovimiento.isSelected());
+
+        selected.setConsultaEstadisticas(chkEstadisticas.isSelected());
+        selected.setConsultaEncargados(chkEncargados.isSelected());
+        selected.setCapturaVales(chkCapturaVale.isSelected());
+        selected.setConsultaVales(chkConsultaVales.isSelected());
+
+        selected.setEditarVales(chkEditarVale.isSelected());
+
+        //nomina
+        selected.setConsultaNomina(chkNomina.isSelected());
+        selected.setConsultaIncidentes(chkConsIncidentes.isSelected());
+        selected.setConsultaPrestamos(chkConsPrestamos.isSelected());
+        selected.setCapturaPrestamos(chkCapPrestamos.isSelected());
+        selected.setCapturaIncidentes(chkCapIncidentes.isSelected());
+        
+        //buscar y actualizar en el vector de usuarios
+        for (int i = 0; i < usuarios.size(); i++) {
+            if (usuarios.get(i).getUsuario().equals(selected.getUsuario())) {
                 usuarios.set(i, selected);
             }
-        }
-       //escribir en el archivo
-        try {
-            FileWriter fw = new FileWriter("Archivos/Control.data");
-            PrintWriter pw= new PrintWriter(fw);
-            for (int i = 0; i < usuarios.size(); i++) {
-                pw.println(usuarios.get(i).toString());
-            }
-            pw.close();
-            //salir de permisos
-            btnCancelarActionPerformed(null);
-        } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable", "Error", JOptionPane.ERROR_MESSAGE);
-        }catch(IOException e){
-            JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable", "Error", JOptionPane.ERROR_MESSAGE);
-        }       
+        }        
+        Usuario.actualizarDB(usuarios);
+        btnCancelarActionPerformed(null);
     }//GEN-LAST:event_btnAceptarActionPerformed
 
     private void chkConsultaFormatosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultaFormatosActionPerformed
@@ -783,7 +837,7 @@ public class Permisos extends javax.swing.JFrame {
             chkPagarFormato.setEnabled(true);
             chkEditarFormato.setEnabled(true);
             chkExportarFormato.setEnabled(true);
-        }else{
+        } else {
             chkEliminarFormato.setEnabled(false);
             chkPagarFormato.setEnabled(false);
             chkEditarFormato.setEnabled(false);
@@ -802,7 +856,7 @@ public class Permisos extends javax.swing.JFrame {
             chkEditarCorte.setEnabled(true);
             chkExportarCortes.setEnabled(true);
             chkImportarCortes.setEnabled(true);
-        }else{
+        } else {
             chkEliminarCorte.setEnabled(false);
             chkAsignarFallo.setEnabled(false);
             chkEditarCorte.setEnabled(false);
@@ -819,7 +873,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkCapturaMovimientoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkCapturaMovimientoActionPerformed
         if (chkCapturaMovimiento.isSelected()) {
             chkAjusteMovimiento.setEnabled(true);
-        }else{
+        } else {
             chkAjusteMovimiento.setEnabled(false);
             chkAjusteMovimiento.setSelected(false);
         }
@@ -829,7 +883,7 @@ public class Permisos extends javax.swing.JFrame {
         if (chkConsultaMovimientos.isSelected()) {
             chkEliminarMovimiento.setEnabled(true);
             chkImportarMovimiento.setEnabled(true);
-        }else{
+        } else {
             chkEliminarMovimiento.setSelected(false);
             chkImportarMovimiento.setSelected(false);
             chkEliminarMovimiento.setEnabled(false);
@@ -840,7 +894,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultarEmpleadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultarEmpleadosActionPerformed
         if (chkConsultarEmpleados.isSelected()) {
             chkEditarEmpleados.setEnabled(true);
-        }else{
+        } else {
             chkEditarEmpleados.setEnabled(false);
             chkEditarEmpleados.setSelected(false);
         }
@@ -849,7 +903,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultarSucursalesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultarSucursalesActionPerformed
         if (chkConsultarSucursales.isSelected()) {
             chkEditarSucursales.setEnabled(true);
-        }else{
+        } else {
             chkEditarSucursales.setEnabled(false);
             chkEditarSucursales.setSelected(false);
         }
@@ -858,7 +912,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultarProductoActionPerformed
         if (chkConsultarProducto.isSelected()) {
             chkEditarProductos.setEnabled(true);
-        }else{
+        } else {
             chkEditarProductos.setEnabled(false);
             chkEditarProductos.setSelected(false);
         }
@@ -867,7 +921,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultaEtiquetasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultaEtiquetasActionPerformed
         if (chkConsultaEtiquetas.isSelected()) {
             chkEditarEtiquetas.setEnabled(true);
-        }else{
+        } else {
             chkEditarEtiquetas.setEnabled(false);
             chkEditarEtiquetas.setSelected(false);
         }
@@ -876,7 +930,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultarMaquinasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultarMaquinasActionPerformed
         if (chkConsultarMaquinas.isSelected()) {
             chkEditarMaquinas.setEnabled(true);
-        }else{
+        } else {
             chkEditarMaquinas.setEnabled(false);
             chkEditarMaquinas.setSelected(false);
         }
@@ -885,7 +939,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultaPerifericosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultaPerifericosActionPerformed
         if (chkConsultaPerifericos.isSelected()) {
             chkEditarPerifericos.setEnabled(true);
-        }else{
+        } else {
             chkEditarPerifericos.setEnabled(false);
             chkEditarPerifericos.setSelected(false);
         }
@@ -894,7 +948,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultarTarjetasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultarTarjetasActionPerformed
         if (chkConsultarTarjetas.isSelected()) {
             chkEditarTarjetas.setEnabled(true);
-        }else{
+        } else {
             chkEditarTarjetas.setEnabled(false);
             chkEditarTarjetas.setSelected(false);
         }
@@ -903,7 +957,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultarRuterosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultarRuterosActionPerformed
         if (chkConsultarRuteros.isSelected()) {
             chkEditarRutero.setEnabled(true);
-        }else{
+        } else {
             chkEditarRutero.setEnabled(false);
             chkEditarRutero.setSelected(false);
         }
@@ -912,7 +966,7 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultarChequerasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultarChequerasActionPerformed
         if (chkConsultarChequeras.isSelected()) {
             chkEditarChequeras.setEnabled(true);
-        }else{
+        } else {
             chkEditarChequeras.setEnabled(false);
             chkEditarChequeras.setSelected(false);
         }
@@ -921,22 +975,26 @@ public class Permisos extends javax.swing.JFrame {
     private void chkConsultaValesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkConsultaValesActionPerformed
         if (chkConsultaVales.isSelected()) {
             chkEditarVale.setEnabled(true);
-        }else{
+        } else {
             chkEditarVale.setEnabled(false);
             chkEditarVale.setSelected(false);
         }
     }//GEN-LAST:event_chkConsultaValesActionPerformed
- 
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JCheckBox chkAjusteMovimiento;
     private javax.swing.JCheckBox chkAsignarFallo;
+    private javax.swing.JCheckBox chkCapIncidentes;
+    private javax.swing.JCheckBox chkCapPrestamos;
     private javax.swing.JCheckBox chkCapturaCorte;
     private javax.swing.JCheckBox chkCapturaFormato;
     private javax.swing.JCheckBox chkCapturaMovimiento;
     private javax.swing.JCheckBox chkCapturaVale;
+    private javax.swing.JCheckBox chkConsIncidentes;
+    private javax.swing.JCheckBox chkConsPrestamos;
     private javax.swing.JCheckBox chkConsultaCortes;
     private javax.swing.JCheckBox chkConsultaEtiquetas;
     private javax.swing.JCheckBox chkConsultaFormatos;
@@ -971,11 +1029,13 @@ public class Permisos extends javax.swing.JFrame {
     private javax.swing.JCheckBox chkExportarFormato;
     private javax.swing.JCheckBox chkImportarCortes;
     private javax.swing.JCheckBox chkImportarMovimiento;
+    private javax.swing.JCheckBox chkNomina;
     private javax.swing.JCheckBox chkPagarFormato;
     private javax.swing.JCheckBox chkRespaldo;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;

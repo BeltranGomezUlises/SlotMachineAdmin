@@ -1,6 +1,10 @@
 package modificadorBD;
 
+import ControlUsuario.Usuario;
 import Encargado.Encargado;
+import Formato.ConsultaFormato;
+import Formato.Formato;
+import Utilerias.Utileria;
 import static Utilerias.Utileria.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -17,11 +21,14 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import org.codehaus.jackson.annotate.JsonManagedReference;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.util.JSONPObject;
 
 public class ModificarArchivo {
 
@@ -34,15 +41,13 @@ public class ModificarArchivo {
             BufferedReader br = new BufferedReader( fr );
             String linea;
             StringTokenizer token;            
-            while( (linea = br.readLine() )!=null){
-                
-                encargados.add(new Encargado (quitaGuion(linea)) );               
+            while( (linea = br.readLine() )!=null){       
+                Encargado a = new Encargado();
+                a.setNombre(quitaGuion(linea));
+                encargados.add(a);               
             }                   
             br.close();
-            
-            
-            
-            
+                                                
             FileWriter out = new FileWriter("Archivos/Encargados.bin");
             PrintWriter pw = new PrintWriter(out);                        
             ObjectMapper mapper = new ObjectMapper();
@@ -55,20 +60,35 @@ public class ModificarArchivo {
             JOptionPane.showMessageDialog(null,"Base de datos de empleados no existe o es inutilizable", "Error", JOptionPane.ERROR_MESSAGE );
         }catch(IOException e){
             JOptionPane.showMessageDialog(null,"Error de I/O en archivo de encargados", "Error", JOptionPane.ERROR_MESSAGE );
-        }
-    
-    
+        }        
     }       
      */
-    public static void main(String[] args) {
-        JFileChooser fc = new JFileChooser();
-        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        //fc.setCurrentDirectory();
-        fc.setToolTipText("Selecciona la carpeta con los archivos a restaurar");        
-        if(JFileChooser.APPROVE_OPTION == fc.showDialog(null,"Seleccionar")){            
-            
-        }
+ /*
+   Cambiar los formatos a pagado de una fecha para atras
+     */
+//    public static void main(String[] args) throws ParseException {
+//        Vector<Formato> formatos = Formato.cargarFormatos();
+//        Date date = Utileria.SDF.parse("16/01/2017");
+//        for (Formato formato : formatos) {
+//            if (Utileria.SDF.parse(formato.getFecha()).before(date)) {
+//                formato.setPagado(true);
+//            }
+//        }        
+//        Formato.actualizarFormatos(formatos);
+//    }
+//    public static void main(String[] args) throws IOException {
+//        
+//        ArrayList<Usuario> usuarios = Usuario.cargarUsuarios();                                               
+//        for (Usuario usuario : usuarios) {
+//            System.out.println(Utileria.binaryToString(usuario.getContraseña()));
+//        }
+//        
+//        ObjectMapper mapper = new ObjectMapper();                
+//        for (Usuario u : usuarios) {
+//            System.out.println(mapper.writeValueAsString(u));
+//        }
+//        //Usuario.actualizarDB(usuarios);
+//        
+//    }
 
-    }
-   
 }

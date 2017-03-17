@@ -248,11 +248,11 @@ public class MostrarEmpleado extends javax.swing.JFrame {
             
             ImageResizer imageResizer = new ImageResizer(200);
             imageResizer.resizeImage(origen, destino);
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(MostrarEmpleado.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(MostrarEmpleado.class.getName()).log(Level.SEVERE, null, ex);
+//            }
                       
             lbFoto.setIcon(new ImageIcon(destino));
             lbFoto.repaint();
@@ -322,7 +322,7 @@ public class MostrarEmpleado extends javax.swing.JFrame {
                 en.setNombreCompleto(txtNombreCompleto.getText());
                 en.setTelefono(txtTelefono.getText());
                 en.setTelFamiliar(txtTelFamiliar.getText());
-                en.setFoto(encargado.getFoto());
+                en.setFoto(encargado.getFoto());                
                 break;
             }
         }

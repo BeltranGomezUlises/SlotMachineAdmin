@@ -275,7 +275,7 @@ public class ConsultaIncidente extends javax.swing.JFrame {
         if (index != -1) {
             String fecha = tabla.getValueAt(index, 0).toString();
             String responsable = tabla.getValueAt(index, 1).toString();            
-            int cantidad = Integer.parseInt(tabla.getValueAt(index, 3).toString());
+            int cantidad = Integer.parseInt(tabla.getValueAt(index, 4).toString());
 
             Incidente p = new Incidente();
             p.setFecha(fecha);

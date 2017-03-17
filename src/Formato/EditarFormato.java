@@ -1,6 +1,6 @@
 package Formato;
 
-import ControlUsuario.Usuario;
+import Encargado.Encargado;
 import static Utilerias.Utileria.*;
 import Inventario.InventarioRutero;
 import Inventario.Movimiento;
@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -57,29 +58,20 @@ public class EditarFormato extends javax.swing.JFrame {
                 cmbSucursal.addItem(quitaGuion(editarFormato.getSucursal()));               
             }
             
-            //El combo box de los encargados
-            FileReader fr1 = new FileReader("Archivos/Encargados.bin");
-            BufferedReader br1 = new BufferedReader(fr1);
-            Vector<String> encargados = new Vector<String>();
-            String linea;
-            while((linea=br1.readLine())!=null){
-                encargados.add(linea);               
-            } 
-            //si no existe el encargado en el archivo, agregarlo
-            if(!encargados.contains(miFormato.getEncargado())){
-                encargados.add(miFormato.getEncargado());                        
-            }
+            //El combo box de los encargados            
+            List<Encargado> encargados = Encargado.cargarEncargados();                        
+            
             //llenar el combo box de encargados
             for(int i = 0; i < encargados.size(); i++) {
-               cmbEncargado.addItem(quitaGuion(encargados.elementAt(i)));
-            }
-            br1.close();  
+               cmbEncargado.addItem(encargados.get(i).getNombre());
+            }            
             
             //llenar el comboBox de los ruteros y buscar el rutero en la lista para dejarlo como default
             cmbRutero.addItem("No Registrado");
             FileReader frRutero = new FileReader("Archivos/Ruteros.data");
             BufferedReader brRutero = new BufferedReader(frRutero); 
             StringTokenizer token;
+            String linea;
             while((linea=brRutero.readLine())!=null){
                 token=new StringTokenizer(linea);                
                 String rutero=quitaGuion(token.nextToken());

@@ -21,14 +21,14 @@ public class Encargado {
     private String familiar;
     private String telFamiliar;
     private String foto;
+    private String notaPendiente;
     private Date fechaNac;
     private float pendiente;
     private Date fechaPendiente;
 
-    public Encargado(){
-        
+    public Encargado() {        
     }
-    
+
     public Encargado(String nombre, String nombreCompleto, String telefono, String familiar, String telFamiliar, Date fechaNac) {
         this.nombre = nombre;
         this.nombreCompleto = nombreCompleto;
@@ -38,6 +38,14 @@ public class Encargado {
         this.fechaNac = fechaNac;
         this.pendiente = 0f;
         this.fechaPendiente = new Date();
+    }
+
+    public String getNotaPendiente() {
+        return notaPendiente;
+    }
+
+    public void setNotaPendiente(String notaPendiente) {
+        this.notaPendiente = notaPendiente;
     }
 
     public Date getFechaNac() {

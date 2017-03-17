@@ -254,7 +254,7 @@ public class ConsultaPrestamo extends javax.swing.JFrame {
             String fecha = tabla.getValueAt(index, 0).toString();
             String encargado = tabla.getValueAt(index, 1).toString();
             String autorizador = tabla.getValueAt(index, 2).toString();
-            int cantidad = Integer.parseInt(tabla.getValueAt(index, 3).toString());
+            int cantidad = Integer.parseInt(tabla.getValueAt(index, 5).toString());
             
             Prestamo p = new Prestamo();
             p.setFecha(fecha);
