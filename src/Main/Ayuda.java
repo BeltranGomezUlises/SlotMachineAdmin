@@ -42,11 +42,11 @@ public class Ayuda extends javax.swing.JFrame {
 
         lbVersion.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
         lbVersion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbVersion.setText("V 1.3.5");
+        lbVersion.setText("V 1.4.6");
 
         lbFecha.setFont(new java.awt.Font("Serif", 2, 14)); // NOI18N
         lbFecha.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbFecha.setText("8/01/2017");
+        lbFecha.setText("17/03/2017");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -66,7 +66,7 @@ public class Ayuda extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(lbName)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbVersion)
+                .addComponent(lbVersion, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbFecha)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))

@@ -60,7 +60,11 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" pref="1065" max="32767" attributes="0"/>
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" pref="1041" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -580,7 +584,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="lbRangofechas" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="chkSemana" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="chkNoPagados" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -601,7 +605,7 @@
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="chkSemana" min="-2" max="-2" attributes="0"/>
+                  <Component id="chkNoPagados" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="14" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -628,12 +632,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGenerarActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JCheckBox" name="chkSemana">
+        <Component class="javax.swing.JCheckBox" name="chkNoPagados">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Solo semana"/>
+            <Property name="text" type="java.lang.String" value="Todos no pagados"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkSemanaActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkNoPagadosActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
