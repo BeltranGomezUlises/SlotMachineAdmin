@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
@@ -88,57 +90,83 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
     private void initData() {
         //lbRangofechas.setText("Del: " + Utileria.SDF.format(Utileria.lunesAnterior((Date) evt.getNewValue())) + " al: " + Utileria.SDF.format(Utileria.domingoPosterior((Date) evt.getNewValue())));
+        Date d;
+        switch (Utileria.getSelectedButtonText(rGroup)) {
+            case "Todos no pagados":
+                formatosFiltrados = formatos.stream().filter(f -> f.getPagado() == false).collect(toList());
+                incidentesFiltrados = incidentes.stream().filter(i -> i.isPagado() == false).collect(toList());
+                prestamosFiltrados = prestamos.stream().filter(p -> p.isPagado() == false).collect(toList());
+                break;
+            case "Solo no pagados y en fecha":
+                formatosFiltrados = formatos.stream().filter(f -> f.getPagado() == false).collect(toList());
+                incidentesFiltrados = incidentes.stream().filter(i -> i.isPagado() == false).collect(toList());
+                prestamosFiltrados = prestamos.stream().filter(p -> p.isPagado() == false).collect(toList());
 
-        if (!chkNoPagados.isSelected()) {
-            Date d = datechooserGeneral.getDate();
-            lbRangofechas.setText("Del: " + Utileria.SDF.format(Utileria.lunesAnterior(d)) + " al: " + Utileria.SDF.format(Utileria.domingoPosterior(d)));
+                d = datechooserGeneral.getDate();
 
-            if (d != null) {
+                if (d != null) {
+                    lbRangofechas.setText("Del: " + Utileria.SDF.format(Utileria.lunesAnterior(d)) + " al: " + Utileria.SDF.format(Utileria.domingoPosterior(d)));
+                    lunesAnterior = Utileria.lunesAnterior(d);
+                    domingoPosterior = Utileria.domingoPosterior(d);
 
-                lunesAnterior = Utileria.lunesAnterior(d);
-                domingoPosterior = Utileria.domingoPosterior(d);
-                
-                formatosFiltrados = filtrarFormatosFecha(lunesAnterior, domingoPosterior);                
-                incidentesFiltrados = filtrarIncidentesFecha(lunesAnterior, domingoPosterior);
-                prestamosFiltrados = filtrarPrestamosFecha(lunesAnterior, domingoPosterior);
-                
-            } else {
-                JOptionPane.showMessageDialog(null, "Necesita asignar una fecha", "Atención", JOptionPane.WARNING_MESSAGE);
+                    formatosFiltrados = filtrarFormatosFecha(formatosFiltrados, lunesAnterior, domingoPosterior);
+                    incidentesFiltrados = filtrarIncidentesFecha(incidentesFiltrados, lunesAnterior, domingoPosterior);
+                    prestamosFiltrados = filtrarPrestamosFecha(prestamosFiltrados, lunesAnterior, domingoPosterior);
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "Necesita asignar una fecha", "Atención", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                break;
+            case "Solo semana":
+                d = datechooserGeneral.getDate();
+
+                if (d != null) {
+                    lbRangofechas.setText("Del: " + Utileria.SDF.format(Utileria.lunesAnterior(d)) + " al: " + Utileria.SDF.format(Utileria.domingoPosterior(d)));
+                    lunesAnterior = Utileria.lunesAnterior(d);
+                    domingoPosterior = Utileria.domingoPosterior(d);
+
+                    formatosFiltrados = filtrarFormatosFecha(formatos, lunesAnterior, domingoPosterior);
+                    incidentesFiltrados = filtrarIncidentesFecha(incidentes, lunesAnterior, domingoPosterior);
+                    prestamosFiltrados = filtrarPrestamosFecha(prestamos, lunesAnterior, domingoPosterior);
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "Necesita asignar una fecha", "Atención", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                break;
+            default:
+                JOptionPane.showMessageDialog(null, "Esperaba un texto adecuado de entrada en botones de radio", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
-            }
-        } else {
-            formatosFiltrados = formatos.stream().filter(f -> f.getPagado() == false).collect(toList());
-            incidentesFiltrados = incidentes.stream().filter(i -> i.isPagado() == false).collect(toList());
-            prestamosFiltrados = prestamos.stream().filter(p -> p.isPagado() == false).collect(toList());
         }
-        
+
         //llenar el combobox de empleados
-            ArrayList<String> nombreEmpleados = new ArrayList<>();
-            formatosFiltrados.stream().filter(formatosFiltrado -> !nombreEmpleados.contains(quitaGuion(formatosFiltrado.getEncargado())))                    
-                    .forEach( formatosFiltrado -> {
-                        nombreEmpleados.add(quitaGuion(formatosFiltrado.getEncargado()));
-                    });            
+        ArrayList<String> nombreEmpleados = new ArrayList<>();
+        formatosFiltrados.stream().filter(formatosFiltrado -> !nombreEmpleados.contains(quitaGuion(formatosFiltrado.getEncargado())))
+                .forEach(formatosFiltrado -> {
+                    nombreEmpleados.add(quitaGuion(formatosFiltrado.getEncargado()));
+                });
 
-            Collections.sort(nombreEmpleados);
-            
-            DefaultComboBoxModel boxModel = (DefaultComboBoxModel) cmbEmpleado.getModel();
+        Collections.sort(nombreEmpleados);
 
-            boxModel.removeAllElements();
-            nombreEmpleados.stream().forEach(nombreEmpleado -> {
-                boxModel.addElement(nombreEmpleado);
-            });
-            //cmbEmpleado.setModel(boxModel);
-            //generar la tabla general                        
-            GeneralThread generalThread = new GeneralThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados, nombreEmpleados);
-            generalThread.start();
+        DefaultComboBoxModel boxModel = (DefaultComboBoxModel) cmbEmpleado.getModel();
 
-            //generar tabla de nomina por empleado
-            EmployeeThread employeeThread = new EmployeeThread();
-            employeeThread.start();
+        boxModel.removeAllElements();
+        nombreEmpleados.stream().forEach(nombreEmpleado -> {
+            boxModel.addElement(nombreEmpleado);
+        });
+        //cmbEmpleado.setModel(boxModel);
+        //generar la tabla general                        
+        GeneralThread generalThread = new GeneralThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados, nombreEmpleados);
+        generalThread.start();
 
-            //generar la lista de deudores
-            DebtThread debtThread = new DebtThread();
-            debtThread.start();
+        //generar tabla de nomina por empleado
+        EmployeeThread employeeThread = new EmployeeThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados);
+        employeeThread.start();
+
+        //generar la lista de deudores
+        DebtThread debtThread = new DebtThread();
+        debtThread.start();
 
     }
 
@@ -160,7 +188,13 @@ public class ConsultaNomina extends javax.swing.JFrame {
         this.setExtendedState(MAXIMIZED_BOTH);
         this.chkPagarConComision.setSelected(true);
         this.chkPagarConPendiente.setSelected(true);
-        this.tablaTotales.setDefaultRenderer(Object.class, new TablaTotalesRenderer());        
+        this.tablaTotales.setDefaultRenderer(Object.class, new TablaTotalesRenderer());
+
+        rbtnTodosNoPagados.setSelected(true);
+        this.rGroup.add(rbtnTodosNoPagados);
+        this.rGroup.add(rbtnNoPagadosSemana);
+        this.rGroup.add(rbtnSoloSemana);
+
 //        datechooserGeneral.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
 //            @Override
 //            public void propertyChange(PropertyChangeEvent evt) {
@@ -171,7 +205,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
 //        });
     }
 
-    private List<Formato> filtrarFormatosFecha(Date inicio, Date fin) {
+    private List<Formato> filtrarFormatosFecha(List<Formato> formatos, Date inicio, Date fin) {
         return formatos.stream().filter((f) -> {
             try {
                 return !Utileria.SDF.parse(f.getFecha()).before(inicio) && !Utileria.SDF.parse(f.getFecha()).after(fin);
@@ -182,7 +216,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
         }).collect(toList());
     }
 
-    private ArrayList<Incidente> filtrarIncidentesFecha(Date inicio, Date fin) {
+    private ArrayList<Incidente> filtrarIncidentesFecha(List<Incidente> incidentes, Date inicio, Date fin) {
         ArrayList<Incidente> misIncidentesFiltrados = new ArrayList<>(incidentes);
         int i = 0;
         while (i < misIncidentesFiltrados.size()) {
@@ -200,7 +234,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
         return misIncidentesFiltrados;
     }
 
-    private ArrayList<Prestamo> filtrarPrestamosFecha(Date inicio, Date fin) {
+    private ArrayList<Prestamo> filtrarPrestamosFecha(List<Prestamo> prestamos, Date inicio, Date fin) {
         ArrayList<Prestamo> misPrestamosFiltrados = new ArrayList<>(prestamos);
         int i = 0;
         while (i < misPrestamosFiltrados.size()) {
@@ -316,6 +350,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        rGroup = new javax.swing.ButtonGroup();
         panelPestaña = new javax.swing.JTabbedPane();
         panelGeneral = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -354,7 +389,9 @@ public class ConsultaNomina extends javax.swing.JFrame {
         datechooserGeneral = new com.toedter.calendar.JDateChooser();
         lbRangofechas = new javax.swing.JLabel();
         btnGenerar = new javax.swing.JButton();
-        chkNoPagados = new javax.swing.JCheckBox();
+        rbtnTodosNoPagados = new javax.swing.JRadioButton();
+        rbtnNoPagadosSemana = new javax.swing.JRadioButton();
+        rbtnSoloSemana = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Nómina");
@@ -761,10 +798,24 @@ public class ConsultaNomina extends javax.swing.JFrame {
             }
         });
 
-        chkNoPagados.setText("Todos no pagados");
-        chkNoPagados.addActionListener(new java.awt.event.ActionListener() {
+        rbtnTodosNoPagados.setText("Todos no pagados");
+        rbtnTodosNoPagados.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chkNoPagadosActionPerformed(evt);
+                rbtnTodosNoPagadosActionPerformed(evt);
+            }
+        });
+
+        rbtnNoPagadosSemana.setText("Solo no pagados y en fecha");
+        rbtnNoPagadosSemana.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbtnNoPagadosSemanaActionPerformed(evt);
+            }
+        });
+
+        rbtnSoloSemana.setText("Solo semana");
+        rbtnSoloSemana.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbtnSoloSemanaActionPerformed(evt);
             }
         });
 
@@ -783,7 +834,12 @@ public class ConsultaNomina extends javax.swing.JFrame {
                         .addComponent(btnGenerar, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lbRangofechas))
-                    .addComponent(chkNoPagados))
+                    .addGroup(panelFiltroLayout.createSequentialGroup()
+                        .addComponent(rbtnTodosNoPagados)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(rbtnNoPagadosSemana)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(rbtnSoloSemana)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelFiltroLayout.setVerticalGroup(
@@ -798,7 +854,10 @@ public class ConsultaNomina extends javax.swing.JFrame {
                         .addComponent(datechooserGeneral, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkNoPagados)
+                .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rbtnTodosNoPagados)
+                    .addComponent(rbtnNoPagadosSemana)
+                    .addComponent(rbtnSoloSemana))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
@@ -825,11 +884,12 @@ public class ConsultaNomina extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmbEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbEmpleadoActionPerformed
-        EmployeeThread employeeThread = new EmployeeThread();
+        EmployeeThread employeeThread = new EmployeeThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados);
         employeeThread.start();
     }//GEN-LAST:event_cmbEmpleadoActionPerformed
 
     private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
+
         String empleado = "";
 
         try {
@@ -852,16 +912,16 @@ public class ConsultaNomina extends javax.swing.JFrame {
                     notaPendiente = JOptionPane.showInputDialog(null, "ingrese la nota del pendiente", "Atención", JOptionPane.INFORMATION_MESSAGE);
                 }
 
-                if (!chkNoPagados.isSelected()) {
-                    for (Encargado encargado : encargados) {
-                        if (encargado.getNombre().equals(empleado)) {
-                            encargado.setPendiente(nuevoPendiente);
-                            encargado.setNotaPendiente(notaPendiente);
-                            encargado.setFechaPendiente(new Date()); //ultima fecha de actualizacion del pendiente
-                            break;
-                        }
+                for (Encargado encargado : encargados) {
+                    if (encargado.getNombre().equals(empleado)) {
+                        encargado.setPendiente(nuevoPendiente);
+                        encargado.setNotaPendiente(notaPendiente);
+                        encargado.setFechaPendiente(new Date()); //ultima fecha de actualizacion del pendiente
+                        break;
                     }
+                }
 
+                if (rbtnTodosNoPagados.isSelected()) {                   
                     //marcar formatos como pagados, marcar prestamos como pagados, marcar incidentes como pagados            
                     //actualizar formatos 
                     for (Formato formato : formatos) {
@@ -886,17 +946,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                         }
                     }
                 } else {
-                    for (Encargado encargado : encargados) {
-                        if (encargado.getNombre().equals(empleado)) {
-                            encargado.setPendiente(nuevoPendiente);
-                            encargado.setNotaPendiente(notaPendiente);
-                            encargado.setFechaPendiente(new Date()); //ultima fecha de actualizacion del pendiente
-                            break;
-                        }
-                    }
-
-                    //marcar formatos como pagados, marcar prestamos como pagados, marcar incidentes como pagados            
-                    //actualizar formatos 
+                    //marcar formatos como pagados, marcar prestamos como pagados, marcar incidentes como pagados                                
                     for (Formato formato : formatos) {
                         Date fechaFormato = Utileria.SDF.parse(formato.getFecha());
                         if (quitaGuion(formato.getEncargado()).equals(empleado) && !fechaFormato.before(lunesAnterior) && !fechaFormato.after(domingoPosterior)) {
@@ -920,17 +970,24 @@ public class ConsultaNomina extends javax.swing.JFrame {
                     }
                 }
 
-                Encargado.actualizarBD(encargados); //actuaizar el pendiente del encargado                                
-                ConsultaFormato.actualizarFormatos(formatos); //actualizar los pagado
-                Prestamo.actualizarDB(prestamos); //actualizar los pagado
-                Incidente.actualizarDB(incidentes); //actualizar los pagado
-
-                //actualizar la pantalla de empleado
-                EmployeeThread employeeThread = new EmployeeThread();
-                employeeThread.start();
-                //actualizar la pantalla deudores
-                DebtThread debtThread = new DebtThread();
-                debtThread.start();
+                ExecutorService executor = Executors.newFixedThreadPool(4);
+                
+                executor.execute(() -> Encargado.actualizarBD(encargados)); //actuaizar el pendiente del encargado                                 );               
+                executor.execute(() -> ConsultaFormato.actualizarFormatos(formatos)); //actualizar los pagado                
+                executor.execute(() -> Prestamo.actualizarDB(prestamos)); //actualizar los pagado                                
+                executor.execute(() -> Incidente.actualizarDB(incidentes)); //actualizar los pagado
+                
+                executor.shutdown();
+                while (!executor.isTerminated()) {
+                    System.out.println("waiting to update");
+                    try {
+                        Thread.sleep(400);
+                    } catch (InterruptedException ex) {
+                        
+                    }
+                }
+                
+                initData();
 
             }
         } catch (NullPointerException e) {
@@ -944,7 +1001,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPagarActionPerformed
 
     private void chkPagarConComisionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPagarConComisionActionPerformed
-        EmployeeThread employeeThread = new EmployeeThread();
+        EmployeeThread employeeThread = new EmployeeThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados);
         employeeThread.start();
     }//GEN-LAST:event_chkPagarConComisionActionPerformed
 
@@ -1011,18 +1068,24 @@ public class ConsultaNomina extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAbonarActivoActionPerformed
 
     private void chkPagarConPendienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkPagarConPendienteActionPerformed
-        EmployeeThread employeeThread = new EmployeeThread();
+        EmployeeThread employeeThread = new EmployeeThread(formatosFiltrados, incidentesFiltrados, prestamosFiltrados);
         employeeThread.start();
     }//GEN-LAST:event_chkPagarConPendienteActionPerformed
 
-    private void chkNoPagadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkNoPagadosActionPerformed
-        if (chkNoPagados.isSelected()) {
-           datechooserGeneral.setEnabled(false);
-        }else{
-           datechooserGeneral.setEnabled(true); 
-        }        
-        initData();        
-    }//GEN-LAST:event_chkNoPagadosActionPerformed
+    private void rbtnTodosNoPagadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtnTodosNoPagadosActionPerformed
+        datechooserGeneral.setEnabled(false);
+        initData();
+    }//GEN-LAST:event_rbtnTodosNoPagadosActionPerformed
+
+    private void rbtnNoPagadosSemanaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtnNoPagadosSemanaActionPerformed
+        datechooserGeneral.setEnabled(true);
+        initData();
+    }//GEN-LAST:event_rbtnNoPagadosSemanaActionPerformed
+
+    private void rbtnSoloSemanaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtnSoloSemanaActionPerformed
+        datechooserGeneral.setEnabled(true);
+        initData();
+    }//GEN-LAST:event_rbtnSoloSemanaActionPerformed
 
     private class GeneralThread extends Thread {
 
@@ -1103,12 +1166,12 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 }
 
                 //buscar le pendiente del empleado y asiganarlo a la variable
-                for (Encargado encargado : encargados) {                    
+                for (Encargado encargado : encargados) {
                     if (nombreTrabajore.equals(encargado.getNombre())) {
                         pendiente = encargado.getPendiente();
                     }
                 }
-                
+
                 //llenar su posicion en la lista
                 cantFormatos.add(totalFormatosDeTrabajador);
                 cantIncidentes.add(totalIncidenteDeTrabajador);
@@ -1156,77 +1219,77 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
     private class EmployeeThread extends Thread {
 
-        private Vector<Formato> formatosEmpleado;
-        private ArrayList<Incidente> incidentesEmpleado;
-        private ArrayList<Prestamo> prestamosEmpleado;
+        private List<Formato> formatosEmpleado;
+        private List<Incidente> incidentesEmpleado;
+        private List<Prestamo> prestamosEmpleado;
+
+        private final List<Formato> misFormatosFiltrados;
+        private final ArrayList<Incidente> misIncidentesFiltrados;
+        private final ArrayList<Prestamo> misPrestamosFiltrados;
+
+        public EmployeeThread(List<Formato> formatosFiltrados, List<Incidente> incidentesFiltrados, List<Prestamo> prestamosFiltrados) {
+            this.misFormatosFiltrados = new ArrayList<>(formatosFiltrados);
+            this.misIncidentesFiltrados = new ArrayList<>(incidentesFiltrados);
+            this.misPrestamosFiltrados = new ArrayList<>(prestamosFiltrados);
+        }
 
         @Override
         public void run() {
-            String empleado = "";
             try {
-                empleado = cmbEmpleado.getSelectedItem().toString();
+                final String empleado = cmbEmpleado.getSelectedItem().toString();
+                final String empleadoFiltro = quitaEspacios(empleado);
+
+                //filtrar por empleado
+                formatosEmpleado = misFormatosFiltrados.stream().filter(f -> f.getEncargado().equals(empleadoFiltro) && f.isPagado() == false).collect(toList());
+                incidentesEmpleado = misIncidentesFiltrados.stream().filter(i -> i.getResponsable().equals(empleadoFiltro) && i.isPagado() == false).collect(toList());
+                prestamosEmpleado = misPrestamosFiltrados.stream().filter(i -> i.getEncargado().equals(empleadoFiltro) && i.isPagado() == false).collect(toList());
+
+                //obtener totales de formatos, incidentes y prestamos
+                float totalFormatos = 0f;
+                float totalComisiones = 0f;
+                float totalIncidentes = 0f;
+                float totalPrestamos = 0f;
+                float totalGeneral;
+                float pendiente = 0;
+
+                for (Encargado encargado : encargados) {
+                    if (encargado.getNombre().equals(empleado)) {
+                        pendiente = encargado.getPendiente();
+                        break;
+                    }
+                }
+
+                for (Formato formato : formatosEmpleado) {
+                    totalFormatos += formato.obtenerTotalFinal();
+                    totalComisiones += formato.getComision();
+                }
+
+                for (Incidente incidente : incidentesEmpleado) {
+                    totalIncidentes += incidente.getCantidad();
+                }
+
+                for (Prestamo prestamo : prestamosEmpleado) {
+                    totalPrestamos += prestamo.getCantidad();
+                }
+                totalFormatos = totalFormatos * -1;
+
+                if (!chkPagarConComision.isSelected()) {
+                    totalComisiones = 0; //mandamos la comision a 0 para no afectar las cuentas
+                }
+                if (!chkPagarConPendiente.isSelected()) {
+                    pendiente = 0;
+                }
+
+                totalGeneral = totalFormatos + totalComisiones + pendiente - totalIncidentes - totalPrestamos;
+                pagarAEmpleado = totalGeneral;
+
+                llenarTablaEmpleados();
+                llenarTablaIncidentes();
+                llenarTablaPrestamos();
+                llenarTablaTotales(totalFormatos, totalComisiones, totalIncidentes, totalPrestamos, pendiente, totalGeneral);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            formatosEmpleado = filtrarFormatosEmpleado(empleado);
-            incidentesEmpleado = filtrarIncidentesEmpleado(empleado);
-            prestamosEmpleado = filtrarPrestamosEmpleado(empleado);
-
-            if (chkNoPagados.isSelected()) {
-                try {
-                    formatosEmpleado = filtrarFormatosFecha(formatosEmpleado, lunesAnterior, domingoPosterior);
-                    incidentesEmpleado = filtrarIncidentesFecha(incidentesEmpleado, lunesAnterior, domingoPosterior);
-                    prestamosEmpleado = filtrarPrestamosFecha(prestamosEmpleado, lunesAnterior, domingoPosterior);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            //obtener totales de formatos, incidentes y prestamos
-            float totalFormatos = 0f;
-            float totalComisiones = 0f;
-            float totalIncidentes = 0f;
-            float totalPrestamos = 0f;
-            float totalGeneral;
-            float pendiente = 0;
-
-            for (Encargado encargado : encargados) {
-                if (encargado.getNombre().equals(empleado)) {
-                    pendiente = encargado.getPendiente();
-                    break;
-                }
-            }
-
-            for (Formato formato : formatosEmpleado) {
-                totalFormatos += formato.obtenerTotalFinal();
-                totalComisiones += formato.getComision();
-            }
-
-            for (Incidente incidente : incidentesEmpleado) {
-                totalIncidentes += incidente.getCantidad();
-            }
-
-            for (Prestamo prestamo : prestamosEmpleado) {
-                totalPrestamos += prestamo.getCantidad();
-            }
-            totalFormatos = totalFormatos * -1;
-
-            if (!chkPagarConComision.isSelected()) {
-                totalComisiones = 0; //mandamos la comision a 0 para no afectar las cuentas
-            }
-            if (!chkPagarConPendiente.isSelected()) {
-                pendiente = 0;
-            }
-
-            totalGeneral = totalFormatos + totalComisiones + pendiente - totalIncidentes - totalPrestamos;
-            pagarAEmpleado = totalGeneral;
-
-            llenarTablaEmpleados();
-            llenarTablaIncidentes();
-            llenarTablaPrestamos();
-            llenarTablaTotales(totalFormatos, totalComisiones, totalIncidentes, totalPrestamos, pendiente, totalGeneral);
-
         }
 
         private void llenarTablaTotales(float totalFormatos, float totalComisiones, float totalIncidentes, float totalPrestamos, float pendiente, float totalGeneral) {
@@ -1558,7 +1621,6 @@ public class ConsultaNomina extends javax.swing.JFrame {
     private javax.swing.JButton btnAbonarInactivo;
     private javax.swing.JButton btnGenerar;
     private javax.swing.JButton btnPagar;
-    private javax.swing.JCheckBox chkNoPagados;
     private javax.swing.JCheckBox chkPagarConComision;
     private javax.swing.JCheckBox chkPagarConPendiente;
     private javax.swing.JComboBox<String> cmbEmpleado;
@@ -1586,6 +1648,10 @@ public class ConsultaNomina extends javax.swing.JFrame {
     private javax.swing.JPanel panelFiltro;
     private javax.swing.JPanel panelGeneral;
     private javax.swing.JTabbedPane panelPestaña;
+    private javax.swing.ButtonGroup rGroup;
+    private javax.swing.JRadioButton rbtnNoPagadosSemana;
+    private javax.swing.JRadioButton rbtnSoloSemana;
+    private javax.swing.JRadioButton rbtnTodosNoPagados;
     private javax.swing.JTable tablaDeudoresActivos;
     private javax.swing.JTable tablaDeudoresInactivos;
     private javax.swing.JTable tablaFormatos;
