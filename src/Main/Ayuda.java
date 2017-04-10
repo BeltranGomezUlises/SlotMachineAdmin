@@ -13,9 +13,6 @@ import java.awt.Font;
  */
 public class Ayuda extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Ayuda
-     */
     public Ayuda() {
         initComponents();
         this.setLocationRelativeTo(null);
@@ -25,10 +22,6 @@ public class Ayuda extends javax.swing.JFrame {
         this.setVisible(true);
     }
     
-    public static void main(String[] args) {
-        Ayuda a = new Ayuda();     
-    }
-           
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -49,11 +42,11 @@ public class Ayuda extends javax.swing.JFrame {
 
         lbVersion.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
         lbVersion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbVersion.setText("V 1.3.2");
+        lbVersion.setText("V 1.4.8");
 
         lbFecha.setFont(new java.awt.Font("Serif", 2, 14)); // NOI18N
         lbFecha.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbFecha.setText("8/10/2016");
+        lbFecha.setText("08/04/2017");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -73,7 +66,7 @@ public class Ayuda extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(lbName)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbVersion)
+                .addComponent(lbVersion, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbFecha)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -98,9 +91,7 @@ public class Ayuda extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-  
-   
-          
+            
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lbFecha;

@@ -143,8 +143,11 @@
                           <Component id="jPanel7" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jPanel8" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jPanel8" max="32767" attributes="0"/>
+                          <Component id="jPanel12" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -168,8 +171,9 @@
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="jPanel9" max="32767" attributes="0"/>
                           <Component id="jPanel7" max="32767" attributes="0"/>
+                          <Component id="jPanel12" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -523,6 +527,75 @@
                 <Component class="javax.swing.JCheckBox" name="chkEditarVale">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Editar"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JPanel" name="jPanel12">
+              <Properties>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                    <TitledBorder title="N&#xf3;mina"/>
+                  </Border>
+                </Property>
+              </Properties>
+
+              <Layout>
+                <DimensionLayout dim="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="chkNomina" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="chkConsPrestamos" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="chkConsIncidentes" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="chkCapIncidentes" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="chkCapPrestamos" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+                <DimensionLayout dim="1">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="chkNomina" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="chkConsIncidentes" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="chkConsPrestamos" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="chkCapIncidentes" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="chkCapPrestamos" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JCheckBox" name="chkNomina">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="N&#xf3;mina"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="chkConsIncidentes">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cons. Incidentes"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="chkConsPrestamos">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cons. Prestamos"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="chkCapIncidentes">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cap. Incidente"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="chkCapPrestamos">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cap. Prestamos"/>
                   </Properties>
                 </Component>
               </SubComponents>

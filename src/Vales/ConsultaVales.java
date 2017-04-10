@@ -77,7 +77,7 @@ public class ConsultaVales extends javax.swing.JFrame {
             fila.add(vale.isVigente()); 
             md.addRow(fila);
         }
-        tabla.setModel(md);
+        //tabla.setModel(md);
     }
     
     private void filtrar(){

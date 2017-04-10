@@ -1,5 +1,6 @@
 package ControlUsuario;
 
+import Utilerias.Utileria;
 import static Utilerias.Utileria.*;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -112,10 +113,10 @@ public class EliminarUsuario extends javax.swing.JFrame {
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
         String usuario=quitaEspacios(cmbUsuario.getSelectedItem().toString());
-        String pass=quitaEspacios(txtPass.getText());
+        String pass=Utileria.stringToBinary(quitaEspacios(txtPass.getText()));
         boolean eliminado=false;
         for (int i = 0; i < usuarios.size(); i++) {
-            if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContraseña().equals(pass)){
+            if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContra().equals(pass)){
                 usuarios.remove(i);
                 eliminado=true;
                 //Actualizar el archivo de control
