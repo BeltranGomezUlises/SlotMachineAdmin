@@ -1,5 +1,6 @@
 package ControlUsuario;
 
+import Utilerias.Utileria;
 import static Utilerias.Utileria.*;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -114,8 +115,8 @@ public class CambiarContraseña extends javax.swing.JFrame {
 
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
         String usuario=quitaEspacios(cmbUsuario.getSelectedItem().toString());
-        String pass=quitaEspacios(txtPassActual.getText());
-        String passNuevo=quitaEspacios(txtPassNuevo.getText());
+        String pass=Utileria.stringToBinary(quitaEspacios(txtPassActual.getText()));
+        String passNuevo=Utileria.stringToBinary(quitaEspacios(txtPassNuevo.getText()));
         boolean correcto=false;
         for (int i = 0; i < usuarios.size(); i++) {
             if(usuarios.get(i).getUsuario().equals(usuario) && usuarios.get(i).getContra().equals(pass)

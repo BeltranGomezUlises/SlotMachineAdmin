@@ -28,93 +28,94 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 public class ConsultaFormato extends javax.swing.JFrame {
-        
-    private Vector<Formato> Formatos= new Vector<Formato>();
-    private Vector fila= new Vector();
-    private Vector<Formato> filtrado= new Vector<Formato>();    
-    private Vector<String> sucursales= new Vector<String>();
-    private Vector<String> encargados= new Vector<String>();
-    
+
+    private Vector<Formato> Formatos = new Vector<Formato>();
+    private Vector fila = new Vector();
+    private Vector<Formato> filtrado = new Vector<Formato>();
+    private Vector<String> sucursales = new Vector<String>();
+    private Vector<String> encargados = new Vector<String>();
+
     private Vector<Vector<Integer>> posFaltantesAnteriores = new Vector<Vector<Integer>>();
     private Vector<Vector<Integer>> posFaltantesPosteriores = new Vector<Vector<Integer>>();
     private Vector<Vector<Integer>> cantFaltantesAnteriores = new Vector<Vector<Integer>>();
     private Vector<Vector<Integer>> cantFaltantesPosteriores = new Vector<Vector<Integer>>();
-    
+
     private Vector<Float> faltantesFondoInicial = new Vector<Float>();
     private Vector<Float> faltantesFondoFinal = new Vector<Float>();
     private Vector<Float> sobrantesFondo = new Vector<Float>();
-    
+
     private Vector<Float> sobrantesFondoFinal = new Vector<Float>();
-        
-    private Vector<Vector<Integer>> posSobrantes= new Vector<Vector<Integer>>();
-    private Vector<Vector<Integer>> cantSobrantes= new Vector<Vector<Integer>>();
-    private Vector<Integer> marcasTotalFinal= new Vector<Integer>();
+
+    private Vector<Vector<Integer>> posSobrantes = new Vector<Vector<Integer>>();
+    private Vector<Vector<Integer>> cantSobrantes = new Vector<Vector<Integer>>();
+    private Vector<Integer> marcasTotalFinal = new Vector<Integer>();
     private SimpleDateFormat df = new SimpleDateFormat("d/MM/yyyy");
     private Calendar c = Calendar.getInstance();
-    private String datos[][]={};
-    private String cabecera[]={"Fecha","Turno","Sucursal","Encargado","Venta Total","Retiro","Faltante","Sobrante","Utilidad","Comisión","Firmado","Pagado","Total Final"};
-    private int anchos[]={40,6,70,70,50,50,50,50,50,50,10,10,55}; //cargar la tabla
+    private String datos[][] = {};
+    private String cabecera[] = {"Fecha", "Turno", "Sucursal", "Encargado", "Venta Total", "Retiro", "Faltante", "Sobrante", "Utilidad", "Comisión", "Firmado", "Pagado", "Total Final"};
+    private int anchos[] = {40, 6, 70, 70, 50, 50, 50, 50, 50, 50, 10, 10, 55}; //cargar la tabla
     private DefaultTableModel md = new DefaultTableModel(datos, cabecera);
-    private DecimalFormat decimalFormat= new DecimalFormat("0.00");
-    
+    private DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
     public ConsultaFormato() {
-        initComponents();                
-        try{            
+        initComponents();
+        try {
             this.permisosUsuario(); //asignar los permisos a los botones            
-            tabla.setAutoCreateRowSorter(true); 
+            tabla.setAutoCreateRowSorter(true);
             tabla.getTableHeader().setReorderingAllowed(false);
             tabla.setModel(md);//cargar la tabla            
-            ajustarTamañosTabla(tabla,anchos);
-            
+            ajustarTamañosTabla(tabla, anchos);
+
             Formatos = Formato.cargarFormatos(); //cargar los formatos al vector  
-            
+
             this.llenarComboBox();//llenar los comboBox con los datos
-            
-            Formato.ordenarFormatosQ(Formatos, 0, Formatos.size()-1);            
-            Formatos = Formato.ordenarFormatosSucursal(Formatos, sucursales);            
-            Formato.ordenarFormatosTurno(Formatos);
-                        
-            this.asignarFaltantes();                                           
-                                
-            //actualizarFormatos(Formatos);              
-            this.llenarTabla(Formatos);
-            this.agregarFilaTotales(tabla);                       
+            try {
+                Formato.ordenarFormatosQ(Formatos, 0, Formatos.size() - 1);
+                Formatos = Formato.ordenarFormatosSucursal(Formatos, sucursales);
+                Formato.ordenarFormatosTurno(Formatos);
+
+                this.asignarFaltantes();
+
+                //actualizarFormatos(Formatos);              
+                this.llenarTabla(Formatos);
+                this.agregarFilaTotales(tabla);
 //            tabla.setDefaultRenderer(Object.class, new TableCellTotalFinalRenderer());//cambiar el defaultTableCellRenderer
-            this.MarcarTotalFinal(Formatos);
-            filtrado=Formatos;   
-            
-        }      
-        catch(NoSuchElementException e){
+                this.MarcarTotalFinal(Formatos);
+                filtrado = Formatos;
+            } catch (Exception e) {
+            }
+
+        } catch (NoSuchElementException e) {
             JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable", "Error", WIDTH);
-        }        
+        }
     }
-    
+
     public ConsultaFormato(Filtro filtro) {
-        initComponents();                
-        try{            
+        initComponents();
+        try {
             this.permisosUsuario(); //asignar los permisos a los botones            
-            tabla.setAutoCreateRowSorter(true); 
+            tabla.setAutoCreateRowSorter(true);
             tabla.getTableHeader().setReorderingAllowed(false);
             tabla.setModel(md);//cargar la tabla            
-            ajustarTamañosTabla(tabla,anchos);
-            
+            ajustarTamañosTabla(tabla, anchos);
+
             Formatos = Formato.cargarFormatos(); //cargar los formatos al vector  
-            
+
             this.llenarComboBox();//llenar los comboBox con los datos
-            
-            Formato.ordenarFormatosQ(Formatos, 0, Formatos.size()-1);            
-            Formatos = Formato.ordenarFormatosSucursal(Formatos, sucursales);            
+
+            Formato.ordenarFormatosQ(Formatos, 0, Formatos.size() - 1);
+            Formatos = Formato.ordenarFormatosSucursal(Formatos, sucursales);
             Formato.ordenarFormatosTurno(Formatos);
-                        
-            this.asignarFaltantes();                                           
-                                
+
+            this.asignarFaltantes();
+
             //actualizarFormatos(Formatos);              
             this.llenarTabla(Formatos);
-            this.agregarFilaTotales(tabla);                       
+            this.agregarFilaTotales(tabla);
 //            tabla.setDefaultRenderer(Object.class, new TableCellTotalFinalRenderer());//cambiar el defaultTableCellRenderer
             this.MarcarTotalFinal(Formatos);
-            filtrado=Formatos;   
-           
+            filtrado = Formatos;
+
             //colocar los valores del filtro y mandar llamar filtrar
             cmbSucursal.setSelectedItem(filtro.getSucursal());
             cmbEncargado.setSelectedItem(filtro.getEncargado());
@@ -124,308 +125,304 @@ public class ConsultaFormato extends javax.swing.JFrame {
                 dFechaI.setDate(df.parse(filtro.getFechaIni()));
                 dFechaF.setDate(df.parse(filtro.getFechaFin()));
             } catch (NullPointerException | ParseException e) {
-               //en caso de no existir fechas omitir asignacion 
+                //en caso de no existir fechas omitir asignacion 
             }
-            
+
             btnFiltrarActionPerformed(null);
-        }      
-        catch(NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable", "Error", WIDTH);
         }
-        
-        
-            
-        
-    }                
-    
-    private void permisosUsuario(){
-         new Runnable(){
-             @Override
-             public void run() {
-                  //Permisos de usuario
-                    btnEliminar.setEnabled(Loged.getLoged().isEliminarFormato());                    
-                    btnExportar.setEnabled(Loged.getLoged().isExportarFormatos());
-                    btnEditar.setEnabled(Loged.getLoged().isEditarFormato());
-             }             
-         }.run();
-           
+
     }
-            
-    private  void llenarComboBox(){
-        //llenar los comboBox
-            cmbSucursal.addItem("Todos");
-            cmbEncargado.addItem("Todos");
-            for (int i = 0; i < Formatos.size(); i++) {
-                if(!sucursales.contains(Formatos.elementAt(i).getSucursal())){
-                    sucursales.add(Formatos.elementAt(i).getSucursal());
-                    cmbSucursal.addItem(quitaGuion(sucursales.lastElement()));
-                }
-                if(!encargados.contains(Formatos.elementAt(i).getEncargado())){
-                    encargados.add(Formatos.elementAt(i).getEncargado());
-                    cmbEncargado.addItem(quitaGuion(Formatos.elementAt(i).getEncargado()));
-                }
-            }
-            cmbTurno.addItem("Todos");
-            cmbTurno.addItem("D");
-            cmbTurno.addItem("N");
-    }       
-    
-    static void ajustarTamañosTabla(final JTable table,final int[] anchos){
-        new Runnable(){
+
+    private void permisosUsuario() {
+        new Runnable() {
             @Override
             public void run() {
-                for(int k=0; k < anchos.length; k++){//ajustar los tamaños
-                    table.getColumnModel().getColumn(k).setPreferredWidth(anchos[k]); 
-                }
-            }            
+                //Permisos de usuario
+                btnEliminar.setEnabled(Loged.getLoged().isEliminarFormato());
+                btnExportar.setEnabled(Loged.getLoged().isExportarFormatos());
+                btnEditar.setEnabled(Loged.getLoged().isEditarFormato());
+            }
         }.run();
-        
+
     }
-    
-    private void asignarFaltantes(){
+
+    private void llenarComboBox() {
+        //llenar los comboBox
+        cmbSucursal.addItem("Todos");
+        cmbEncargado.addItem("Todos");
+        for (int i = 0; i < Formatos.size(); i++) {
+            if (!sucursales.contains(Formatos.elementAt(i).getSucursal())) {
+                sucursales.add(Formatos.elementAt(i).getSucursal());
+                cmbSucursal.addItem(quitaGuion(sucursales.lastElement()));
+            }
+            if (!encargados.contains(Formatos.elementAt(i).getEncargado())) {
+                encargados.add(Formatos.elementAt(i).getEncargado());
+                cmbEncargado.addItem(quitaGuion(Formatos.elementAt(i).getEncargado()));
+            }
+        }
+        cmbTurno.addItem("Todos");
+        cmbTurno.addItem("D");
+        cmbTurno.addItem("N");
+    }
+
+    static void ajustarTamañosTabla(final JTable table, final int[] anchos) {
+        new Runnable() {
+            @Override
+            public void run() {
+                for (int k = 0; k < anchos.length; k++) {//ajustar los tamaños
+                    table.getColumnModel().getColumn(k).setPreferredWidth(anchos[k]);
+                }
+            }
+        }.run();
+
+    }
+
+    private void asignarFaltantes() {
         //Revisar los formatos y asignar los faltantes con las 
         //posiciones de los faltantes,sobrante y utilidad
-        for(int k=0; k < Formatos.size(); k++){ //INICIALIZAR VECTORES
-             posFaltantesAnteriores.add(new Vector<Integer>());
-             posFaltantesPosteriores.add(new Vector<Integer>());
-             cantFaltantesAnteriores.add(new Vector<Integer>());
-             cantFaltantesPosteriores.add(new Vector<Integer>());
-             posSobrantes.add(new Vector<Integer>());
-             cantSobrantes.add(new Vector<Integer>());
-             faltantesFondoInicial.add(0f);
-             faltantesFondoFinal.add(0f);
-             sobrantesFondo.add(0f);
+        for (int k = 0; k < Formatos.size(); k++) { //INICIALIZAR VECTORES
+            posFaltantesAnteriores.add(new Vector<Integer>());
+            posFaltantesPosteriores.add(new Vector<Integer>());
+            cantFaltantesAnteriores.add(new Vector<Integer>());
+            cantFaltantesPosteriores.add(new Vector<Integer>());
+            posSobrantes.add(new Vector<Integer>());
+            cantSobrantes.add(new Vector<Integer>());
+            faltantesFondoInicial.add(0f);
+            faltantesFondoFinal.add(0f);
+            sobrantesFondo.add(0f);
         }
-        for(int k=0; k < Formatos.size() - 1; k++){
-            if(Formatos.elementAt(k).getSucursal().equals(Formatos.elementAt(k+1).getSucursal())){
-                if (Formatos.elementAt(k).getTurnos() == 2){
-                    if (Formatos.elementAt(k).getTurno() == 'D' ) {
-                        if (Formatos.elementAt(k).getFecha().equals(Formatos.elementAt(k+1).getFecha())) {
+        for (int k = 0; k < Formatos.size() - 1; k++) {
+            if (Formatos.elementAt(k).getSucursal().equals(Formatos.elementAt(k + 1).getSucursal())) {
+                if (Formatos.elementAt(k).getTurnos() == 2) {
+                    if (Formatos.elementAt(k).getTurno() == 'D') {
+                        if (Formatos.elementAt(k).getFecha().equals(Formatos.elementAt(k + 1).getFecha())) {
                             //asignar primero los sobrantes
-                            posSobrantes.set(k, Formatos.elementAt(k).posSobrantes(Formatos.elementAt(k+1)));
-                            cantSobrantes.set(k,Formatos.elementAt(k).cantSobrantes(Formatos.elementAt(k+1)));
-                            sobrantesFondo.set(k,Formatos.elementAt(k).sobrante(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k).setSobrante(Formatos.elementAt(k).sobrante(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k).setSobranteUtilidad(Formatos.elementAt(k).sobranteUtilidad(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k).setSobranteComision(Formatos.elementAt(k).sobranteComision(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k).setSobranteFondo(Formatos.elementAt(k).sobranteFondo(Formatos.elementAt(k+1)));                            
+                            posSobrantes.set(k, Formatos.elementAt(k).posSobrantes(Formatos.elementAt(k + 1)));
+                            cantSobrantes.set(k, Formatos.elementAt(k).cantSobrantes(Formatos.elementAt(k + 1)));
+                            sobrantesFondo.set(k, Formatos.elementAt(k).sobrante(Formatos.elementAt(k + 1)));
+                            Formatos.elementAt(k).setSobrante(Formatos.elementAt(k).sobrante(Formatos.elementAt(k + 1)));
+                            Formatos.elementAt(k).setSobranteUtilidad(Formatos.elementAt(k).sobranteUtilidad(Formatos.elementAt(k + 1)));
+                            Formatos.elementAt(k).setSobranteComision(Formatos.elementAt(k).sobranteComision(Formatos.elementAt(k + 1)));
+                            Formatos.elementAt(k).setSobranteFondo(Formatos.elementAt(k).sobranteFondo(Formatos.elementAt(k + 1)));
                             if (Formatos.elementAt(k).getFirma()) {//firma para saber hacia donde iran los faltantes
                                 //firmado los faltantes seran los anteriores de k+1                                
-                                posFaltantesAnteriores.set(k+1,Formatos.elementAt(k).posFaltantesAnteriores(Formatos.elementAt(k+1)));                                
-                                cantFaltantesAnteriores.set(k+1,Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k+1)));                                
-                                faltantesFondoInicial.set(k+1,Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k+1).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k+1).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k+1).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k+1).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                                
-                            }else{
+                                posFaltantesAnteriores.set(k + 1, Formatos.elementAt(k).posFaltantesAnteriores(Formatos.elementAt(k + 1)));
+                                cantFaltantesAnteriores.set(k + 1, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k + 1)));
+                                faltantesFondoInicial.set(k + 1, Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k + 1).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k + 1).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k + 1).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k + 1).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+
+                            } else {
                                 //no firmado sera los posteriores de k                                
-                                posFaltantesPosteriores.set(k,Formatos.elementAt(k).posFaltantesPosteriores(Formatos.elementAt(k+1)));                                
-                                cantFaltantesPosteriores.set(k, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k+1)));                                                                
-                                faltantesFondoFinal.set(k,Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
+                                posFaltantesPosteriores.set(k, Formatos.elementAt(k).posFaltantesPosteriores(Formatos.elementAt(k + 1)));
+                                cantFaltantesPosteriores.set(k, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k + 1)));
+                                faltantesFondoFinal.set(k, Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
                             }
                         }
-                    }else{
+                    } else {
                         try {
                             c.setTime(df.parse(Formatos.elementAt(k).getFecha()));
                             c.add(Calendar.DATE, 1); //sumarle un dia
-                            if (Formatos.elementAt(k+1).getFecha().equals(df.format(c.getTime())) && Formatos.elementAt(k+1).getTurno()=='D') {
+                            if (Formatos.elementAt(k + 1).getFecha().equals(df.format(c.getTime())) && Formatos.elementAt(k + 1).getTurno() == 'D') {
                                 //si es el correcto asignar sobrantes
                                 //asignar primero los sobrantes
 //                                System.out.println(Formatos.elementAt(k));
 //                                System.out.println(Formatos.elementAt(k+1));
-                                posSobrantes.set(k, Formatos.elementAt(k).posSobrantes(Formatos.elementAt(k+1)));
-                                cantSobrantes.set(k,Formatos.elementAt(k).cantSobrantes(Formatos.elementAt(k+1)));
-                                sobrantesFondo.set(k,Formatos.elementAt(k).sobrante(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k).setSobranteUtilidad(Formatos.elementAt(k).sobranteUtilidad(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k).setSobranteComision(Formatos.elementAt(k).sobranteComision(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k).setSobrante(Formatos.elementAt(k).sobrante(Formatos.elementAt(k+1)));
-                                Formatos.elementAt(k).setSobranteFondo(Formatos.elementAt(k).sobranteFondo(Formatos.elementAt(k+1))); 
+                                posSobrantes.set(k, Formatos.elementAt(k).posSobrantes(Formatos.elementAt(k + 1)));
+                                cantSobrantes.set(k, Formatos.elementAt(k).cantSobrantes(Formatos.elementAt(k + 1)));
+                                sobrantesFondo.set(k, Formatos.elementAt(k).sobrante(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setSobranteUtilidad(Formatos.elementAt(k).sobranteUtilidad(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setSobranteComision(Formatos.elementAt(k).sobranteComision(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setSobrante(Formatos.elementAt(k).sobrante(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setSobranteFondo(Formatos.elementAt(k).sobranteFondo(Formatos.elementAt(k + 1)));
                                 if (Formatos.elementAt(k).getFirma()) {
                                     //firmado los faltantes seran los anteriores de k+1                                    
-                                    posFaltantesAnteriores.set(k+1,Formatos.elementAt(k).posFaltantesAnteriores(Formatos.elementAt(k+1)));                                    
-                                    cantFaltantesAnteriores.set(k+1,Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k+1)));                                    
-                                    faltantesFondoInicial.set(k+1,Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                                    Formatos.elementAt(k+1).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k+1)));
-                                    Formatos.elementAt(k+1).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k+1)));
-                                    Formatos.elementAt(k+1).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k+1)));
-                                    Formatos.elementAt(k+1).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                                }else{
-                                   //no firmado sera los posteriores de k                                    
-                                    posFaltantesPosteriores.set(k,Formatos.elementAt(k).posFaltantesPosteriores(Formatos.elementAt(k+1)));                                    
-                                    cantFaltantesPosteriores.set(k, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k+1))); 
-                                    faltantesFondoFinal.set(k,Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                                    Formatos.elementAt(k).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k+1)));                                    
-                                    Formatos.elementAt(k).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k+1)));
-                                    Formatos.elementAt(k).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k+1)));
-                                    Formatos.elementAt(k).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
+                                    posFaltantesAnteriores.set(k + 1, Formatos.elementAt(k).posFaltantesAnteriores(Formatos.elementAt(k + 1)));
+                                    cantFaltantesAnteriores.set(k + 1, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k + 1)));
+                                    faltantesFondoInicial.set(k + 1, Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                                    Formatos.elementAt(k + 1).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k + 1)));
+                                    Formatos.elementAt(k + 1).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k + 1)));
+                                    Formatos.elementAt(k + 1).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k + 1)));
+                                    Formatos.elementAt(k + 1).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                                } else {
+                                    //no firmado sera los posteriores de k                                    
+                                    posFaltantesPosteriores.set(k, Formatos.elementAt(k).posFaltantesPosteriores(Formatos.elementAt(k + 1)));
+                                    cantFaltantesPosteriores.set(k, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k + 1)));
+                                    faltantesFondoFinal.set(k, Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                                    Formatos.elementAt(k).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k + 1)));
+                                    Formatos.elementAt(k).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k + 1)));
+                                    Formatos.elementAt(k).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k + 1)));
+                                    Formatos.elementAt(k).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
                                 }
                             }
                         } catch (ParseException e) {
-                            JOptionPane.showMessageDialog(rootPane,"No se logró marcar los formatos, por error de parseo de fechas","Error",JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(rootPane, "No se logró marcar los formatos, por error de parseo de fechas", "Error", JOptionPane.ERROR_MESSAGE);
                             e.printStackTrace();
-                        }                        
-                    }                    
-                }else{                                                               
-                    try{
-                    //tomar la fecha del formato k y preguntar si el siguiente formato es el siguiente dia y turno 'D'                    
-                    c.setTime(df.parse(Formatos.elementAt(k).getFecha()));                        
-                    c.add(Calendar.DATE, 1); //sumarle un dia a la fecha
-                    if(Formatos.elementAt(k+1).getFecha().equals(df.format(c.getTime())) && Formatos.elementAt(k+1).getTurno()=='D'){
-                        //asignar primero los sobrantes                                               
-                        posSobrantes.set(k, Formatos.elementAt(k).posSobrantes(Formatos.elementAt(k+1)));                        
-                        cantSobrantes.set(k,Formatos.elementAt(k).cantSobrantes(Formatos.elementAt(k+1)));
-                        sobrantesFondo.set(k,Formatos.elementAt(k).sobrante(Formatos.elementAt(k+1)));
-                        Formatos.elementAt(k).setSobrante(Formatos.elementAt(k).sobrante(Formatos.elementAt(k+1)));                        
-                        Formatos.elementAt(k).setSobranteUtilidad(Formatos.elementAt(k).sobranteUtilidad(Formatos.elementAt(k+1)));
-                        Formatos.elementAt(k).setSobranteComision(Formatos.elementAt(k).sobranteComision(Formatos.elementAt(k+1)));
-                        Formatos.elementAt(k).setSobranteFondo(Formatos.elementAt(k).sobranteFondo(Formatos.elementAt(k+1)));                            
-                        if (Formatos.elementAt(k).getFirma()) {
-                            //firmado los faltantes seran los anteriores de k+1                            
-                            posFaltantesAnteriores.set(k+1,Formatos.elementAt(k).posFaltantesAnteriores(Formatos.elementAt(k+1)));                            
-                            cantFaltantesAnteriores.set(k+1,Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k+1)));                            
-                            faltantesFondoInicial.set(k+1,Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k+1).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k+1).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k+1).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k+1).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                        }else{
-                           //no firmado sera los posteriores de k                            
-                            posFaltantesPosteriores.set(k,Formatos.elementAt(k).posFaltantesPosteriores(Formatos.elementAt(k+1)));                            
-                            cantFaltantesPosteriores.set(k, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k+1)));                                     
-                            faltantesFondoFinal.set(k,Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k+1)));
-                            Formatos.elementAt(k).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k+1)));
                         }
                     }
-                    }catch(ParseException e){                                
-                        JOptionPane.showMessageDialog(rootPane,"No se logró marcar los formatos, por error de parseo de fechas","Error",JOptionPane.ERROR_MESSAGE);
+                } else {
+                    try {
+                        //tomar la fecha del formato k y preguntar si el siguiente formato es el siguiente dia y turno 'D'                    
+                        c.setTime(df.parse(Formatos.elementAt(k).getFecha()));
+                        c.add(Calendar.DATE, 1); //sumarle un dia a la fecha
+                        if (Formatos.elementAt(k + 1).getFecha().equals(df.format(c.getTime())) && Formatos.elementAt(k + 1).getTurno() == 'D') {
+                            //asignar primero los sobrantes                                               
+                            posSobrantes.set(k, Formatos.elementAt(k).posSobrantes(Formatos.elementAt(k + 1)));
+                            cantSobrantes.set(k, Formatos.elementAt(k).cantSobrantes(Formatos.elementAt(k + 1)));
+                            sobrantesFondo.set(k, Formatos.elementAt(k).sobrante(Formatos.elementAt(k + 1)));
+                            Formatos.elementAt(k).setSobrante(Formatos.elementAt(k).sobrante(Formatos.elementAt(k + 1)));
+                            Formatos.elementAt(k).setSobranteUtilidad(Formatos.elementAt(k).sobranteUtilidad(Formatos.elementAt(k + 1)));
+                            Formatos.elementAt(k).setSobranteComision(Formatos.elementAt(k).sobranteComision(Formatos.elementAt(k + 1)));
+                            Formatos.elementAt(k).setSobranteFondo(Formatos.elementAt(k).sobranteFondo(Formatos.elementAt(k + 1)));
+                            if (Formatos.elementAt(k).getFirma()) {
+                                //firmado los faltantes seran los anteriores de k+1                            
+                                posFaltantesAnteriores.set(k + 1, Formatos.elementAt(k).posFaltantesAnteriores(Formatos.elementAt(k + 1)));
+                                cantFaltantesAnteriores.set(k + 1, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k + 1)));
+                                faltantesFondoInicial.set(k + 1, Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k + 1).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k + 1).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k + 1).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k + 1).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                            } else {
+                                //no firmado sera los posteriores de k                            
+                                posFaltantesPosteriores.set(k, Formatos.elementAt(k).posFaltantesPosteriores(Formatos.elementAt(k + 1)));
+                                cantFaltantesPosteriores.set(k, Formatos.elementAt(k).cantFaltantes(Formatos.elementAt(k + 1)));
+                                faltantesFondoFinal.set(k, Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setFaltante(Formatos.elementAt(k).faltante(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setFaltanteUtilidad(Formatos.elementAt(k).faltanteUtilidad(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setFaltanteComision(Formatos.elementAt(k).faltanteComision(Formatos.elementAt(k + 1)));
+                                Formatos.elementAt(k).setFondoFaltante(Formatos.elementAt(k).faltanteFondo(Formatos.elementAt(k + 1)));
+                            }
+                        }
+                    } catch (ParseException e) {
+                        JOptionPane.showMessageDialog(rootPane, "No se logró marcar los formatos, por error de parseo de fechas", "Error", JOptionPane.ERROR_MESSAGE);
                         e.printStackTrace();
-                    }                                           
-                }                            
+                    }
+                }
             }
         }
-    }    
-    
-    public static void actualizarFormatos(Vector<Formato> formatos){
+    }
+
+    public static void actualizarFormatos(Vector<Formato> formatos) {
         //actualizar los valores de los formatos en el archivo de origen
         try {
-               FileWriter out = new FileWriter("Archivos/Formatos.bin");
-               PrintWriter pw = new PrintWriter(out);
-               for(int k=0;k<formatos.size();k++){
-                   pw.println(formatos.elementAt(k).toString());
-               }
-               pw.close();
-           } catch (IOException ex) {
-               JOptionPane.showMessageDialog(null, "Ocurrió un error con el archivo", "Error de Archvo",JOptionPane.ERROR_MESSAGE);
-           }
+            FileWriter out = new FileWriter("Archivos/Formatos.bin");
+            PrintWriter pw = new PrintWriter(out);
+            for (int k = 0; k < formatos.size(); k++) {
+                pw.println(formatos.elementAt(k).toString());
+            }
+            pw.close();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Ocurrió un error con el archivo", "Error de Archvo", JOptionPane.ERROR_MESSAGE);
+        }
     }
-    
-    public final void llenarTabla(Vector<Formato> filtrado){
+
+    public final void llenarTabla(Vector<Formato> filtrado) {
         //vaciar tabla
-       
+
         DefaultTableModel md = (DefaultTableModel) tabla.getModel();
-        
+
         md.setRowCount(0);
         //llenar las filas de las tablas con con cada formato
-            for(int k=0; k<filtrado.size();k++){
-                fila= new Vector();
-                fila.add(filtrado.elementAt(k).getFecha());
-                fila.add(filtrado.elementAt(k).getTurno());
-                fila.add(quitaGuion(filtrado.elementAt(k).getSucursal()));
-                fila.add(quitaGuion(filtrado.elementAt(k).getEncargado()));
-                fila.add(filtrado.elementAt(k).totalVenta()-filtrado.elementAt(k).getSobrante()+filtrado.elementAt(k).getFaltante());
-                fila.add(filtrado.elementAt(k).getRetiro());
-                fila.add(filtrado.elementAt(k).getFaltante());
-                fila.add(filtrado.elementAt(k).getSobrante());
-                fila.add(decimalFormat.format(filtrado.elementAt(k).ganancia()-filtrado.elementAt(k).getSobranteUtilidad()));
-                fila.add(decimalFormat.format(filtrado.elementAt(k).getComision()-filtrado.elementAt(k).getSobranteComision()));
-                String firmado="";
-                if(filtrado.elementAt(k).getFirma()){
-                    firmado="Sí";
-                }else{
-                    firmado="No";
-                }
-                String pagado="";
-                if(filtrado.elementAt(k).getPagado()){
-                    pagado="Sí";
-                }else{
-                    pagado="No";
-                }
-                fila.add(firmado);
-                fila.add(pagado);
-                fila.add(filtrado.elementAt(k).totalVenta()-filtrado.elementAt(k).getSobrante()-filtrado.elementAt(k).getFondoFinal()-filtrado.elementAt(k).getFondoSobrante()+filtrado.elementAt(k).getFondoInicial()+filtrado.elementAt(k).getFaltante()+filtrado.elementAt(k).getFondoFaltante()-filtrado.elementAt(k).getRetiro()-200);
-                md.addRow(fila);
+        for (int k = 0; k < filtrado.size(); k++) {
+            fila = new Vector();
+            fila.add(filtrado.elementAt(k).getFecha());
+            fila.add(filtrado.elementAt(k).getTurno());
+            fila.add(quitaGuion(filtrado.elementAt(k).getSucursal()));
+            fila.add(quitaGuion(filtrado.elementAt(k).getEncargado()));
+            fila.add(filtrado.elementAt(k).totalVenta() - filtrado.elementAt(k).getSobrante() + filtrado.elementAt(k).getFaltante());
+            fila.add(filtrado.elementAt(k).getRetiro());
+            fila.add(filtrado.elementAt(k).getFaltante());
+            fila.add(filtrado.elementAt(k).getSobrante());
+            fila.add(decimalFormat.format(filtrado.elementAt(k).ganancia() - filtrado.elementAt(k).getSobranteUtilidad()));
+            fila.add(decimalFormat.format(filtrado.elementAt(k).getComision() - filtrado.elementAt(k).getSobranteComision()));
+            String firmado = "";
+            if (filtrado.elementAt(k).getFirma()) {
+                firmado = "Sí";
+            } else {
+                firmado = "No";
             }
+            String pagado = "";
+            if (filtrado.elementAt(k).getPagado()) {
+                pagado = "Sí";
+            } else {
+                pagado = "No";
+            }
+            fila.add(firmado);
+            fila.add(pagado);
+            fila.add(filtrado.elementAt(k).totalVenta() - filtrado.elementAt(k).getSobrante() - filtrado.elementAt(k).getFondoFinal() - filtrado.elementAt(k).getFondoSobrante() + filtrado.elementAt(k).getFondoInicial() + filtrado.elementAt(k).getFaltante() + filtrado.elementAt(k).getFondoFaltante() - filtrado.elementAt(k).getRetiro() - 200);
+            md.addRow(fila);
+        }
     }
-    
-    public final void MarcarTotalFinal(final Vector<Formato> formatos){        
-        new Runnable(){
+
+    public final void MarcarTotalFinal(final Vector<Formato> formatos) {
+        new Runnable() {
 
             @Override
             public void run() {
-               //copiar el vector de formatos y guardar los indices de los formatos que se deba marcar el total final como afectable        
-                marcasTotalFinal=new Vector<Integer>();
-                for(int k=0;k<formatos.size();k++){            
-                    if (!formatos.elementAt(k).getFirma()){ //si no esta firmado
-                        try{
-                            if(!formatos.elementAt(k).getSucursal().equals(formatos.elementAt(k+1).getSucursal())){ //si no son de la misma sucursal
-                                marcasTotalFinal.add(k);  
-                            }else{
-                                try{
-                                    if (formatos.elementAt(k).getTurnos() == 2){//cuando tiene dos turno D y N
+                //copiar el vector de formatos y guardar los indices de los formatos que se deba marcar el total final como afectable        
+                marcasTotalFinal = new Vector<Integer>();
+                for (int k = 0; k < formatos.size(); k++) {
+                    if (!formatos.elementAt(k).getFirma()) { //si no esta firmado
+                        try {
+                            if (!formatos.elementAt(k).getSucursal().equals(formatos.elementAt(k + 1).getSucursal())) { //si no son de la misma sucursal
+                                marcasTotalFinal.add(k);
+                            } else {
+                                try {
+                                    if (formatos.elementAt(k).getTurnos() == 2) {//cuando tiene dos turno D y N
                                         if (formatos.elementAt(k).getTurno() == 'D') {
-                                            if (!formatos.elementAt(k).getFecha().equals(formatos.elementAt(k+1).getFecha())) { //si el siguiete formato no es del mismo dia
+                                            if (!formatos.elementAt(k).getFecha().equals(formatos.elementAt(k + 1).getFecha())) { //si el siguiete formato no es del mismo dia
                                                 marcasTotalFinal.add(k);
                                             }
-                                        }else{
+                                        } else {
                                             Calendar c = Calendar.getInstance();
                                             c.setTime(df.parse(formatos.elementAt(k).getFecha()));
                                             //sumarle un dia a la fecha
                                             c.add(Calendar.DATE, 1);
-                                            if (!(formatos.elementAt(k+1).getFecha().equals(df.format(c.getTime())) && formatos.elementAt(k+1).getTurno() == 'D')) { //si el siguiente no es turno "D" y del dia siguiente
+                                            if (!(formatos.elementAt(k + 1).getFecha().equals(df.format(c.getTime())) && formatos.elementAt(k + 1).getTurno() == 'D')) { //si el siguiente no es turno "D" y del dia siguiente
                                                 marcasTotalFinal.add(k);
                                             }
-                                        }                                
-                                    }else{//cuando tiene un solo turno D
-                                       //tomar la fecha del formato k y preguntar si el siguiente formato es el siguiente dia y turno 'D'
+                                        }
+                                    } else {//cuando tiene un solo turno D
+                                        //tomar la fecha del formato k y preguntar si el siguiente formato es el siguiente dia y turno 'D'
                                         Calendar c = Calendar.getInstance();
                                         c.setTime(df.parse(formatos.elementAt(k).getFecha()));
                                         //sumarle un dia a la fecha
                                         c.add(Calendar.DATE, 1);
-                                        if(!(formatos.elementAt(k+1).getFecha().equals(df.format(c.getTime()))&& formatos.elementAt(k+1).getTurno()=='D')){
-                                          marcasTotalFinal.add(k);  
-                                        } 
+                                        if (!(formatos.elementAt(k + 1).getFecha().equals(df.format(c.getTime())) && formatos.elementAt(k + 1).getTurno() == 'D')) {
+                                            marcasTotalFinal.add(k);
+                                        }
                                     }
-                                }catch(ParseException e){
+                                } catch (ParseException e) {
                                     System.out.println("Error de parse de fecha");
-                                }   
-                            }                    
-                        }catch(ArrayIndexOutOfBoundsException e){
+                                }
+                            }
+                        } catch (ArrayIndexOutOfBoundsException e) {
                             marcasTotalFinal.add(k); //ultimo elemento
                         }
                     }
                 }
                 //marcar los totales Finales cuando pueda cambiar
-                for(int k=0; k<marcasTotalFinal.size(); k++){
-                     md.setValueAt(md.getValueAt(marcasTotalFinal.elementAt(k), 12) + "*",marcasTotalFinal.elementAt(k), 12);
-                } 
-            }            
-        }.run();        
+                for (int k = 0; k < marcasTotalFinal.size(); k++) {
+                    md.setValueAt(md.getValueAt(marcasTotalFinal.elementAt(k), 12) + "*", marcasTotalFinal.elementAt(k), 12);
+                }
+            }
+        }.run();
     }
-    
-    public final void agregarFilaTotales(JTable tabla){
-         //Agregar la ultima fila de totales:
+
+    public final void agregarFilaTotales(JTable tabla) {
+        //Agregar la ultima fila de totales:
         int filas = tabla.getRowCount();
-        float venta=0, retiro=0, faltante=0, sobrante=0, utilidad=0, comision=0, total=0;
-        for(int k=0; k < filas; k++){
+        float venta = 0, retiro = 0, faltante = 0, sobrante = 0, utilidad = 0, comision = 0, total = 0;
+        for (int k = 0; k < filas; k++) {
             venta += Float.parseFloat(String.valueOf(tabla.getValueAt(k, 4)));
             retiro += Float.parseFloat(String.valueOf(tabla.getValueAt(k, 5)));
             faltante += Float.parseFloat(String.valueOf(tabla.getValueAt(k, 6)));
@@ -434,10 +431,13 @@ public class ConsultaFormato extends javax.swing.JFrame {
             comision += Float.parseFloat(String.valueOf(tabla.getValueAt(k, 9)));
             total += Float.parseFloat(String.valueOf(tabla.getValueAt(k, 12)));
         }
-        Vector fila= new Vector();
-        fila.add("");fila.add("");fila.add("");fila.add("TOTALES:");
+        Vector fila = new Vector();
+        fila.add("");
+        fila.add("");
+        fila.add("");
+        fila.add("TOTALES:");
         fila.add(decimalFormat.format(venta));
-        fila.add(decimalFormat.format(retiro)); 
+        fila.add(decimalFormat.format(retiro));
         fila.add(decimalFormat.format(faltante));
         fila.add(decimalFormat.format(sobrante));
         fila.add(decimalFormat.format(utilidad));
@@ -445,10 +445,10 @@ public class ConsultaFormato extends javax.swing.JFrame {
         fila.add("");
         fila.add("");
         fila.add(total);
-        
+
         md.addRow(fila);
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -799,13 +799,13 @@ public class ConsultaFormato extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     private void cmbSucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSucursalActionPerformed
-        
+
     }//GEN-LAST:event_cmbSucursalActionPerformed
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
-     this.setVisible(false);
+        this.setVisible(false);
     }//GEN-LAST:event_btnCerrarActionPerformed
     private void cmbEncargadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbEncargadoActionPerformed
-        
+
     }//GEN-LAST:event_cmbEncargadoActionPerformed
     private void btnFiltrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarActionPerformed
         String sucursal = quitaEspacios(cmbSucursal.getSelectedItem().toString());
@@ -813,94 +813,94 @@ public class ConsultaFormato extends javax.swing.JFrame {
         char turno = cmbTurno.getSelectedItem().toString().charAt(0);
         String pagado = cmbPagado.getSelectedItem().toString();
         //copiar y filtrar los Todos los formatos
-        filtrado= new Vector<Formato>();
-        for(int k=0; k < Formatos.size(); k++){
+        filtrado = new Vector<Formato>();
+        for (int k = 0; k < Formatos.size(); k++) {
             filtrado.add(Formatos.elementAt(k));
         }
         //una vez lleno eliminar todos aquellos registros a los que no
         //corresponda el filtro seleccionado
         //Para la sucursal
-        if(!"Todos".equals(sucursal)){
-            int k=0;
-            while(k<filtrado.size()){
-                if(!filtrado.elementAt(k).getSucursal().equals(sucursal)){
+        if (!"Todos".equals(sucursal)) {
+            int k = 0;
+            while (k < filtrado.size()) {
+                if (!filtrado.elementAt(k).getSucursal().equals(sucursal)) {
                     filtrado.removeElementAt(k);
-                }else{
+                } else {
                     k++;
                 }
             }
         }
         //Para el encargado
-        if(!"Todos".equals(encargado)){
-            int k=0;
-            while(k<filtrado.size()){
-                if(!filtrado.elementAt(k).getEncargado().equals(encargado)){
+        if (!"Todos".equals(encargado)) {
+            int k = 0;
+            while (k < filtrado.size()) {
+                if (!filtrado.elementAt(k).getEncargado().equals(encargado)) {
                     filtrado.removeElementAt(k);
-                }else{
+                } else {
                     k++;
                 }
             }
         }
         //para el turno
-        if(turno=='D' || turno=='N'){
-            int k=0;
-            while(k<filtrado.size()){
-                if(filtrado.elementAt(k).getTurno()!=turno){
+        if (turno == 'D' || turno == 'N') {
+            int k = 0;
+            while (k < filtrado.size()) {
+                if (filtrado.elementAt(k).getTurno() != turno) {
                     filtrado.removeElementAt(k);
-                }else{
+                } else {
                     k++;
                 }
             }
         }
         //para el pago
-            if(pagado.equals("Si")){
-                int k=0;
-                while(k<filtrado.size()){
-                    if(!filtrado.elementAt(k).getPagado()){
-                        filtrado.removeElementAt(k);
-                    }else{
-                        k++;
-                    }
+        if (pagado.equals("Si")) {
+            int k = 0;
+            while (k < filtrado.size()) {
+                if (!filtrado.elementAt(k).getPagado()) {
+                    filtrado.removeElementAt(k);
+                } else {
+                    k++;
                 }
             }
-            if(pagado.equals("No")){
-                int k=0;
-                while(k<filtrado.size()){
-                    if(filtrado.elementAt(k).getPagado()!=false){
-                        filtrado.removeElementAt(k);
-                    }else{
-                        k++;
-                    }
+        }
+        if (pagado.equals("No")) {
+            int k = 0;
+            while (k < filtrado.size()) {
+                if (filtrado.elementAt(k).getPagado() != false) {
+                    filtrado.removeElementAt(k);
+                } else {
+                    k++;
                 }
             }
+        }
         //Para las fechas
         //tomar la fecha inicial como string y convertirlo a fecha
         //tomar la fecha final y convertirlo a fecha
         //usar los metodos before() y after() para sacar las que se
         //encuentren en medio de el rango
         SimpleDateFormat sdf = new SimpleDateFormat("d/MM/yyyy");
-        try{
-            int k=0;
-            Date fechaInicial=sdf.parse(sdf.format(dFechaI.getDate()));            
-            Date fechaFinal=sdf.parse(sdf.format(dFechaF.getDate()));            
+        try {
+            int k = 0;
+            Date fechaInicial = sdf.parse(sdf.format(dFechaI.getDate()));
+            Date fechaFinal = sdf.parse(sdf.format(dFechaF.getDate()));
             String fecha;
-            while(k<filtrado.size()){
-                fecha=filtrado.elementAt(k).getFecha();
+            while (k < filtrado.size()) {
+                fecha = filtrado.elementAt(k).getFecha();
                 Date fechaFormato = sdf.parse(fecha);
-                if(fechaFormato.before(fechaInicial) || fechaFormato.after(fechaFinal)){
-                   filtrado.removeElementAt(k); 
-                }else{
+                if (fechaFormato.before(fechaInicial) || fechaFormato.after(fechaFinal)) {
+                    filtrado.removeElementAt(k);
+                } else {
                     k++;
                 }
-            }        
-        }catch(NullPointerException e){
+            }
+        } catch (NullPointerException e) {
 //            JOptionPane.showMessageDialog(rootPane, "Referencia nula al filtrar por fechas", "ERROR", WIDTH);
-        }catch (ParseException ex) {
+        } catch (ParseException ex) {
             JOptionPane.showMessageDialog(rootPane, "Error al convertir fechas al filtrar", "ERROR", WIDTH);
             ex.printStackTrace();
         }
         //Cargar la tabla
-       // md = new DefaultTableModel(datos, cabecera);
+        // md = new DefaultTableModel(datos, cabecera);
         //tabla.setModel(md);
         //this.ajustarTamañosTabla(tabla,anchos);//ajustar los tamaños       
         //llenar la tabla con el vector filtrado
@@ -911,275 +911,266 @@ public class ConsultaFormato extends javax.swing.JFrame {
         this.MarcarTotalFinal(filtrado);
     }//GEN-LAST:event_btnFiltrarActionPerformed
     private void btnMostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarActionPerformed
-       int fila= tabla.getSelectedRow();
-       if(fila+1==tabla.getRowCount()){
-            JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE );
-       }else{
-            if(fila!=-1){
-                try{
-                    int[] filas=tabla.getSelectedRows();
-                    for(int k=0; k<filas.length;k++){
-                        MostrarFormato mf= new MostrarFormato(filtrado.elementAt(filas[k]));
-                        mf.setVisible(true);
-                        mf.setLocationRelativeTo(this);         
-                             //asignar las posiciones anteriores y posteriores de los faltanes para marcarlos
-                             //primero buscar el formato filtrado al que corresponde en el vector Formatos
-                             for(int j=0; j<Formatos.size(); j++){
-                                 if(filtrado.elementAt(filas[k]).getFecha().equals(Formatos.elementAt(j).getFecha())
-                                 && filtrado.elementAt(filas[k]).getTurno()==Formatos.elementAt(j).getTurno()
-                                 && filtrado.elementAt(filas[k]).getSucursal().equals(Formatos.elementAt(j).getSucursal())){ 
-                                    mf.setPosFaltantesAnteriores(posFaltantesAnteriores.elementAt(j));
-                                    mf.setCantFaltantesAnteriores(cantFaltantesAnteriores.elementAt(j));
-                                    mf.setPosFaltantesPosteriores(posFaltantesPosteriores.elementAt(j));
-                                    mf.setCantFaltantesPosteriores(cantFaltantesPosteriores.elementAt(j));
-                                    mf.setPosSobrantes(posSobrantes.elementAt(j));
-                                    mf.setCantSobrantes(cantSobrantes.elementAt(j)); 
-                                    mf.setMarcas();
-                                 }
-                             }          
-                    }  
-                }catch(ArrayIndexOutOfBoundsException e){
-                    JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE );
-                    e.printStackTrace();
+        int fila = tabla.getSelectedRow();
+        if (fila + 1 == tabla.getRowCount()) {
+            JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE);
+        } else if (fila != -1) {
+            try {
+                int[] filas = tabla.getSelectedRows();
+                for (int k = 0; k < filas.length; k++) {
+                    MostrarFormato mf = new MostrarFormato(filtrado.elementAt(filas[k]));
+                    mf.setVisible(true);
+                    mf.setLocationRelativeTo(this);
+                    //asignar las posiciones anteriores y posteriores de los faltanes para marcarlos
+                    //primero buscar el formato filtrado al que corresponde en el vector Formatos
+                    for (int j = 0; j < Formatos.size(); j++) {
+                        if (filtrado.elementAt(filas[k]).getFecha().equals(Formatos.elementAt(j).getFecha())
+                                && filtrado.elementAt(filas[k]).getTurno() == Formatos.elementAt(j).getTurno()
+                                && filtrado.elementAt(filas[k]).getSucursal().equals(Formatos.elementAt(j).getSucursal())) {
+                            mf.setPosFaltantesAnteriores(posFaltantesAnteriores.elementAt(j));
+                            mf.setCantFaltantesAnteriores(cantFaltantesAnteriores.elementAt(j));
+                            mf.setPosFaltantesPosteriores(posFaltantesPosteriores.elementAt(j));
+                            mf.setCantFaltantesPosteriores(cantFaltantesPosteriores.elementAt(j));
+                            mf.setPosSobrantes(posSobrantes.elementAt(j));
+                            mf.setCantSobrantes(cantSobrantes.elementAt(j));
+                            mf.setMarcas();
+                        }
+                    }
                 }
-                
+            } catch (ArrayIndexOutOfBoundsException e) {
+                JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE);
+                e.printStackTrace();
             }
-            else{
-                 JOptionPane.showMessageDialog(this,"Debe seleccionar una fila","Atención",JOptionPane.ERROR_MESSAGE);
-            }
-       }
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una fila", "Atención", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnMostrarActionPerformed
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
         int indexFila = tabla.getSelectedRow();
-        if(indexFila + 1 == tabla.getRowCount()){
-            JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE );
-        }else{
-            if( indexFila != -1){
-                String fecha = String.valueOf(tabla.getValueAt(indexFila, 0));
-                char turno = tabla.getValueAt(indexFila, 1).toString().charAt(0);
-                String sucursal = quitaEspacios(String.valueOf(tabla.getValueAt(indexFila, 2)));
-                System.out.println("fecha: " + fecha);
-                System.out.println("turno: " + turno);
-                System.out.println("sucursal: " + sucursal);
-                if(JOptionPane.showConfirmDialog(rootPane,"¿Seguro que desea eliminar el formato seleccionado?", "Eliminar", YES_NO_OPTION)==JOptionPane.OK_OPTION){
-                    //buscar el indice de la fila que seleccionaste en el vector del formatos (el que tiene todos)
-                    //tomar la fecha turno y sucursal del seleccionado
-                    
-                    for(int k = 0; k < Formatos.size(); k++){
-                        if(fecha.equals(Formatos.elementAt(k).getFecha()) &&
-                           turno == Formatos.elementAt(k).getTurno() &&
-                           sucursal.equals(Formatos.elementAt(k).getSucursal())){
-                           indexFila = k;
-                           break;
-                        }
+        if (indexFila + 1 == tabla.getRowCount()) {
+            JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE);
+        } else if (indexFila != -1) {
+            String fecha = String.valueOf(tabla.getValueAt(indexFila, 0));
+            char turno = tabla.getValueAt(indexFila, 1).toString().charAt(0);
+            String sucursal = quitaEspacios(String.valueOf(tabla.getValueAt(indexFila, 2)));
+            System.out.println("fecha: " + fecha);
+            System.out.println("turno: " + turno);
+            System.out.println("sucursal: " + sucursal);
+            if (JOptionPane.showConfirmDialog(rootPane, "¿Seguro que desea eliminar el formato seleccionado?", "Eliminar", YES_NO_OPTION) == JOptionPane.OK_OPTION) {
+                //buscar el indice de la fila que seleccionaste en el vector del formatos (el que tiene todos)
+                //tomar la fecha turno y sucursal del seleccionado
+
+                for (int k = 0; k < Formatos.size(); k++) {
+                    if (fecha.equals(Formatos.elementAt(k).getFecha())
+                            && turno == Formatos.elementAt(k).getTurno()
+                            && sucursal.equals(Formatos.elementAt(k).getSucursal())) {
+                        indexFila = k;
+                        break;
                     }
-                    //buscar el movimiento y preguntar si se desea eliminarlo
-                    Vector<Movimiento> movs = Movimiento.CargarMovimientos();
-                    int indiceMovEliminar = -1;
-                    for (int i = 0; i < movs.size(); i++) {
-                        if (movs.elementAt(i).getFecha().equals(Formatos.elementAt(indexFila).getFecha())
-                                && movs.elementAt(i).getOrigen().equals(Formatos.elementAt(indexFila).getEntregador())
-                                && movs.elementAt(i).getTurno() == Formatos.elementAt(indexFila).getTurno() 
-                                && movs.elementAt(i).getDestino().equals(Formatos.elementAt(indexFila).getSucursal())) {
-                            indiceMovEliminar = i;
-                        }
+                }
+                //buscar el movimiento y preguntar si se desea eliminarlo
+                Vector<Movimiento> movs = Movimiento.CargarMovimientos();
+                int indiceMovEliminar = -1;
+                for (int i = 0; i < movs.size(); i++) {
+                    if (movs.elementAt(i).getFecha().equals(Formatos.elementAt(indexFila).getFecha())
+                            && movs.elementAt(i).getOrigen().equals(Formatos.elementAt(indexFila).getEntregador())
+                            && movs.elementAt(i).getTurno() == Formatos.elementAt(indexFila).getTurno()
+                            && movs.elementAt(i).getDestino().equals(Formatos.elementAt(indexFila).getSucursal())) {
+                        indiceMovEliminar = i;
                     }
-                    if (indiceMovEliminar != -1) {
-                        if(JOptionPane.showConfirmDialog(rootPane,"¿Desea eliminar el movimiento generado por este formato?", "Eliminar", YES_NO_OPTION)==JOptionPane.OK_OPTION){
-                            try{
-                                
-                                //reducir el inventario del rutero
-                                Vector<InventarioRutero> ruteros = InventarioRutero.cargarInvRuteros();
-                                for (int i = 0; i < ruteros.size(); i++) {
-                                    if (ruteros.elementAt(i).getRutero().equals(Formatos.elementAt(indexFila).getEntregador())) {
-                                        ruteros.elementAt(i).aumentarExistencia(movs.elementAt( indiceMovEliminar ));
-                                    }
+                }
+                if (indiceMovEliminar != -1) {
+                    if (JOptionPane.showConfirmDialog(rootPane, "¿Desea eliminar el movimiento generado por este formato?", "Eliminar", YES_NO_OPTION) == JOptionPane.OK_OPTION) {
+                        try {
+
+                            //reducir el inventario del rutero
+                            Vector<InventarioRutero> ruteros = InventarioRutero.cargarInvRuteros();
+                            for (int i = 0; i < ruteros.size(); i++) {
+                                if (ruteros.elementAt(i).getRutero().equals(Formatos.elementAt(indexFila).getEntregador())) {
+                                    ruteros.elementAt(i).aumentarExistencia(movs.elementAt(indiceMovEliminar));
                                 }
-                                InventarioRutero.actualizarBD( ruteros );
-                                //eliminar del vector y actualizar archivo
-                                movs.removeElementAt( indiceMovEliminar );                                
-                                FileWriter out = new FileWriter("Archivos/Movimientos.data");
-                                PrintWriter pw = new PrintWriter(out);
-                                for(int k=0;k < movs.size();k++){
-                                    pw.println(movs.elementAt(k).toString());
-                                }
-                                pw.close();
-                                
-                            } catch (IOException e){
-                                
                             }
+                            InventarioRutero.actualizarBD(ruteros);
+                            //eliminar del vector y actualizar archivo
+                            movs.removeElementAt(indiceMovEliminar);
+                            FileWriter out = new FileWriter("Archivos/Movimientos.data");
+                            PrintWriter pw = new PrintWriter(out);
+                            for (int k = 0; k < movs.size(); k++) {
+                                pw.println(movs.elementAt(k).toString());
+                            }
+                            pw.close();
+
+                        } catch (IOException e) {
+
                         }
-                    }else{
-                        JOptionPane.showMessageDialog(null, "No se encontro Movimiento referente a este Formato", "Atención", JOptionPane.INFORMATION_MESSAGE);
                     }
-                    try {
-                       FileWriter out = new FileWriter("Archivos/Formatos.bin");
-                       PrintWriter pw = new PrintWriter(out);
-                       Formatos.removeElementAt(indexFila);
-                       for(int k=0;k<Formatos.size();k++){
-                           pw.println(Formatos.elementAt(k).toString());
-                       }
-                       pw.close();
-                   } catch (IOException ex) {
-                       JOptionPane.showMessageDialog(null, "Ocurrió un error con el archivo", "Error de Archvo",JOptionPane.ERROR_MESSAGE);
-                   }
-                    
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se encontro Movimiento referente a este Formato", "Atención", JOptionPane.INFORMATION_MESSAGE);
                 }
-                //aplicar el filtro que corresponde
-                btnFiltrarActionPerformed(null);
+                try {
+                    FileWriter out = new FileWriter("Archivos/Formatos.bin");
+                    PrintWriter pw = new PrintWriter(out);
+                    Formatos.removeElementAt(indexFila);
+                    for (int k = 0; k < Formatos.size(); k++) {
+                        pw.println(Formatos.elementAt(k).toString());
+                    }
+                    pw.close();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "Ocurrió un error con el archivo", "Error de Archvo", JOptionPane.ERROR_MESSAGE);
                 }
-                else{
-                    JOptionPane.showMessageDialog(this,"Debe seleccionar una fila","Atencion",JOptionPane.ERROR_MESSAGE);
-                }
+
+            }
+            //aplicar el filtro que corresponde
+            btnFiltrarActionPerformed(null);
+        } else {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una fila", "Atencion", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnEliminarActionPerformed
     private void btnTotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTotalActionPerformed
-            if(tabla.getSelectedRow()!=-1){
-                try{
-                    //crear un objeto de tipo Total y mandar los totales de parametro
-                    float totalVenta=0,totalFinal=0,retiro=0,faltante=0,ganancia=0,sobrante=0,comision=0;
-                    int[] filasSeleccionadas= tabla.getSelectedRows();
-                    for(int k=0; k<filasSeleccionadas.length; k++){
-                        totalVenta+=(Float)tabla.getValueAt(filasSeleccionadas[k], 4);
-                        retiro+=(float)tabla.getValueAt(filasSeleccionadas[k], 5);
-                        faltante+=(float)tabla.getValueAt(filasSeleccionadas[k], 6);
-                        sobrante+=(float)tabla.getValueAt(filasSeleccionadas[k],7);
-                        ganancia+=Float.parseFloat(String.valueOf(tabla.getValueAt(filasSeleccionadas[k],8)));
-                        comision+=Float.parseFloat(String.valueOf(tabla.getValueAt(filasSeleccionadas[k],9)));
-                        totalFinal+=Float.parseFloat(tabla.getValueAt(filasSeleccionadas[k], 12).toString().substring(0,tabla.getValueAt(filasSeleccionadas[k], 12).toString().length()-1));
-                    }
-                    Total miTotal = new Total(totalVenta,retiro,faltante,totalFinal,ganancia,comision);
-                    miTotal.setVisible(true);
-                    miTotal.setLocationRelativeTo(this);
-                }catch(NumberFormatException e){
-                    JOptionPane.showMessageDialog(this,"Debe de tener en orden las columnas para totalizar, Number Format Exception","Atención",JOptionPane.ERROR_MESSAGE);
-                }catch(ClassCastException e){
-                    JOptionPane.showMessageDialog(this,"Debe de tener en orden las columnas para totalizar, classCastException","Atención",JOptionPane.ERROR_MESSAGE);                    
-                }    
-            }else{
-                JOptionPane.showMessageDialog(this,"Debe Seleccionar una fila","Atención",JOptionPane.ERROR_MESSAGE);
+        if (tabla.getSelectedRow() != -1) {
+            try {
+                //crear un objeto de tipo Total y mandar los totales de parametro
+                float totalVenta = 0, totalFinal = 0, retiro = 0, faltante = 0, ganancia = 0, sobrante = 0, comision = 0;
+                int[] filasSeleccionadas = tabla.getSelectedRows();
+                for (int k = 0; k < filasSeleccionadas.length; k++) {
+                    totalVenta += (Float) tabla.getValueAt(filasSeleccionadas[k], 4);
+                    retiro += (float) tabla.getValueAt(filasSeleccionadas[k], 5);
+                    faltante += (float) tabla.getValueAt(filasSeleccionadas[k], 6);
+                    sobrante += (float) tabla.getValueAt(filasSeleccionadas[k], 7);
+                    ganancia += Float.parseFloat(String.valueOf(tabla.getValueAt(filasSeleccionadas[k], 8)));
+                    comision += Float.parseFloat(String.valueOf(tabla.getValueAt(filasSeleccionadas[k], 9)));
+                    totalFinal += Float.parseFloat(tabla.getValueAt(filasSeleccionadas[k], 12).toString().substring(0, tabla.getValueAt(filasSeleccionadas[k], 12).toString().length() - 1));
+                }
+                Total miTotal = new Total(totalVenta, retiro, faltante, totalFinal, ganancia, comision);
+                miTotal.setVisible(true);
+                miTotal.setLocationRelativeTo(this);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Debe de tener en orden las columnas para totalizar, Number Format Exception", "Atención", JOptionPane.ERROR_MESSAGE);
+            } catch (ClassCastException e) {
+                JOptionPane.showMessageDialog(this, "Debe de tener en orden las columnas para totalizar, classCastException", "Atención", JOptionPane.ERROR_MESSAGE);
             }
+        } else {
+            JOptionPane.showMessageDialog(this, "Debe Seleccionar una fila", "Atención", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnTotalActionPerformed
-  
+
     private void btnFiltrarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnFiltrarKeyTyped
-        char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnFiltrarActionPerformed(null);
         }
     }//GEN-LAST:event_btnFiltrarKeyTyped
     private void btnEliminarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnEliminarKeyTyped
-        char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnEliminarActionPerformed(null);
         }
     }//GEN-LAST:event_btnEliminarKeyTyped
     private void btnMostrarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnMostrarKeyTyped
-        char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnMostrarActionPerformed(null);
         }
     }//GEN-LAST:event_btnMostrarKeyTyped
     private void btnTotalKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnTotalKeyTyped
-        char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnTotalActionPerformed(null);
         }
     }//GEN-LAST:event_btnTotalKeyTyped
     private void btnCerrarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnCerrarKeyTyped
-       char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnCerrarActionPerformed(null);
         }
     }//GEN-LAST:event_btnCerrarKeyTyped
     private void btnExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarActionPerformed
         //exportar a excel usar un exportador        
-        String nombreArchivo=JOptionPane.showInputDialog(rootPane, "Ingrese el nombre del archivo a crear", "Ingresar Nombre",JOptionPane.INFORMATION_MESSAGE);
-        
-        if(nombreArchivo!=null){
-            nombreArchivo = quitaDiagonal(nombreArchivo);  
+        String nombreArchivo = JOptionPane.showInputDialog(rootPane, "Ingrese el nombre del archivo a crear", "Ingresar Nombre", JOptionPane.INFORMATION_MESSAGE);
+
+        if (nombreArchivo != null) {
+            nombreArchivo = quitaDiagonal(nombreArchivo);
             File archivo;
             JFileChooser fc = new JFileChooser();
             fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            if(JFileChooser.APPROVE_OPTION==fc.showDialog(this,"Exportar")){
-                archivo= new File(fc.getSelectedFile().toString().concat("/"+nombreArchivo+".xlsx"));                 
-                new ExcelManager(archivo,tabla,"Formatos").exportar();
-            try {
-                Desktop.getDesktop().open(archivo);
-            } catch (IOException ex) {
-                Logger.getLogger(ConsultaFormato.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            if (JFileChooser.APPROVE_OPTION == fc.showDialog(this, "Exportar")) {
+                archivo = new File(fc.getSelectedFile().toString().concat("/" + nombreArchivo + ".xlsx"));
+                new ExcelManager(archivo, tabla, "Formatos").exportar();
+                try {
+                    Desktop.getDesktop().open(archivo);
+                } catch (IOException ex) {
+                    Logger.getLogger(ConsultaFormato.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }//GEN-LAST:event_btnExportarActionPerformed
     private void btnUtilidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUtilidadActionPerformed
         int fila = tabla.getSelectedRow(); //que este minimo una seleccinoada
-        if (fila!=-1) {                    
+        if (fila != -1) {
             int filas[] = tabla.getSelectedRows();
-            boolean valido=true;
+            boolean valido = true;
             for (int i = 0; i < filas.length; i++) {
-                if(filas[i]+1==tabla.getRowCount()){
-                    JOptionPane.showMessageDialog(rootPane,"Seleccionó una fila inválida","Atencion",JOptionPane.WARNING_MESSAGE);
-                    valido=false;
+                if (filas[i] + 1 == tabla.getRowCount()) {
+                    JOptionPane.showMessageDialog(rootPane, "Seleccionó una fila inválida", "Atencion", JOptionPane.WARNING_MESSAGE);
+                    valido = false;
                 }
             }
-            if(valido){
+            if (valido) {
                 //crear varibales acomuladores de utilidad          
-                Vector<Formato> seleccionados= new Vector<Formato>();
+                Vector<Formato> seleccionados = new Vector<Formato>();
                 for (int i = 0; i < filas.length; i++) {
                     seleccionados.add(filtrado.elementAt(filas[i]));
                 }
                 //crear objeto y lanzarlo
-                UtilidadPorProducto upp = new  UtilidadPorProducto(seleccionados);
+                UtilidadPorProducto upp = new UtilidadPorProducto(seleccionados);
                 upp.setVisible(true);
                 upp.setLocationRelativeTo(this);
             }
-        }else{
-            JOptionPane.showMessageDialog(rootPane,"Debe seleccionar por lo menos una fila","Atencion",JOptionPane.WARNING_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "Debe seleccionar por lo menos una fila", "Atencion", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_btnUtilidadActionPerformed
     private void btnUtilidadKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnUtilidadKeyTyped
         // TODO add your handling code here:
     }//GEN-LAST:event_btnUtilidadKeyTyped
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-        int indexFila=tabla.getSelectedRow();
-        if(indexFila+1==tabla.getRowCount()){
-            JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE );
-        }else{
-            
-            if(indexFila != -1){
-                String fecha = String.valueOf(tabla.getValueAt(indexFila, 0));
-                char turno = tabla.getValueAt(indexFila, 1).toString().charAt(0);
-                String sucursal = quitaEspacios(String.valueOf(tabla.getValueAt(indexFila, 2)));
-                System.out.println("fecha: " + fecha);
-                System.out.println("turno: " + turno);
-                System.out.println("sucursal: " + sucursal);
-                
-                for(int k = 0; k < Formatos.size(); k++){
-                    if(fecha.equals(Formatos.elementAt(k).getFecha()) &&
-                       turno == Formatos.elementAt(k).getTurno() &&
-                       sucursal.equals(Formatos.elementAt(k).getSucursal())){
-                       indexFila = k;
-                       break;
-                    }
+        int indexFila = tabla.getSelectedRow();
+        if (indexFila + 1 == tabla.getRowCount()) {
+            JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE);
+        } else if (indexFila != -1) {
+            String fecha = String.valueOf(tabla.getValueAt(indexFila, 0));
+            char turno = tabla.getValueAt(indexFila, 1).toString().charAt(0);
+            String sucursal = quitaEspacios(String.valueOf(tabla.getValueAt(indexFila, 2)));
+            System.out.println("fecha: " + fecha);
+            System.out.println("turno: " + turno);
+            System.out.println("sucursal: " + sucursal);
+
+            for (int k = 0; k < Formatos.size(); k++) {
+                if (fecha.equals(Formatos.elementAt(k).getFecha())
+                        && turno == Formatos.elementAt(k).getTurno()
+                        && sucursal.equals(Formatos.elementAt(k).getSucursal())) {
+                    indexFila = k;
+                    break;
                 }
-                Filtro filtro;
-                try{
-                    String fechaIni = df.format(dFechaI.getDate());
-                    String fechaFin = df.format(dFechaF.getDate());
-                    filtro = new Filtro(cmbSucursal.getSelectedItem().toString(), cmbEncargado.getSelectedItem().toString(), cmbTurno.getSelectedItem().toString(), cmbPagado.getSelectedItem().toString(), fechaIni, fechaFin);
-                }catch(NullPointerException e){ 
-                        //en caso de que no existan fechas en los campos
-                    filtro = new Filtro(cmbSucursal.getSelectedItem().toString(), cmbEncargado.getSelectedItem().toString(), cmbTurno.getSelectedItem().toString(), cmbPagado.getSelectedItem().toString());
-                }
-                
-                //mostrar el objeto EditarFormato y esperar el retorno
-                EditarFormato ef = new EditarFormato(Formatos, Formatos.elementAt(indexFila), filtro);
-                ef.setVisible(true);
-                ef.setLocationRelativeTo(this);
-                this.dispose();
-            }else{
-                JOptionPane.showMessageDialog(this,"Debe seleccionar una fila","Atencion",JOptionPane.ERROR_MESSAGE);
             }
+            Filtro filtro;
+            try {
+                String fechaIni = df.format(dFechaI.getDate());
+                String fechaFin = df.format(dFechaF.getDate());
+                filtro = new Filtro(cmbSucursal.getSelectedItem().toString(), cmbEncargado.getSelectedItem().toString(), cmbTurno.getSelectedItem().toString(), cmbPagado.getSelectedItem().toString(), fechaIni, fechaFin);
+            } catch (NullPointerException e) {
+                //en caso de que no existan fechas en los campos
+                filtro = new Filtro(cmbSucursal.getSelectedItem().toString(), cmbEncargado.getSelectedItem().toString(), cmbTurno.getSelectedItem().toString(), cmbPagado.getSelectedItem().toString());
+            }
+
+            //mostrar el objeto EditarFormato y esperar el retorno
+            EditarFormato ef = new EditarFormato(Formatos, Formatos.elementAt(indexFila), filtro);
+            ef.setVisible(true);
+            ef.setLocationRelativeTo(this);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una fila", "Atencion", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnEditarActionPerformed
     private void btnEditarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnEditarKeyTyped
@@ -1191,18 +1182,18 @@ public class ConsultaFormato extends javax.swing.JFrame {
 
     private void btnEntregasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntregasActionPerformed
         int fila = tabla.getSelectedRow(); //que este minimo una seleccinoada
-        if (fila!=-1) {                    
+        if (fila != -1) {
             int filas[] = tabla.getSelectedRows();
-            boolean valido=true;
+            boolean valido = true;
             for (int i = 0; i < filas.length; i++) {
-                if(filas[i]+1==tabla.getRowCount()){
-                    JOptionPane.showMessageDialog(rootPane,"Seleccionó una fila inválida","Atencion",JOptionPane.WARNING_MESSAGE);
-                    valido=false;
+                if (filas[i] + 1 == tabla.getRowCount()) {
+                    JOptionPane.showMessageDialog(rootPane, "Seleccionó una fila inválida", "Atencion", JOptionPane.WARNING_MESSAGE);
+                    valido = false;
                 }
             }
-            if(valido){
+            if (valido) {
                 //crear varibales acomuladores de utilidad          
-                Vector<Formato> seleccionados= new Vector<Formato>();
+                Vector<Formato> seleccionados = new Vector<Formato>();
                 for (int i = 0; i < filas.length; i++) {
                     seleccionados.add(filtrado.elementAt(filas[i]));
                 }
@@ -1211,13 +1202,13 @@ public class ConsultaFormato extends javax.swing.JFrame {
                 tpp.setLocationRelativeTo(null);
                 tpp.setVisible(true);
             }
-        }else{
-            JOptionPane.showMessageDialog(rootPane,"Debe seleccionar por lo menos una fila","Atencion",JOptionPane.WARNING_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "Debe seleccionar por lo menos una fila", "Atencion", JOptionPane.WARNING_MESSAGE);
         }
-        
-        
+
+
     }//GEN-LAST:event_btnEntregasActionPerformed
-   
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCerrar;
     private javax.swing.JButton btnEditar;

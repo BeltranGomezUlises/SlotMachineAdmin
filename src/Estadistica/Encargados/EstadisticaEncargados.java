@@ -57,7 +57,7 @@ public class EstadisticaEncargados extends JFrame{
     JButton btnFiltrar = new JButton("Filtrar");
     
     public EstadisticaEncargados() {                
-        super( "Groupable Header Example" );
+        super( "Estadistica de Encargados" );
         super.setExtendedState(MAXIMIZED_BOTH);
         super.setSize(510, 400);
         super.setMinimumSize(new Dimension(510, 400));

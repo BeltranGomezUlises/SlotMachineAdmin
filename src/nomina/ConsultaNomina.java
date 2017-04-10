@@ -80,12 +80,15 @@ public class ConsultaNomina extends javax.swing.JFrame {
             }
         }
 
-        Formato.ordenarFormatosQ(formatos, 0, formatos.size() - 1);
-        formatos = Formato.ordenarFormatosSucursal(formatos, sucursales);
-        Formato.ordenarFormatosTurno(formatos);
+        try {
 
-        this.asignarFaltantes();
+            Formato.ordenarFormatosQ(formatos, 0, formatos.size() - 1);
+            formatos = Formato.ordenarFormatosSucursal(formatos, sucursales);
+            Formato.ordenarFormatosTurno(formatos);
 
+            this.asignarFaltantes();
+        } catch (Exception e) {
+        }
     }
 
     private void initData() {
@@ -427,7 +430,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
             panelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelGeneralLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1041, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelGeneralLayout.setVerticalGroup(
@@ -606,12 +609,12 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 .addGroup(panelEmpleadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(panelEmpleadoLayout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 575, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 563, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelEmpleadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 454, Short.MAX_VALUE)
-                            .addComponent(jScrollPane3)
-                            .addComponent(jScrollPane5)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
+                            .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
                             .addGroup(panelEmpleadoLayout.createSequentialGroup()
                                 .addGroup(panelEmpleadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4)
@@ -757,7 +760,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnAbonarInactivo)
                 .addContainerGap())
-            .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
+            .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -776,7 +779,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
         panelDeudores.setLayout(panelDeudoresLayout);
         panelDeudoresLayout.setHorizontalGroup(
             panelDeudoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1041, Short.MAX_VALUE)
         );
         panelDeudoresLayout.setVerticalGroup(
             panelDeudoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -840,7 +843,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                         .addComponent(rbtnNoPagadosSemana)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(rbtnSoloSemana)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(529, Short.MAX_VALUE))
         );
         panelFiltroLayout.setVerticalGroup(
             panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -865,10 +868,11 @@ public class ConsultaNomina extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPestaña)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panelFiltro, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelFiltro, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelPestaña, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1046, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -921,13 +925,12 @@ public class ConsultaNomina extends javax.swing.JFrame {
                     }
                 }
 
-                if (rbtnTodosNoPagados.isSelected()) {                   
+                if (rbtnTodosNoPagados.isSelected()) {
                     //marcar formatos como pagados, marcar prestamos como pagados, marcar incidentes como pagados            
                     //actualizar formatos 
                     for (Formato formato : formatos) {
                         Date fechaFormato = Utileria.SDF.parse(formato.getFecha());
                         if (quitaGuion(formato.getEncargado()).equals(empleado)) {
-                            //este formato corresponde a la semana de pago
                             formato.setPagado(true);
                         }
                     }
@@ -950,7 +953,6 @@ public class ConsultaNomina extends javax.swing.JFrame {
                     for (Formato formato : formatos) {
                         Date fechaFormato = Utileria.SDF.parse(formato.getFecha());
                         if (quitaGuion(formato.getEncargado()).equals(empleado) && !fechaFormato.before(lunesAnterior) && !fechaFormato.after(domingoPosterior)) {
-                            //este formato corresponde a la semana de pago
                             formato.setPagado(true);
                         }
                     }
@@ -971,22 +973,22 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 }
 
                 ExecutorService executor = Executors.newFixedThreadPool(4);
-                
+
                 executor.execute(() -> Encargado.actualizarBD(encargados)); //actuaizar el pendiente del encargado                                 );               
                 executor.execute(() -> ConsultaFormato.actualizarFormatos(formatos)); //actualizar los pagado                
                 executor.execute(() -> Prestamo.actualizarDB(prestamos)); //actualizar los pagado                                
                 executor.execute(() -> Incidente.actualizarDB(incidentes)); //actualizar los pagado
-                
+
                 executor.shutdown();
                 while (!executor.isTerminated()) {
                     System.out.println("waiting to update");
                     try {
-                        Thread.sleep(400);
+                        Thread.sleep(200);
                     } catch (InterruptedException ex) {
-                        
+
                     }
                 }
-                
+
                 initData();
 
             }
@@ -1074,16 +1076,19 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
     private void rbtnTodosNoPagadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtnTodosNoPagadosActionPerformed
         datechooserGeneral.setEnabled(false);
+        btnPagar.setEnabled(true);
         initData();
     }//GEN-LAST:event_rbtnTodosNoPagadosActionPerformed
 
     private void rbtnNoPagadosSemanaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtnNoPagadosSemanaActionPerformed
         datechooserGeneral.setEnabled(true);
+        btnPagar.setEnabled(true);
         initData();
     }//GEN-LAST:event_rbtnNoPagadosSemanaActionPerformed
 
     private void rbtnSoloSemanaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbtnSoloSemanaActionPerformed
         datechooserGeneral.setEnabled(true);
+        btnPagar.setEnabled(false);
         initData();
     }//GEN-LAST:event_rbtnSoloSemanaActionPerformed
 

@@ -1,5 +1,6 @@
 package ControlUsuario;
 
+import Utilerias.Utileria;
 import static Utilerias.Utileria.*;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
@@ -114,7 +115,7 @@ public class AgregarUsuario extends javax.swing.JFrame {
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
         if(!txtUsuario.getText().equals("") && !txtContraseña.getText().equals("")){
             String usuario = quitaEspacios(txtUsuario.getText());
-            String contraseña = quitaEspacios(txtContraseña.getText());
+            String contraseña = Utileria.stringToBinary(quitaEspacios(txtContraseña.getText()));
             String permiso = cmbPermiso.getSelectedItem().toString();
             boolean existente = false;
             for (int i = 0; i < usuarios.size(); i++) {

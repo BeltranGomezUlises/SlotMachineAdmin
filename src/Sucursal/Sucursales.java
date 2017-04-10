@@ -15,7 +15,10 @@ public class Sucursales extends javax.swing.JFrame {
         initComponents();  
         
         sucursales = Sucursal.cargarSucursalesConProductos();
-        ordenarSucursales(sucursales, 0, sucursales.size()-1 );
+        try {
+            ordenarSucursales(sucursales, 0, sucursales.size()-1 );
+        } catch (Exception e) {            
+        }        
         
         Sucursal.actualizarBD(sucursales);        
         

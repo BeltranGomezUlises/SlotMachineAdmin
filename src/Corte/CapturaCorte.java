@@ -9,31 +9,23 @@ import java.awt.Color;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import static java.awt.image.ImageObserver.WIDTH;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Vector;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
-import javax.swing.KeyStroke;
 
 public class CapturaCorte extends javax.swing.JFrame {
 
@@ -1091,7 +1083,7 @@ public class CapturaCorte extends javax.swing.JFrame {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(rootPane, "Debe tener todos los campos llenos para poder guardar el corte", "ERROR", WIDTH);
         } catch (NullPointerException e) {
-            JOptionPane.showMessageDialog(rootPane, "No ingresó Fecha del Corte", "ERROR", WIDTH);
+            JOptionPane.showMessageDialog(rootPane, "No ingresó Fecha del Corte o algún capto está vacío", "ERROR", WIDTH);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(rootPane, "Base de Datos no encontrada o Inutilizable", "Error", ERROR_MESSAGE);
         }
@@ -1175,42 +1167,45 @@ public class CapturaCorte extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCancelarKeyTyped
 
     private void cmbSucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSucursalActionPerformed
-        String suc = quitaEspacios(cmbSucursal.getSelectedItem().toString());
-        maquinasFiltradas = new Vector<Maquina>();
-        for (int i = 0; i < maquinas.size(); i++) { //llenar masquinasFiltradas de maquinas con la sucursal actual
-            if (maquinas.elementAt(i).getSucursal().getNombre().equals(suc)) {
-                maquinasFiltradas.add(maquinas.elementAt(i));
-            }
-        }
-
-        //remover las maquinas si es que ya exista un corte
-        Vector<Corte> cortes = Corte.cargarCortes();
-        Vector<Corte> cortesFechaSucursal = new Vector<Corte>();
-        SimpleDateFormat sdf = new SimpleDateFormat("d/MM/yyyy");
         try {
-            String fecha = sdf.format(calendar.getDate());
-            for (Corte corte : cortes) {
-                if (corte.getSucursal().equals(suc) && corte.getFecha().equals(fecha)) {
-                    cortesFechaSucursal.add(corte);
+
+            String suc = quitaEspacios(cmbSucursal.getSelectedItem().toString());
+            maquinasFiltradas = new Vector<Maquina>();
+            for (int i = 0; i < maquinas.size(); i++) { //llenar masquinasFiltradas de maquinas con la sucursal actual
+                if (maquinas.elementAt(i).getSucursal().getNombre().equals(suc)) {
+                    maquinasFiltradas.add(maquinas.elementAt(i));
                 }
             }
 
-            for (int i = 0; i < cortesFechaSucursal.size(); i++) {
-                for (int j = 0; j < maquinasFiltradas.size(); j++) {
-                    if (maquinasFiltradas.elementAt(j).getNombre().equals(cortesFechaSucursal.elementAt(i).getMaquina().getNombre())) {
-                        maquinasFiltradas.removeElementAt(j);
+            //remover las maquinas si es que ya exista un corte
+            Vector<Corte> cortes = Corte.cargarCortes();
+            Vector<Corte> cortesFechaSucursal = new Vector<Corte>();
+            SimpleDateFormat sdf = new SimpleDateFormat("d/MM/yyyy");
+            try {
+                String fecha = sdf.format(calendar.getDate());
+                for (Corte corte : cortes) {
+                    if (corte.getSucursal().equals(suc) && corte.getFecha().equals(fecha)) {
+                        cortesFechaSucursal.add(corte);
                     }
                 }
+
+                for (int i = 0; i < cortesFechaSucursal.size(); i++) {
+                    for (int j = 0; j < maquinasFiltradas.size(); j++) {
+                        if (maquinasFiltradas.elementAt(j).getNombre().equals(cortesFechaSucursal.elementAt(i).getMaquina().getNombre())) {
+                            maquinasFiltradas.removeElementAt(j);
+                        }
+                    }
+                }
+            } catch (NullPointerException e) {
             }
-        } catch (NullPointerException e) {
+
+            cmbMaquina.removeAllItems();
+            for (int i = 0; i < maquinasFiltradas.size(); i++) {
+                cmbMaquina.addItem(maquinasFiltradas.elementAt(i).getNombre());
+            }
+
+        } catch (Exception e) {
         }
-
-        cmbMaquina.removeAllItems();
-        for (int i = 0; i < maquinasFiltradas.size(); i++) {
-            cmbMaquina.addItem(maquinasFiltradas.elementAt(i).getNombre());
-        }
-
-
     }//GEN-LAST:event_cmbSucursalActionPerformed
 
     private void cmbMaquinaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbMaquinaActionPerformed
