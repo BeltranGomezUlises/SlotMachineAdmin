@@ -384,6 +384,27 @@ public class CapturaVale extends javax.swing.JFrame {
 
     private void cmbChequeraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbChequeraActionPerformed
         txtRutero.setText(quitaGuion(chequeras.get(cmbChequera.getSelectedIndex()).getRutero()));
+        //colocar en el campo de folio, el folio siguiente respecto al ultimo capturado
+        String parteDecimal = ""; //en caso de necesitar
+        int folio = 0;
+        try {
+            folio = Integer.parseInt(chequeras.get(cmbChequera.getSelectedIndex()).getUltimoFolio());            
+        } catch (Exception e) {
+            //obtener la parte de numeros del folio
+            String ultimoFolio = chequeras.get(cmbChequera.getSelectedIndex()).getUltimoFolio();            
+            for (int i = 0; i < ultimoFolio.length(); i++) {
+                if (Character.isDigit(ultimoFolio.charAt(i))) {
+                    parteDecimal += ultimoFolio.charAt(i);
+                }
+            }            
+        }
+        finally{
+            if (!parteDecimal.isEmpty()) {
+                folio = Integer.parseInt(parteDecimal);
+            }
+            folio++;
+            txtFolio.setText(String.valueOf(folio));
+        }
     }//GEN-LAST:event_cmbChequeraActionPerformed
 
     private void cmbSucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSucursalActionPerformed

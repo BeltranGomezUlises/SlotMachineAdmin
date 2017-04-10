@@ -156,6 +156,7 @@ public class Maquina {
             }                
             pw.close();
         }catch(Exception e){
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error al actualizar el archivo de Maquinas");
         }
     }

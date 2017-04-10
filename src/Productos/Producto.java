@@ -10,6 +10,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 
 public class Producto {
+    
     float precio, costo,comision;
     String nombre;
     int presentacion;

@@ -1,10 +1,12 @@
 package Productos;
 
 import ControlUsuario.Usuario;
+import Sucursal.Sucursal;
 import static java.awt.event.KeyEvent.VK_ENTER;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 
@@ -242,8 +244,14 @@ public class AgregarProducto extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(rootPane, "Producto Agregado con éxito");
                     btnCancelarActionPerformed(null);
                 } catch (IOException e) {
+                    JOptionPane.showMessageDialog(rootPane, "El producto no pudo ser agregado", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-
+                
+                Vector<Sucursal> sucursales = Sucursal.cargarSucursalesConProductos();
+                for (Sucursal sucursal : sucursales) {                    
+                    sucursal.getNomProductos().add(p.getNombre());
+                }
+                Sucursal.actualizarBD(sucursales);
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(rootPane, "Debe de llenar todos los campos correctamente","Atención",JOptionPane.WARNING_MESSAGE);

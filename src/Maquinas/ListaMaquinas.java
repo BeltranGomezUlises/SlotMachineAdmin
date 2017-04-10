@@ -19,16 +19,7 @@ public class ListaMaquinas extends javax.swing.JFrame {
         if (maquinas.size() > 0) { //preguntamos si no esta vacio el vector, si es asi omitir ordenamiento y actualizacion
             ordenarMaquinas(maquinas, 0, maquinas.size()-1);
             //una vez ordenado actualizar el archivo de maquinas
-            try {
-                FileWriter fr = new FileWriter("Archivos/Maquinas.bin");
-                try (PrintWriter pw = new PrintWriter(fr)) {
-                    for (int i = 0; i < maquinas.size(); i++) {
-                        pw.println(maquinas.elementAt(i).toString());
-                    }
-                } 
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error al actualizar el orden de las maquinas", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            Maquina.ActualizarDB(maquinas);
         }
                                         
         //llenar la tabla
@@ -97,10 +88,11 @@ public class ListaMaquinas extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Máquinas");
-        setResizable(false);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel1.setText("Lista de Máquinas");
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         btnAgregar.setText("Agregar Máquina");
         btnAgregar.addActionListener(new java.awt.event.ActionListener() {
@@ -152,7 +144,7 @@ public class ListaMaquinas extends javax.swing.JFrame {
                 .addComponent(btnEliminar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnEditar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 193, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
                 .addComponent(btnCancelar)
                 .addContainerGap())
         );
@@ -178,7 +170,7 @@ public class ListaMaquinas extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 528, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()

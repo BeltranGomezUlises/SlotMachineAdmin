@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
 
-public class Chequera {
+public class Chequera implements Comparable{
     
     private String id;
     private String rutero;
@@ -121,5 +121,11 @@ public class Chequera {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al intentar guardar Chequeras al archivo", "Error", JOptionPane.ERROR_MESSAGE);
         }      
+    }
+
+    @Override
+    public int compareTo(Object t) {
+        Chequera c = (Chequera) t;
+        return this.getId().compareTo(c.getId());                                    
     }
 }

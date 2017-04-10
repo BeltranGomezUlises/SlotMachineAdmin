@@ -1,5 +1,6 @@
 package Corte;
 
+import Encargado.Encargado;
 import static Utilerias.Utileria.*;
 import Maquinas.Maquina;
 import Sucursal.Sucursal;
@@ -8,92 +9,76 @@ import java.awt.Color;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import static java.awt.image.ImageObserver.WIDTH;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Vector;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
-import javax.swing.KeyStroke;
 
 public class CapturaCorte extends javax.swing.JFrame {
-    
-    Vector<Maquina> maquinas;    
+
+    Vector<Maquina> maquinas;
     Vector<Sucursal> sucursales;
     Vector<Maquina> maquinasFiltradas;
-    
-    
+
     //iconos
     Icon iconContPegado = new ImageIcon(getClass().getResource("/Images/pegado.jpg"));
     Icon iconCont = new ImageIcon(getClass().getResource("/Images/cont.jpg"));
     Icon iconAvanceCont = new ImageIcon(getClass().getResource("/Images/avanceCont.gif"));
     Icon iconPantalla = new ImageIcon(getClass().getResource("/Images/pant.jpg"));
-    
+
     public CapturaCorte() {
         initComponents();
-        
-        this.agregarOyenteJCalendar();        
-        try{
-            maquinas = Maquina.cargarMaquinas();
-            sucursales = Sucursal.cargarSucursales();
-            for (int i = 0; i < sucursales.size(); i++) {
-               cmbSucursal.addItem(quitaGuion(sucursales.elementAt(i).getNombre()));
-            }
-            
-            //El combo box de los encargados
-            FileReader fr1 = new FileReader("Archivos/Encargados.bin");
-            BufferedReader br1 = new BufferedReader(fr1);
-            String linea1= br1.readLine();
-            while(linea1!=null){
-                cmbEncargado.addItem(linea1);
-                linea1=br1.readLine();
-            }
-            br1.close();
-            
-            GregorianCalendar cal = new GregorianCalendar();
-            calendar.setDate(cal.getTime());
-            txtRobo.setEnabled(false);
-        }catch(FileNotFoundException e){
-            JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable", "Error", WIDTH);
-        }catch(IOException e){
-            
+
+        this.agregarOyenteJCalendar();
+
+        maquinas = Maquina.cargarMaquinas();
+        sucursales = Sucursal.cargarSucursales();
+        for (int i = 0; i < sucursales.size(); i++) {
+            cmbSucursal.addItem(quitaGuion(sucursales.elementAt(i).getNombre()));
         }
-    }   
-    
-    private Corte crearCorte(){        
+
+        List<Encargado> encargados = Encargado.cargarEncargados();
+        for (Encargado encargado : encargados) {
+            cmbEncargado.addItem(encargado.getNombre());
+        }
+
+        GregorianCalendar cal = new GregorianCalendar();
+        calendar.setDate(cal.getTime());
+        txtRobo.setEnabled(false);
+
+    }
+
+    private Corte crearCorte() {
         DateFormat df = DateFormat.getDateInstance();
-        String fecha= df.format(calendar.getDate());
-        String sucursal=quitaEspacios(cmbSucursal.getSelectedItem().toString());
-        String encargado=quitaEspacios(cmbEncargado.getSelectedItem().toString());          
-        Maquina m = maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex());                        
-        int contPos= Integer.parseInt(txtContPos.getText());
-        int contNeg= Integer.parseInt(txtContNeg.getText());
-        int pantIn= Integer.parseInt(txtPantIn.getText());
-        int pantOut= Integer.parseInt(txtPantOut.getText());
-        int pantInOut= Integer.parseInt(txtPantInOut.getText());            
-        int inOut= Integer.parseInt(txtInOut.getText());  
-        
+        String fecha = df.format(calendar.getDate());
+        String sucursal = quitaEspacios(cmbSucursal.getSelectedItem().toString());
+        String encargado = quitaEspacios(cmbEncargado.getSelectedItem().toString());
+        Maquina m = maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex());
+        int contPos = Integer.parseInt(txtContPos.getText());
+        int contNeg = Integer.parseInt(txtContNeg.getText());
+        int pantIn = Integer.parseInt(txtPantIn.getText());
+        int pantOut = Integer.parseInt(txtPantOut.getText());
+        int pantInOut = Integer.parseInt(txtPantInOut.getText());
+        int inOut = Integer.parseInt(txtInOut.getText());
+
         int robo = 0;
-        if (!txtRobo.getText().equals(""))
-            robo = Integer.parseInt(txtRobo.getText());     
-       
+        if (!txtRobo.getText().equals("")) {
+            robo = Integer.parseInt(txtRobo.getText());
+        }
+
         //guardar fallos
         boolean falloContador = chkFalloContador.isSelected();
         boolean falloPantalla = chkFalloPant.isSelected();
@@ -102,32 +87,32 @@ public class CapturaCorte extends javax.swing.JFrame {
         boolean falloPendiente = chkFalloPendiente.isSelected();
         boolean falloRobo = chkRobo.isSelected();
         boolean descom = chkDescompostura.isSelected();
-        
+
         String nota = quitaEspacios(txtNota.getText());
         if (nota.equals("")) {
-            nota="null";
+            nota = "null";
         }
         //por defecto el campo solucionado debe de estar  verdadero, a excepcion de tener un fallo
         boolean solucionado = true;
         if (falloContador || falloPantalla || falloPendiente) {
             solucionado = false;
         }
-        return new Corte(fecha,sucursal,encargado,m,contPos,contNeg,pantIn,pantOut,pantInOut,inOut, nota, robo, falloContador, falloPantalla, falloRobo, falloPendiente, falloVueltaContPos, falloVueltaContNeg, descom, solucionado);          
-        
+        return new Corte(fecha, sucursal, encargado, m, contPos, contNeg, pantIn, pantOut, pantInOut, inOut, nota, robo, falloContador, falloPantalla, falloRobo, falloPendiente, falloVueltaContPos, falloVueltaContNeg, descom, solucionado);
+
     }
-    
-    private void revisarDatosPantalla(){
+
+    private void revisarDatosPantalla() {
         //revisar que los valores de pantalla conicidan
         try {
             int pantIn = Integer.parseInt(txtPantIn.getText());
             int pantOut = Integer.parseInt(txtPantOut.getText());
-            
+
             int res = pantIn - pantOut;
             int pantInOut = Integer.parseInt(txtPantInOut.getText());
             if (res == pantInOut) {
                 lbEdoPantalla.setText("CORRECTO");
                 lbEdoPantalla.setForeground(Color.green);
-            }else{
+            } else {
                 lbEdoPantalla.setText("INCORRECTO");
                 lbEdoPantalla.setForeground(Color.red);
             }
@@ -135,8 +120,8 @@ public class CapturaCorte extends javax.swing.JFrame {
             //omitir la falta de un valor
         }
     }
-    
-    private void limpiarPantalla(){
+
+    private void limpiarPantalla() {
         txtContPos.setText("");
         txtContNeg.setText("");
         txtPantIn.setText("");
@@ -154,23 +139,23 @@ public class CapturaCorte extends javax.swing.JFrame {
         chkVueltaContNeg.setSelected(false);
         lbEdoPantalla.setText("");
     }
-    
-    private void agregarOyenteJCalendar(){
-        calendar.getDateEditor().addPropertyChangeListener(new PropertyChangeListener(){         
+
+    private void agregarOyenteJCalendar() {
+        calendar.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 cmbSucursalActionPerformed(null);
             }
         });
     }
-    
-    private void limpiarPrestamosNoRecuperables(){
+
+    private void limpiarPrestamosNoRecuperables() {
         for (int i = 0; i < maquinas.size(); i++) {
             maquinas.elementAt(i).setPrestNoRecu(0);
         }
         txtPrestNoRecuperable.setText("0");
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -874,12 +859,12 @@ public class CapturaCorte extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_btnCancelarActionPerformed
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
-        try{            
-            Corte c = this.crearCorte();            
+        try {
+            Corte c = this.crearCorte();
             //buscar que no exista
             boolean existe = false;
-            boolean contMenor = false; 
-            boolean contMayor = false;    
+            boolean contMenor = false;
+            boolean contMayor = false;
             boolean discrepanciaContador = false;
             boolean discrepanciaPantalla = false;
             boolean sinAvanceContadorPos = false;
@@ -887,90 +872,90 @@ public class CapturaCorte extends javax.swing.JFrame {
             boolean contPosPegado = false;
             boolean contNegPegado = false;
             boolean controlPreguntas = false;
-            
-            Vector<Corte> cortes = Corte.cargarCortes();   
+
+            Vector<Corte> cortes = Corte.cargarCortes();
             Vector<Corte> cortesDeMaquina = new Vector<Corte>();
             int indiceCorteCap = -1;
-            for(Corte corte : cortes){                  
-                if(corte.equals(c)){
-                    existe=true;  
-                    new CCorte (corte).setVisible(true);
+            for (Corte corte : cortes) {
+                if (corte.equals(c)) {
+                    existe = true;
+                    new CCorte(corte).setVisible(true);
                 }
             }
-            
+
             if (!existe) { //si ya sabemos que ese corte ya existe no tiene caso calcular 
                 if (!c.isFalloContador()) { // si no esta marcada la casilla de fallo contador
                     //buscar el corte anterior de esta maquina para saber si los contadores son correctos               
-                   DateFormat dateFormat = new SimpleDateFormat("d/MM/yyyy");
-                   //buscar los cortes de la misma maquina y comparar los contadores con el anterior
+                    DateFormat dateFormat = new SimpleDateFormat("d/MM/yyyy");
+                    //buscar los cortes de la misma maquina y comparar los contadores con el anterior
 
-                   for (int i = 0; i < cortes.size(); i++) {
-                       if (cortes.elementAt(i).getMaquina().equals(c.getMaquina())) {
-                           cortesDeMaquina.add(cortes.elementAt(i));                        
-                       }
-                   }
+                    for (int i = 0; i < cortes.size(); i++) {
+                        if (cortes.elementAt(i).getMaquina().equals(c.getMaquina())) {
+                            cortesDeMaquina.add(cortes.elementAt(i));
+                        }
+                    }
 
-                   if (!cortesDeMaquina.isEmpty()) {                
-                       cortesDeMaquina.add(c); //añadir para ordenar
-                       ConsultaCorte.ordenarCortesPorFecha(cortesDeMaquina, 0, cortesDeMaquina.size()-1); //ordenar los cortes de esa maquina                                   
-                       ConsultaCorte.asignarContadores(cortesDeMaquina);                   
-                       //sacar el indice del corte c                   
-                       for (int i = 0; i < cortesDeMaquina.size(); i++) {
-                           if (cortesDeMaquina.elementAt(i).equals(c)){                               
-                               indiceCorteCap = i;  //obtenemos el indice que le corresponde al corte capturado en orden de fechas
-                           }
-                       }
+                    if (!cortesDeMaquina.isEmpty()) {
+                        cortesDeMaquina.add(c); //añadir para ordenar
+                        ConsultaCorte.ordenarCortesPorFecha(cortesDeMaquina, 0, cortesDeMaquina.size() - 1); //ordenar los cortes de esa maquina                                   
+                        ConsultaCorte.asignarContadores(cortesDeMaquina);
+                        //sacar el indice del corte c                   
+                        for (int i = 0; i < cortesDeMaquina.size(); i++) {
+                            if (cortesDeMaquina.elementAt(i).equals(c)) {
+                                indiceCorteCap = i;  //obtenemos el indice que le corresponde al corte capturado en orden de fechas
+                            }
+                        }
 
-                       //si existe un corte anterior del corte c preguntar por los contadores
-                       try{                    
-                           //si el corte actual tiene contador menor al corte anterior   
-                           if (!cortesDeMaquina.elementAt(indiceCorteCap-1).isFalloContador()) {                               
-                               if( c.getContPos() < cortesDeMaquina.elementAt(indiceCorteCap-1).getContPos() ){    
-                                   System.out.println(c.isVueltaContadorPos());
-                                   if (!c.isVueltaContadorPos()) {
-                                       contMenor=true;     
-                                   }                                                                                              
-                               } 
-                               if( c.getContNeg() < cortesDeMaquina.elementAt(indiceCorteCap-1).getContNeg() ) { //el contador positivo es menor
-                                   System.out.println(c.isVueltaContadorNeg());
-                                   if (!c.isVueltaContadorNeg()) {
-                                       contMenor = true;                                                                
-                                   }
-                               }
-                               if ( contMenor ) {
-                                   controlPreguntas = true; //para que ya no pregunte mas cosas
-                                   new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1)).setVisible(true);  //Abrir el corte anterior
-                               }
-                           }                                       
-                       }catch(ArrayIndexOutOfBoundsException e){/*si salta esta excepcion es que no hay un corte anterior, entonces omitir*/                           
-                       }
-                       //si exsite un corte posterior de c preguntar por los contadores
-                       try {
-                           if(c.getContNeg() > cortesDeMaquina.elementAt(indiceCorteCap + 1).getContNeg() || c.getContPos() > cortesDeMaquina.elementAt(indiceCorteCap + 1).getContPos()){
-                               contMayor = true;
-                               controlPreguntas = true; //para que ya no pregunte mas cosas
-                               //abrir el corte posterior
-                               new CCorte(cortesDeMaquina.elementAt(indiceCorteCap + 1)).setVisible(true);
-                           }
-                       } catch (ArrayIndexOutOfBoundsException e) {//omitir si no existe un corte posterior                           
-                       }
+                        //si existe un corte anterior del corte c preguntar por los contadores
+                        try {
+                            //si el corte actual tiene contador menor al corte anterior   
+                            if (!cortesDeMaquina.elementAt(indiceCorteCap - 1).isFalloContador()) {
+                                if (c.getContPos() < cortesDeMaquina.elementAt(indiceCorteCap - 1).getContPos()) {
+                                    System.out.println(c.isVueltaContadorPos());
+                                    if (!c.isVueltaContadorPos()) {
+                                        contMenor = true;
+                                    }
+                                }
+                                if (c.getContNeg() < cortesDeMaquina.elementAt(indiceCorteCap - 1).getContNeg()) { //el contador positivo es menor
+                                    System.out.println(c.isVueltaContadorNeg());
+                                    if (!c.isVueltaContadorNeg()) {
+                                        contMenor = true;
+                                    }
+                                }
+                                if (contMenor) {
+                                    controlPreguntas = true; //para que ya no pregunte mas cosas
+                                    new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1)).setVisible(true);  //Abrir el corte anterior
+                                }
+                            }
+                        } catch (ArrayIndexOutOfBoundsException e) {/*si salta esta excepcion es que no hay un corte anterior, entonces omitir*/
+                        }
+                        //si exsite un corte posterior de c preguntar por los contadores
+                        try {
+                            if (c.getContNeg() > cortesDeMaquina.elementAt(indiceCorteCap + 1).getContNeg() || c.getContPos() > cortesDeMaquina.elementAt(indiceCorteCap + 1).getContPos()) {
+                                contMayor = true;
+                                controlPreguntas = true; //para que ya no pregunte mas cosas
+                                //abrir el corte posterior
+                                new CCorte(cortesDeMaquina.elementAt(indiceCorteCap + 1)).setVisible(true);
+                            }
+                        } catch (ArrayIndexOutOfBoundsException e) {//omitir si no existe un corte posterior                           
+                        }
 
-                       if (cortesDeMaquina.elementAt(indiceCorteCap).getDifContPos() == 0) { //el contador positivo esta pegado
-                           contPosPegado = true;                           
-                       }
-                       if (cortesDeMaquina.elementAt(indiceCorteCap).getDifContNeg() == 0) { //el contador positivo esta pegado
-                           contNegPegado = true;                           
-                       }
-                       if (cortesDeMaquina.elementAt(indiceCorteCap).discrepanciaCont() >= 30 || cortesDeMaquina.elementAt(indiceCorteCap).discrepanciaCont() <= -30) {
-                           discrepanciaContador = true;
-                       }                                      
-                       if (cortesDeMaquina.elementAt(indiceCorteCap).getDifContPos() <= 20 && cortesDeMaquina.elementAt(indiceCorteCap).getDifContPos() > 0 ) {                       
-                           sinAvanceContadorPos = true;
-                       }                   
-                       if (cortesDeMaquina.elementAt(indiceCorteCap).getDifContNeg() <= 20  && cortesDeMaquina.elementAt(indiceCorteCap).getDifContNeg() > 0 ) {                       
-                           sinAvanceContadorNeg = true;
-                       }                                      
-                   }   
+                        if (cortesDeMaquina.elementAt(indiceCorteCap).getDifContPos() == 0) { //el contador positivo esta pegado
+                            contPosPegado = true;
+                        }
+                        if (cortesDeMaquina.elementAt(indiceCorteCap).getDifContNeg() == 0) { //el contador positivo esta pegado
+                            contNegPegado = true;
+                        }
+                        if (cortesDeMaquina.elementAt(indiceCorteCap).discrepanciaCont() >= 30 || cortesDeMaquina.elementAt(indiceCorteCap).discrepanciaCont() <= -30) {
+                            discrepanciaContador = true;
+                        }
+                        if (cortesDeMaquina.elementAt(indiceCorteCap).getDifContPos() <= 20 && cortesDeMaquina.elementAt(indiceCorteCap).getDifContPos() > 0) {
+                            sinAvanceContadorPos = true;
+                        }
+                        if (cortesDeMaquina.elementAt(indiceCorteCap).getDifContNeg() <= 20 && cortesDeMaquina.elementAt(indiceCorteCap).getDifContNeg() > 0) {
+                            sinAvanceContadorNeg = true;
+                        }
+                    }
                 }
             }
             if (!c.isFalloPantalla()) { //si no esta marcada la casilla de fallo pantalla
@@ -979,35 +964,34 @@ public class CapturaCorte extends javax.swing.JFrame {
                     discrepanciaPantalla = true;
                 }
             }
-            
-            
+
             //hacer las preguntas al usuario
             if (contPosPegado && !controlPreguntas && !c.isFalloDescompuesto()) {
-                if (JOptionPane.showConfirmDialog(null, "El contador Positivo no muestra avance (pegado)\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconContPegado) == JOptionPane.YES_OPTION ){
-                   contPosPegado = false;
-                }else{
+                if (JOptionPane.showConfirmDialog(null, "El contador Positivo no muestra avance (pegado)\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconContPegado) == JOptionPane.YES_OPTION) {
+                    contPosPegado = false;
+                } else {
                     controlPreguntas = true;//para que ya no pregunte mas cosas                       
                 }
             }
             if (contNegPegado && !controlPreguntas && !c.isFalloDescompuesto()) {
-                if (JOptionPane.showConfirmDialog(null, "El contador Negativo no muestra avance (pegado)\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconContPegado) == JOptionPane.YES_OPTION ){
-                   contNegPegado = false;
-                }else{
+                if (JOptionPane.showConfirmDialog(null, "El contador Negativo no muestra avance (pegado)\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconContPegado) == JOptionPane.YES_OPTION) {
+                    contNegPegado = false;
+                } else {
                     controlPreguntas = true;//para que ya no pregunte mas cosas                       
                 }
             }
             if (!c.isFalloRobo()) {//omitir revisiones de discrepancia
                 //discrepancia con contador
                 if (discrepanciaContador && !controlPreguntas) {
-                    if (JOptionPane.showConfirmDialog(null, "El contador ingresado muestra una discrepancia mayor o igual a 30\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconCont) == JOptionPane.YES_OPTION ){
+                    if (JOptionPane.showConfirmDialog(null, "El contador ingresado muestra una discrepancia mayor o igual a 30\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconCont) == JOptionPane.YES_OPTION) {
                         discrepanciaContador = false;
-                    }else{
+                    } else {
                         controlPreguntas = true;//para que ya no pregunte mas cosas   
                         //abrir el corte anterior                                                                                        
                         try {
                             CCorte CCorteAnterior = new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1));
                             CCorteAnterior.setTitle("Corte Aterior");
-                            CCorteAnterior.setVisible(true); 
+                            CCorteAnterior.setVisible(true);
                             //abrir el corte actual
                             CCorte CCorteActual = new CCorte(cortesDeMaquina.elementAt(indiceCorteCap));
                             CCorteActual.setTitle("Corte Actual");
@@ -1016,56 +1000,55 @@ public class CapturaCorte extends javax.swing.JFrame {
                             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
                             GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
                             Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-                            int x = (int) rect.getMaxX() - CCorteActual.getWidth();                        
-                            CCorteActual.setLocation(x, 0);        
+                            int x = (int) rect.getMaxX() - CCorteActual.getWidth();
+                            CCorteActual.setLocation(x, 0);
 
                         } catch (Exception e) { //si no tiene corte anterior omitir                          
-                        }                     
+                        }
                     }
-                } 
+                }
                 //discrepancia con pantalla
                 if (discrepanciaPantalla && !controlPreguntas) {
-                    if (JOptionPane.showConfirmDialog(null, "Los valores de pantalla ingresados muestran una discrepancia mayor o igual a 30\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconPantalla) == JOptionPane.YES_OPTION ){
+                    if (JOptionPane.showConfirmDialog(null, "Los valores de pantalla ingresados muestran una discrepancia mayor o igual a 30\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconPantalla) == JOptionPane.YES_OPTION) {
                         discrepanciaPantalla = false;
-                    }else{
+                    } else {
                         controlPreguntas = true;
                         try {
-                            new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1)).setVisible(true);                       
+                            new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1)).setVisible(true);
                         } catch (Exception e) { //si no tiene corte anterior omitir                           
-                        }                     
+                        }
                     }
-                } 
-            }else{
+                }
+            } else {
                 discrepanciaContador = false;
                 discrepanciaPantalla = false;
             }
-                    
+
             if (sinAvanceContadorPos && !controlPreguntas && !c.isFalloDescompuesto()) {
-                if (JOptionPane.showConfirmDialog(null, "El contador positivo respecto al corte anterior avanzó menos de 20\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconAvanceCont) == JOptionPane.YES_OPTION ){
+                if (JOptionPane.showConfirmDialog(null, "El contador positivo respecto al corte anterior avanzó menos de 20\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconAvanceCont) == JOptionPane.YES_OPTION) {
                     sinAvanceContadorPos = false;
-                }else{
+                } else {
                     controlPreguntas = true;
                     try {
-                        new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1)).setVisible(true);                       
+                        new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1)).setVisible(true);
                     } catch (Exception e) { //si no tiene cor        
                         e.printStackTrace();
-                    }                     
-                }
-            }                        
-            if (sinAvanceContadorNeg && !controlPreguntas && !c.isFalloDescompuesto()) {
-                if (JOptionPane.showConfirmDialog(null, "El contador negativo respecto al corte anterior avanzó menos de 20\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconAvanceCont) == JOptionPane.YES_OPTION ){
-                    sinAvanceContadorNeg = false;
-                }else{
-                    controlPreguntas = true;
-                    try {
-                        new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1)).setVisible(true);                       
-                    } catch (Exception e) { //si no tiene corte anterior omitir   
-                        e.printStackTrace();
-                    }                     
+                    }
                 }
             }
-            
-                  
+            if (sinAvanceContadorNeg && !controlPreguntas && !c.isFalloDescompuesto()) {
+                if (JOptionPane.showConfirmDialog(null, "El contador negativo respecto al corte anterior avanzó menos de 20\n¿Desea Guardarlo así?... presione no para asignar fallo", "Advertencia", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconAvanceCont) == JOptionPane.YES_OPTION) {
+                    sinAvanceContadorNeg = false;
+                } else {
+                    controlPreguntas = true;
+                    try {
+                        new CCorte(cortesDeMaquina.elementAt(indiceCorteCap - 1)).setVisible(true);
+                    } catch (Exception e) { //si no tiene corte anterior omitir   
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             System.out.println("llego aqui!");
             //escribir en el archivo con el toString
             System.out.println(existe);
@@ -1076,49 +1059,52 @@ public class CapturaCorte extends javax.swing.JFrame {
             System.out.println(sinAvanceContadorNeg);
             System.out.println(contPosPegado);
             System.out.println(contNegPegado);
-            
-            if(!existe && !contMenor && !contMayor && !discrepanciaContador && !discrepanciaPantalla && !sinAvanceContadorPos && !sinAvanceContadorNeg && !contPosPegado && !contNegPegado){
-                FileWriter fw = new FileWriter("Archivos/Cortes.bin",true);
-                PrintWriter pw= new PrintWriter(fw) ;
+
+            if (!existe && !contMenor && !contMayor && !discrepanciaContador && !discrepanciaPantalla && !sinAvanceContadorPos && !sinAvanceContadorNeg && !contPosPegado && !contNegPegado) {
+                FileWriter fw = new FileWriter("Archivos/Cortes.bin", true);
+                PrintWriter pw = new PrintWriter(fw);
                 pw.println(c.toString());
                 pw.close();
                 JOptionPane.showMessageDialog(rootPane, "Corte de Maquina agregado con éxito", "Éxito", WIDTH);
                 this.limpiarPantalla();
                 this.cmbSucursalActionPerformed(null);
                 this.limpiarPrestamosNoRecuperables();
-            }else{
-                if(existe)
-                    JOptionPane.showMessageDialog(rootPane, "El Corte que ested esta ingresando ya existe", "Atencion",WARNING_MESSAGE);                
-                if(contMenor)
-                     JOptionPane.showMessageDialog(rootPane, "El Corte ingresado posee un contador menor al corte anterior", "Atencion",WARNING_MESSAGE);                
-                if(contMayor)
-                     JOptionPane.showMessageDialog(rootPane, "El Corte ingresado posee un contador mayor al corte posterior", "Atencion",WARNING_MESSAGE);                
+            } else {
+                if (existe) {
+                    JOptionPane.showMessageDialog(rootPane, "El Corte que ested esta ingresando ya existe", "Atencion", WARNING_MESSAGE);
+                }
+                if (contMenor) {
+                    JOptionPane.showMessageDialog(rootPane, "El Corte ingresado posee un contador menor al corte anterior", "Atencion", WARNING_MESSAGE);
+                }
+                if (contMayor) {
+                    JOptionPane.showMessageDialog(rootPane, "El Corte ingresado posee un contador mayor al corte posterior", "Atencion", WARNING_MESSAGE);
+                }
             }
-        }catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(rootPane, "Debe tener todos los campos llenos para poder guardar el corte", "ERROR", WIDTH);
-        }catch(NullPointerException e){
-             JOptionPane.showMessageDialog(rootPane, "No ingresó Fecha del Corte", "ERROR", WIDTH);
-        }catch(IOException e){
+        } catch (NullPointerException e) {
+            JOptionPane.showMessageDialog(rootPane, "No ingresó Fecha del Corte o algún capto está vacío", "ERROR", WIDTH);
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(rootPane, "Base de Datos no encontrada o Inutilizable", "Error", ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAceptarActionPerformed
     private void txtContPosKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtContPosKeyTyped
         char tecla = evt.getKeyChar();
-                
+
         if (tecla == KeyEvent.VK_ENTER) {
             txtContNeg.requestFocus();
             return;
         }
-        
+
         int digitos = txtContPos.getText().length();
-        if ( digitos > 5 && tecla != KeyEvent.VK_BACK_SPACE) {
+        if (digitos > 5 && tecla != KeyEvent.VK_BACK_SPACE) {
             evt.consume();
             return;
         }
-        
+
         if (!Validacion.isDigit(evt)) {
             evt.consume();
-        }        
+        }
     }//GEN-LAST:event_txtContPosKeyTyped
     private void txtContNegKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtContNegKeyTyped
         char tecla = evt.getKeyChar();
@@ -1126,25 +1112,25 @@ public class CapturaCorte extends javax.swing.JFrame {
             txtInOut.requestFocus();
             return;
         }
-        
+
         int digitos = txtContNeg.getText().length();
-        if ( digitos > 5 && tecla != KeyEvent.VK_BACK_SPACE) {
+        if (digitos > 5 && tecla != KeyEvent.VK_BACK_SPACE) {
             evt.consume();
             return;
         }
-        
+
         if (!Validacion.isDigit(evt)) {
             evt.consume();
-        } 
+        }
     }//GEN-LAST:event_txtContNegKeyTyped
     private void txtPantInKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPantInKeyTyped
-        char tecla = evt.getKeyChar();          
+        char tecla = evt.getKeyChar();
         if (tecla == KeyEvent.VK_ENTER || tecla == KeyEvent.VK_TAB) {
-            txtPantOut.requestFocus();      
+            txtPantOut.requestFocus();
             return;
         }
-        if(!Character.isDigit(tecla)){
-            evt.consume();            
+        if (!Character.isDigit(tecla)) {
+            evt.consume();
         }
     }//GEN-LAST:event_txtPantInKeyTyped
     private void txtPantOutKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPantOutKeyTyped
@@ -1153,7 +1139,7 @@ public class CapturaCorte extends javax.swing.JFrame {
             txtPantInOut.requestFocus();
             return;
         }
-        if(!Character.isDigit(tecla)){
+        if (!Character.isDigit(tecla)) {
             evt.consume();
         }
     }//GEN-LAST:event_txtPantOutKeyTyped
@@ -1163,65 +1149,67 @@ public class CapturaCorte extends javax.swing.JFrame {
             txtContPos.requestFocus();
             return;
         }
-        if(!Character.isDigit(tecla) && tecla!='-'){
+        if (!Character.isDigit(tecla) && tecla != '-') {
             evt.consume();
-        }                                
+        }
     }//GEN-LAST:event_txtPantInOutKeyTyped
     private void btnAceptarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnAceptarKeyTyped
-        char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnAceptarActionPerformed(null);
         }
     }//GEN-LAST:event_btnAceptarKeyTyped
     private void btnCancelarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnCancelarKeyTyped
-        char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnCancelarActionPerformed(null);
         }
     }//GEN-LAST:event_btnCancelarKeyTyped
 
     private void cmbSucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSucursalActionPerformed
-        String suc = quitaEspacios(cmbSucursal.getSelectedItem().toString());        
-        maquinasFiltradas= new Vector<Maquina>();
-        for (int i = 0; i < maquinas.size(); i++) { //llenar masquinasFiltradas de maquinas con la sucursal actual
-            if (maquinas.elementAt(i).getSucursal().getNombre().equals(suc)) {
-                maquinasFiltradas.add(maquinas.elementAt(i));
-            }
-        }
-        
-        //remover las maquinas si es que ya exista un corte
-        Vector<Corte> cortes = Corte.cargarCortes();
-        Vector<Corte> cortesFechaSucursal = new Vector<Corte>();
-        SimpleDateFormat sdf = new SimpleDateFormat("d/MM/yyyy");
         try {
-            String fecha = sdf.format(calendar.getDate());        
-            for (Corte corte : cortes) {
-                if (corte.getSucursal().equals(suc) && corte.getFecha().equals(fecha)) {
-                    cortesFechaSucursal.add(corte);
+
+            String suc = quitaEspacios(cmbSucursal.getSelectedItem().toString());
+            maquinasFiltradas = new Vector<Maquina>();
+            for (int i = 0; i < maquinas.size(); i++) { //llenar masquinasFiltradas de maquinas con la sucursal actual
+                if (maquinas.elementAt(i).getSucursal().getNombre().equals(suc)) {
+                    maquinasFiltradas.add(maquinas.elementAt(i));
                 }
             }
 
-            for (int i = 0; i < cortesFechaSucursal.size(); i++) {
-                for (int j = 0; j < maquinasFiltradas.size(); j++) {
-                    if (maquinasFiltradas.elementAt(j).getNombre().equals(cortesFechaSucursal.elementAt(i).getMaquina().getNombre())) {
-                        maquinasFiltradas.removeElementAt(j);
+            //remover las maquinas si es que ya exista un corte
+            Vector<Corte> cortes = Corte.cargarCortes();
+            Vector<Corte> cortesFechaSucursal = new Vector<Corte>();
+            SimpleDateFormat sdf = new SimpleDateFormat("d/MM/yyyy");
+            try {
+                String fecha = sdf.format(calendar.getDate());
+                for (Corte corte : cortes) {
+                    if (corte.getSucursal().equals(suc) && corte.getFecha().equals(fecha)) {
+                        cortesFechaSucursal.add(corte);
                     }
                 }
+
+                for (int i = 0; i < cortesFechaSucursal.size(); i++) {
+                    for (int j = 0; j < maquinasFiltradas.size(); j++) {
+                        if (maquinasFiltradas.elementAt(j).getNombre().equals(cortesFechaSucursal.elementAt(i).getMaquina().getNombre())) {
+                            maquinasFiltradas.removeElementAt(j);
+                        }
+                    }
+                }
+            } catch (NullPointerException e) {
             }
-        } catch (NullPointerException e) {
+
+            cmbMaquina.removeAllItems();
+            for (int i = 0; i < maquinasFiltradas.size(); i++) {
+                cmbMaquina.addItem(maquinasFiltradas.elementAt(i).getNombre());
+            }
+
+        } catch (Exception e) {
         }
-        
-        cmbMaquina.removeAllItems();
-        for (int i = 0; i < maquinasFiltradas.size(); i++) {
-            cmbMaquina.addItem(maquinasFiltradas.elementAt(i).getNombre());
-        }
-        
-        
-        
     }//GEN-LAST:event_cmbSucursalActionPerformed
 
     private void cmbMaquinaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbMaquinaActionPerformed
-        if (cmbMaquina.getSelectedIndex() != -1) {            
+        if (cmbMaquina.getSelectedIndex() != -1) {
             txtTarjeta.setText(quitaGuion(maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex()).getTarjeta().getNombre()));
             txtFondo.setText(String.valueOf(maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex()).getFondo()));
             txtPrestRecuperable.setText(String.valueOf(maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex()).getPrestRecu()));
@@ -1252,21 +1240,21 @@ public class CapturaCorte extends javax.swing.JFrame {
     }//GEN-LAST:event_txtPantInOutActionPerformed
 
     private void btnMasFondoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMasFondoActionPerformed
-        if (cmbMaquina.getSelectedIndex() != -1) {      
+        if (cmbMaquina.getSelectedIndex() != -1) {
             for (Maquina maquina : maquinas) {
                 if (maquina.equals(maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex()))) {
                     String delta = JOptionPane.showInputDialog("Ingrese el aumento del fondo:", 0);
-                    if (delta != null){ //para omitir el mensaje cuando obtienes cancelar
+                    if (delta != null) { //para omitir el mensaje cuando obtienes cancelar
                         try {
                             int cantidad = Integer.parseInt(delta);
                             maquina.setFondo(maquina.getFondo() + cantidad); //aumentar el fondo
                             //actualizar el archivo de maquina
                             try {
                                 FileWriter fr = new FileWriter("Archivos/Maquinas.bin");
-                                PrintWriter pw= new PrintWriter(fr);
+                                PrintWriter pw = new PrintWriter(fr);
                                 for (int i = 0; i < maquinas.size(); i++) {
                                     pw.println(maquinas.elementAt(i).toString());
-                                }                
+                                }
                                 pw.close();
                                 txtFondo.setText(String.valueOf(maquina.getFondo()));
                             } catch (Exception e) {
@@ -1274,29 +1262,29 @@ public class CapturaCorte extends javax.swing.JFrame {
                             }
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Ingreso un valor no valido para aumentar el fondo", "Error", JOptionPane.ERROR_MESSAGE);
-                        }     
-                    }                                        
+                        }
+                    }
                 }
-            }                        
-        }        
+            }
+        }
     }//GEN-LAST:event_btnMasFondoActionPerformed
 
     private void btnMenosFondoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenosFondoActionPerformed
-       if (cmbMaquina.getSelectedIndex() != -1) {      
+        if (cmbMaquina.getSelectedIndex() != -1) {
             for (Maquina maquina : maquinas) {
                 if (maquina.equals(maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex()))) {
                     String delta = JOptionPane.showInputDialog("Ingrese la recudccion del fondo:", 0);
-                    if (delta != null){ //para omitir el mensaje cuando obtienes cancelar
+                    if (delta != null) { //para omitir el mensaje cuando obtienes cancelar
                         try {
                             int cantidad = Integer.parseInt(delta);
                             maquina.setFondo(maquina.getFondo() - cantidad); //aumentar el fondo
                             //actualizar el archivo de maquina
                             try {
                                 FileWriter fr = new FileWriter("Archivos/Maquinas.bin");
-                                PrintWriter pw= new PrintWriter(fr);
+                                PrintWriter pw = new PrintWriter(fr);
                                 for (int i = 0; i < maquinas.size(); i++) {
                                     pw.println(maquinas.elementAt(i).toString());
-                                }                
+                                }
                                 pw.close();
                                 txtFondo.setText(String.valueOf(maquina.getFondo()));
                             } catch (Exception e) {
@@ -1304,29 +1292,29 @@ public class CapturaCorte extends javax.swing.JFrame {
                             }
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Ingreso un valor no valido", "Error", JOptionPane.ERROR_MESSAGE);
-                        }     
-                    }                                        
+                        }
+                    }
                 }
-            }                        
-        }  
+            }
+        }
     }//GEN-LAST:event_btnMenosFondoActionPerformed
 
     private void btnMasPrestRecuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMasPrestRecuActionPerformed
-        if (cmbMaquina.getSelectedIndex() != -1) {      
+        if (cmbMaquina.getSelectedIndex() != -1) {
             for (Maquina maquina : maquinas) {
                 if (maquina.equals(maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex()))) {
                     String delta = JOptionPane.showInputDialog("Ingrese el aumento de préstamo recuperable:", 0);
-                    if (delta != null){ //para omitir el mensaje cuando obtienes cancelar
+                    if (delta != null) { //para omitir el mensaje cuando obtienes cancelar
                         try {
                             int cantidad = Integer.parseInt(delta);
                             maquina.setPrestRecu(maquina.getPrestRecu() + cantidad); //aumentar el fondo
                             //actualizar el archivo de maquina
                             try {
                                 FileWriter fr = new FileWriter("Archivos/Maquinas.bin");
-                                PrintWriter pw= new PrintWriter(fr);
+                                PrintWriter pw = new PrintWriter(fr);
                                 for (int i = 0; i < maquinas.size(); i++) {
                                     pw.println(maquinas.elementAt(i).toString());
-                                }                
+                                }
                                 pw.close();
                                 txtPrestRecuperable.setText(String.valueOf(maquina.getPrestRecu()));
                             } catch (Exception e) {
@@ -1334,29 +1322,29 @@ public class CapturaCorte extends javax.swing.JFrame {
                             }
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Ingreso un valor no valido", "Error", JOptionPane.ERROR_MESSAGE);
-                        }     
-                    }                                        
+                        }
+                    }
                 }
-            }                        
-        }  
+            }
+        }
     }//GEN-LAST:event_btnMasPrestRecuActionPerformed
 
     private void btnMenorPrestRecuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenorPrestRecuActionPerformed
-        if (cmbMaquina.getSelectedIndex() != -1) {      
+        if (cmbMaquina.getSelectedIndex() != -1) {
             for (Maquina maquina : maquinas) {
                 if (maquina.equals(maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex()))) {
                     String delta = JOptionPane.showInputDialog("Ingrese la reducción de préstamo recuperable:", 0);
-                    if (delta != null){ //para omitir el mensaje cuando obtienes cancelar
+                    if (delta != null) { //para omitir el mensaje cuando obtienes cancelar
                         try {
                             int cantidad = Integer.parseInt(delta);
                             maquina.setPrestRecu(maquina.getPrestRecu() - cantidad); //aumentar el fondo
                             //actualizar el archivo de maquina
                             try {
                                 FileWriter fr = new FileWriter("Archivos/Maquinas.bin");
-                                PrintWriter pw= new PrintWriter(fr);
+                                PrintWriter pw = new PrintWriter(fr);
                                 for (int i = 0; i < maquinas.size(); i++) {
                                     pw.println(maquinas.elementAt(i).toString());
-                                }                
+                                }
                                 pw.close();
                                 txtPrestRecuperable.setText(String.valueOf(maquina.getPrestRecu()));
                             } catch (Exception e) {
@@ -1364,30 +1352,30 @@ public class CapturaCorte extends javax.swing.JFrame {
                             }
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Ingreso un valor no valido", "Error", JOptionPane.ERROR_MESSAGE);
-                        }     
-                    }                                        
+                        }
+                    }
                 }
-            }                        
-        } 
+            }
+        }
     }//GEN-LAST:event_btnMenorPrestRecuActionPerformed
 
     private void btnPrestNoRecuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrestNoRecuActionPerformed
-        if (cmbMaquina.getSelectedIndex() != -1) {      
+        if (cmbMaquina.getSelectedIndex() != -1) {
             for (Maquina maquina : maquinas) {
                 if (maquina.equals(maquinasFiltradas.elementAt(cmbMaquina.getSelectedIndex()))) {
                     String delta = JOptionPane.showInputDialog("Ingrese el préstamo no recuperable:", 0);
-                    if (delta != null){ //para omitir el mensaje cuando obtienes cancelar
+                    if (delta != null) { //para omitir el mensaje cuando obtienes cancelar
                         try {
                             int cantidad = Integer.parseInt(delta);
                             maquina.setPrestNoRecu(cantidad); //aumentar el fondo                           
-                            txtPrestNoRecuperable.setText(String.valueOf(maquina.getPrestNoRecu()));                          
+                            txtPrestNoRecuperable.setText(String.valueOf(maquina.getPrestNoRecu()));
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Ingreso un valor no valido", "Error", JOptionPane.ERROR_MESSAGE);
-                        }     
-                    }                                        
+                        }
+                    }
                 }
-            }                        
-        }  
+            }
+        }
     }//GEN-LAST:event_btnPrestNoRecuActionPerformed
 
     private void chkFalloContadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkFalloContadorActionPerformed
@@ -1401,7 +1389,7 @@ public class CapturaCorte extends javax.swing.JFrame {
     private void txtInOutKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtInOutKeyTyped
         // TODO add your handling code here:
     }//GEN-LAST:event_txtInOutKeyTyped
-  
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
     private javax.swing.JButton btnCancelar;

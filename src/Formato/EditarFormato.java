@@ -1,12 +1,13 @@
 package Formato;
 
-import ControlUsuario.Usuario;
+import Encargado.Encargado;
 import static Utilerias.Utileria.*;
 import Inventario.InventarioRutero;
 import Inventario.Movimiento;
 import Productos.Producto;
 import Sucursal.Sucursal;
 import Utilerias.Filtro;
+import java.awt.Cursor;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -16,6 +17,7 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -36,10 +38,8 @@ public class EditarFormato extends javax.swing.JFrame {
     public EditarFormato(Vector<Formato> Formatos,Formato miFormato, Filtro filtro) {        
         initComponents();   
         this.filtro = filtro;       
-        this.editarFormato=miFormato;
-        for (int i = 0; i < Formatos.size(); i++) {
-            misFormatos.add(Formatos.elementAt(i));
-        }                
+        this.editarFormato=miFormato;        
+        misFormatos = new Vector<>(Formatos);
         String datos[][]={};
         String cabecera[]={"Nombre","Inv. Inicial","Compras","Inv. Final"};
         int anchos[]={40,20,20,20}; //cargar la tabla
@@ -58,29 +58,20 @@ public class EditarFormato extends javax.swing.JFrame {
                 cmbSucursal.addItem(quitaGuion(editarFormato.getSucursal()));               
             }
             
-            //El combo box de los encargados
-            FileReader fr1 = new FileReader("Archivos/Encargados.bin");
-            BufferedReader br1 = new BufferedReader(fr1);
-            Vector<String> encargados = new Vector<String>();
-            String linea;
-            while((linea=br1.readLine())!=null){
-                encargados.add(linea);               
-            } 
-            //si no existe el encargado en el archivo, agregarlo
-            if(!encargados.contains(miFormato.getEncargado())){
-                encargados.add(miFormato.getEncargado());                        
-            }
+            //El combo box de los encargados            
+            List<Encargado> encargados = Encargado.cargarEncargados();                        
+            
             //llenar el combo box de encargados
             for(int i = 0; i < encargados.size(); i++) {
-               cmbEncargado.addItem(quitaGuion(encargados.elementAt(i)));
-            }
-            br1.close();  
+               cmbEncargado.addItem(encargados.get(i).getNombre());
+            }            
             
             //llenar el comboBox de los ruteros y buscar el rutero en la lista para dejarlo como default
             cmbRutero.addItem("No Registrado");
             FileReader frRutero = new FileReader("Archivos/Ruteros.data");
             BufferedReader brRutero = new BufferedReader(frRutero); 
             StringTokenizer token;
+            String linea;
             while((linea=brRutero.readLine())!=null){
                 token=new StringTokenizer(linea);                
                 String rutero=quitaGuion(token.nextToken());
@@ -728,9 +719,11 @@ public class EditarFormato extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAceptarKeyTyped
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));                      
         ConsultaFormato cf = new ConsultaFormato(filtro);
         cf.setVisible(true);
         cf.setLocationRelativeTo(null);
+        setCursor(null);
         this.dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
     private void btnCancelarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnCancelarKeyTyped

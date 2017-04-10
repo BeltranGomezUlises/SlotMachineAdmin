@@ -1,7 +1,7 @@
 package Formato;
 
 import ControlUsuario.Loged;
-import ControlUsuario.Usuario;
+import Encargado.Encargado;
 import static Utilerias.Utileria.*;
 import Inventario.InventarioRutero;
 import Inventario.Movimiento;
@@ -9,79 +9,55 @@ import Productos.Producto;
 import Sucursal.Sucursal;
 import java.awt.event.KeyEvent;
 import static java.awt.image.ImageObserver.WIDTH;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class CapturaFormato extends javax.swing.JFrame {
-    
-    int turnos;    
-    Vector<Producto> productos= new Vector<Producto>();
-    Vector<Sucursal> sucursales;  
-   
+
+    int turnos;
+    Vector<Producto> productos;
+    Vector<Sucursal> sucursales;
+
     public CapturaFormato() {
-        
-        initComponents();        
-        this.setTitle("Captura de Formato");        
+
+        initComponents();
+        this.setTitle("Captura de Formato");
+        tabla.getTableHeader().setReorderingAllowed(false);
         //llenar los combo box con los datos de los archivos
-        try{
-            
-            sucursales=Sucursal.cargarSucursales();
-            for (int i = 0; i < sucursales.size(); i++) {
-                cmbSucursal.addItem(quitaGuion(sucursales.elementAt(i).getNombre()));
-            }
-            //El combo box de los encargados
-            FileReader fr1 = new FileReader("Archivos/Encargados.bin");
-            BufferedReader br1 = new BufferedReader(fr1);
-            String linea1= br1.readLine();
-            while(linea1!=null){
-                cmbEncargado.addItem(linea1);
-                linea1=br1.readLine();
-            }
-            br1.close();
-            
-            productos = Producto.cargarProductos();
-            //una vez lleno el vector de productos llenar la tabla con los nombres de los productos
-            String datos[][]={};
-            String cabecera[]={"Nombre","Inv. Inicial","Compras","Inv. Final"};
-            int anchos[]={40,20,20,20}; //cargar la tabla
-            DefaultTableModel md = new DefaultTableModel(datos, cabecera);
-            tabla.setModel(md);
-            for (int i = 0; i < productos.size(); i++) {
-                Vector fila = new Vector();
-                fila.add(quitaGuion(productos.elementAt(i).getNombre()));                    
-                fila.add("");                    
-                fila.add(0);                    
-                md.addRow(fila);
-            }
-            for (int i = 0; i < anchos.length; i++) {//ajustar anchos                
-               tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);             
-            }
-        }catch(FileNotFoundException e){
-            JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable-Encargados.bin", "Error", WIDTH);
-        }catch(IOException e){
-            JOptionPane.showMessageDialog(rootPane, "Base de datos no encontrada o inutilizable-Encargados.bin", "Error", WIDTH);
-        }        
+
+        sucursales = Sucursal.cargarSucursalesConProductos();
+        for (int i = 0; i < sucursales.size(); i++) {
+            cmbSucursal.addItem(quitaGuion(sucursales.elementAt(i).getNombre()));
+        }
+        List<Encargado> encargados = Encargado.cargarEncargados();
+        for (Encargado encargado : encargados) {
+            cmbEncargado.addItem(encargado.getNombre());
+        }
+
+        int anchos[] = {40, 20, 20, 20}; //cargar la tabla
+        for (int i = 0; i < anchos.length; i++) {//ajustar anchos                
+            tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
+
     }
-    
-    private void limpiarCaptura(){
+
+    private void limpiarCaptura() {
         for (int i = 0; i < tabla.getRowCount(); i++) {//vaciar la tabla
             tabla.setValueAt("", i, 1);
             tabla.setValueAt(0, i, 2);
-            tabla.setValueAt("", i, 3);                                                
+            tabla.setValueAt("", i, 3);
         }
-        txtRetiros.setText("0");                    
-        txtNota.setText("");                    
+        txtRetiros.setText("0");
+        txtNota.setText("");
         chkBoxFirma.setSelected(false);
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -125,15 +101,27 @@ public class CapturaFormato extends javax.swing.JFrame {
 
         tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Nombre", "Inv. Inicial", "Compras", "Inv. Final"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, true, true, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tabla.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 tablaKeyTyped(evt);
@@ -150,8 +138,8 @@ public class CapturaFormato extends javax.swing.JFrame {
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 12, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         btnAceptar.setText("Aceptar");
@@ -184,9 +172,9 @@ public class CapturaFormato extends javax.swing.JFrame {
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
-                .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
+                .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel11Layout.setVerticalGroup(
@@ -225,17 +213,19 @@ public class CapturaFormato extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lbEncargado)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(cmbEncargado, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(cmbEncargado, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(lbEncargado)
-                .addComponent(cmbEncargado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(lbSucursal)
-                .addComponent(cmbSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(cmbEncargado, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbEncargado)
+                    .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lbSucursal)
+                        .addComponent(cmbSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
@@ -271,7 +261,7 @@ public class CapturaFormato extends javax.swing.JFrame {
                 .addComponent(jLabel22)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(txtFondoFinal, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addContainerGap(216, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -323,12 +313,12 @@ public class CapturaFormato extends javax.swing.JFrame {
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -353,7 +343,7 @@ public class CapturaFormato extends javax.swing.JFrame {
                 .addGap(26, 26, 26)
                 .addComponent(jLabel23)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtNota, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtNota)
                 .addContainerGap())
         );
         jPanel10Layout.setVerticalGroup(
@@ -404,13 +394,18 @@ public class CapturaFormato extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel9, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jPanel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel9, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel11, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(12, 12, 12))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -418,21 +413,23 @@ public class CapturaFormato extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(7, 7, 7)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -442,187 +439,201 @@ public class CapturaFormato extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     private void cmbSucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSucursalActionPerformed
-        String nombreSuc= quitaEspacios(cmbSucursal.getSelectedItem().toString());        
-        for (int i = 0; i < sucursales.size(); i++) {
-            if (sucursales.elementAt(i).getNombre().equals(nombreSuc)) {
-                turnos=sucursales.elementAt(i).getTurnos();
-                break;
-            }
-        }
-        if(turnos==2){
+
+        turnos = sucursales.elementAt(cmbSucursal.getSelectedIndex()).getTurnos();
+
+        if (turnos == 2) {
             cmbTurno.removeAllItems();
             cmbTurno.addItem("D");
             cmbTurno.addItem("N");
-            turnos=2;
-        }else{
+            turnos = 2;
+        } else {
             cmbTurno.removeAllItems();
             cmbTurno.addItem("D");
-            turnos=1;                
-        }                                                     
+            turnos = 1;
+        }
+
+        //generar la lista de productos a poner en la tabla
+        DefaultTableModel dtm = (DefaultTableModel) tabla.getModel();
+        dtm.setRowCount(0); //para vaciar
+
+        productos = new Vector<Producto>();
+        Vector<Producto> productosArchivo = Producto.cargarProductos();
+        for (String nomProducto : sucursales.get(cmbSucursal.getSelectedIndex()).getNomProductos()) {
+            for (Producto producto : productosArchivo) {
+                if (producto.getNombre().equals(nomProducto)) {
+                    productos.add(producto);
+                    break;
+                }
+            }
+        }
+        for (Producto producto : productos) {
+            dtm.addRow(new String[]{quitaGuion(producto.getNombre()), "", "0"});
+        }
     }//GEN-LAST:event_cmbSucursalActionPerformed
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-     this.setVisible(false);
+        this.setVisible(false);
     }//GEN-LAST:event_btnCancelarActionPerformed
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
-             try{
-                DateFormat df = DateFormat.getDateInstance();
-                //almacenar todos los datos en variables
-                String fecha= df.format(calendar.getDate());
-                String encargado=quitaEspacios(cmbEncargado.getSelectedItem().toString());
-                String sucursal= quitaEspacios(cmbSucursal.getSelectedItem().toString());
-                char turno=cmbTurno.getSelectedItem().toString().charAt(0);
-                float fondoInicial= Float.parseFloat(txtFondoInicial.getText());
-                float fondoFinal = Float.parseFloat(txtFondoFinal.getText());
-                Vector<Integer> invI= new Vector<Integer>();
-                Vector<Integer> invF= new Vector<Integer>();
-                Vector<Integer> compras = new Vector<Integer>();                
-                for (int i = 0; i < productos.size(); i++) {
-                     invI.add(Integer.parseInt(tabla.getValueAt(i, 1).toString()));
-                     compras.add(Integer.parseInt(tabla.getValueAt(i, 2).toString()));
-                     invF.add(Integer.parseInt(tabla.getValueAt(i, 3).toString()));
-                }                
-                boolean firmado=chkBoxFirma.isSelected();                               
-                Formato f= new Formato(fecha,sucursal,encargado,turno,productos,invI,compras,invF,firmado);
-                float retiro=Float.parseFloat(txtRetiros.getText());
-                String nota = quitaEspacios(txtNota.getText());
-                f.setRetiro(retiro);
-                f.setTurnos(turnos);
-                f.setPagado(false);
-                f.setFondoInicial(fondoInicial);
-                f.setFondoFinal(fondoFinal);
-                if (nota.equals("")) {
-                     nota="null";
+        try {
+            DateFormat df = DateFormat.getDateInstance();
+            //almacenar todos los datos en variables
+            String fecha = df.format(calendar.getDate());
+            String encargado = quitaEspacios(cmbEncargado.getSelectedItem().toString());
+            String sucursal = quitaEspacios(cmbSucursal.getSelectedItem().toString());
+            char turno = cmbTurno.getSelectedItem().toString().charAt(0);
+            float fondoInicial = Float.parseFloat(txtFondoInicial.getText());
+            float fondoFinal = Float.parseFloat(txtFondoFinal.getText());
+            Vector<Integer> invI = new Vector<Integer>();
+            Vector<Integer> invF = new Vector<Integer>();
+            Vector<Integer> compras = new Vector<Integer>();
+            for (int i = 0; i < productos.size(); i++) {
+                invI.add(Integer.parseInt(tabla.getValueAt(i, 1).toString()));
+                compras.add(Integer.parseInt(tabla.getValueAt(i, 2).toString()));
+                invF.add(Integer.parseInt(tabla.getValueAt(i, 3).toString()));
+            }
+            boolean firmado = chkBoxFirma.isSelected();
+            Formato f = new Formato(fecha, sucursal, encargado, turno, productos, invI, compras, invF, firmado);
+            float retiro = Float.parseFloat(txtRetiros.getText());
+            String nota = quitaEspacios(txtNota.getText());
+            f.setRetiro(retiro);
+            f.setTurnos(turnos);
+            f.setPagado(false);
+            f.setFondoInicial(fondoInicial);
+            f.setFondoFinal(fondoFinal);
+            if (nota.equals("")) {
+                nota = "null";
+            }
+            f.setNota(nota);
+            //Validar que no exista ese formato:
+            Vector<Formato> formatos = Formato.cargarFormatos();
+
+            boolean existe = false;
+            boolean turnoDuplicado = false;
+            for (int k = 0; k < formatos.size(); k++) {
+                if (formatos.elementAt(k).getFecha().equals(f.getFecha()) && formatos.elementAt(k).getTurno() == f.getTurno() && formatos.elementAt(k).getSucursal().equals(f.getSucursal())) {
+                    existe = true;
                 }
-                f.setNota(nota);
-                //Validar que no exista ese formato:
-                Vector<Formato> formatos = Formato.cargarFormatos();
-                
-                boolean existe=false;
-                boolean turnoDuplicado=false;
-                for(int k=0; k<formatos.size(); k++){                    
-                    if(formatos.elementAt(k).getFecha().equals(f.getFecha()) && formatos.elementAt(k).getTurno()==f.getTurno() && formatos.elementAt(k).getSucursal().equals(f.getSucursal())){
-                        existe=true;
+                if (formatos.elementAt(k).getFecha().equals(f.getFecha()) && formatos.elementAt(k).getTurno() == f.getTurno() && formatos.elementAt(k).getEncargado().equals(quitaGuion(f.getEncargado()))) {
+                    turnoDuplicado = true;
+                }
+            }
+
+            //Escribir en el archivo de base de datos                 
+            if (!existe && !turnoDuplicado) {
+                boolean comp = false;
+                for (int i = 0; i < f.getCompras().size(); i++) {
+                    if (f.getCompras().elementAt(i).compareTo(new Integer(0)) != 0) {
+                        comp = true;
                     }
-                    if(formatos.elementAt(k).getFecha().equals(f.getFecha()) && formatos.elementAt(k).getTurno()==f.getTurno() && formatos.elementAt(k).getEncargado().equals(quitaGuion(f.getEncargado()))){
-                        turnoDuplicado=true;
+                }
+                if (comp) {
+                    String entregador;
+                    //cargar un arreglo con los ruteros
+                    Vector<InventarioRutero> invRuteros = InventarioRutero.cargarInvRuteros();
+
+                    String nombreRuteros[] = new String[invRuteros.size()];
+                    for (int i = 0; i < invRuteros.size(); i++) {
+                        nombreRuteros[i] = quitaGuion(invRuteros.elementAt(i).getRutero());
                     }
-                }                               
-                
-                //Escribir en el archivo de base de datos                 
-                if(!existe && !turnoDuplicado){                    
-                    boolean comp=false;                    
-                    for (int i = 0; i < f.getCompras().size(); i++) {                        
-                        if (f.getCompras().elementAt(i).compareTo(new Integer(0))!=0) {
-                            comp=true;
+                    entregador = quitaEspacios((String) JOptionPane.showInputDialog(null, "Seleccione el rutero", "Ruteros", JOptionPane.QUESTION_MESSAGE, null, nombreRuteros, 0));
+                    f.setEntregador(entregador);
+                    //generar movimiento si existe entrega en el turno
+                    //tomar las compras de los productos y dividirlos en su presentacion                        
+                    Vector<Integer> cantProductos = new Vector<>();
+                    for (int i = 0; i < productos.size(); i++) {
+                        cantProductos.add(f.getCompras().elementAt(i) / productos.elementAt(i).getPresentacion());
+                    }
+                    Movimiento mov = new Movimiento(f.getFecha(), f.getTurno(), "Entrega_Sucursal", entregador, f.getSucursal(),
+                            "null", f.NombresProductos(), cantProductos, encargado, quitaEspacios(Loged.getLoged().getUsuario()), "null", "null");
+                    //buscar que el movimiento no exista ya
+                    boolean movExiste = false;
+                    int indiceMovRepetido = -1;
+                    Vector<Movimiento> movs = Movimiento.CargarMovimientos();
+                    for (int i = 0; i < movs.size(); i++) {
+                        if (mov.equals(movs.elementAt(i))) {
+                            movExiste = true;
+                            indiceMovRepetido = i;
                         }
-                    }                    
-                    if (comp){                                    
-                        String entregador;
-                        //cargar un arreglo con los ruteros
-                        Vector<InventarioRutero> invRuteros = InventarioRutero.cargarInvRuteros();
-                         
-                        String nombreRuteros[] = new String[invRuteros.size()];
-                        for (int i = 0; i < invRuteros.size(); i++) {
-                            nombreRuteros[i]=quitaGuion(invRuteros.elementAt(i).getRutero());
-                        }                        
-                        entregador=quitaEspacios((String)JOptionPane.showInputDialog(null, "Seleccione el rutero","Ruteros", JOptionPane.QUESTION_MESSAGE,null, nombreRuteros, 0));                                               
-                        f.setEntregador(entregador);                       
-                        //generar movimiento si existe entrega en el turno
-                        //tomar las compras de los productos y dividirlos en su presentacion                        
-                        Vector<Integer> cantProductos = new Vector<>();
-                        for (int i = 0; i < productos.size(); i++) {
-                            cantProductos.add(f.getCompras().elementAt(i) / productos.elementAt(i).getPresentacion());
-                        }
-                        Movimiento mov = new Movimiento(f.getFecha(),f.getTurno(),"Entrega_Sucursal",entregador,f.getSucursal(),
-                                                        "null",f.NombresProductos(), cantProductos,encargado,quitaEspacios(Loged.getLoged().getUsuario()),"null","null");                        
-                        //buscar que el movimiento no exista ya
-                        boolean movExiste=false;
-                        int indiceMovRepetido=-1;
-                        Vector<Movimiento> movs = Movimiento.CargarMovimientos();
-                        for (int i = 0; i < movs.size(); i++) {
-                            if (mov.equals(movs.elementAt(i))) {
-                                movExiste=true;
-                                indiceMovRepetido=i;
-                            }
-                        }
-                        if (movExiste) {
-                            JOptionPane.showMessageDialog(null, "Ya existe el movimiento se omitirá el registro al inventario","Atención",JOptionPane.WARNING_MESSAGE);
-                            //comparar el mov con el que ya existe en movs
-                            boolean discrepancia = false;
-                            for (int i = 0; i < movs.elementAt(indiceMovRepetido).getProductos().size(); i++) {
-                                for (int j = 0; j < mov.getProductos().size(); j++) {
-                                    if (movs.elementAt(indiceMovRepetido).getProductos().elementAt(i).equals(mov.getProductos().elementAt(j))) { //si son el mismo producto
-                                        if (movs.elementAt(indiceMovRepetido).getCantidades().elementAt(i)-mov.getCantidades().elementAt(j)!=0) {
-                                            discrepancia = true;
-                                        }
+                    }
+                    if (movExiste) {
+                        JOptionPane.showMessageDialog(null, "Ya existe el movimiento se omitirá el registro al inventario", "Atención", JOptionPane.WARNING_MESSAGE);
+                        //comparar el mov con el que ya existe en movs
+                        boolean discrepancia = false;
+                        for (int i = 0; i < movs.elementAt(indiceMovRepetido).getProductos().size(); i++) {
+                            for (int j = 0; j < mov.getProductos().size(); j++) {
+                                if (movs.elementAt(indiceMovRepetido).getProductos().elementAt(i).equals(mov.getProductos().elementAt(j))) { //si son el mismo producto
+                                    if (movs.elementAt(indiceMovRepetido).getCantidades().elementAt(i) - mov.getCantidades().elementAt(j) != 0) {
+                                        discrepancia = true;
                                     }
                                 }
                             }
-                            if (discrepancia) {
-                                JOptionPane.showMessageDialog(null, "El Movimiento Generado por el formato, no coincide con los datos del movimiento capturado por importación, reviselo","Atención",JOptionPane.WARNING_MESSAGE);
-                            }
-                        }else{
-                            //Agregar al archivo
-                            FileWriter frMov = new FileWriter("Archivos/Movimientos.data",true);
-                            PrintWriter pwMov= new PrintWriter(frMov);
-                            pwMov.println(mov.toString());
-                            pwMov.close();                             
-                            //actualizar el inventario del rutero
-                            for (int i = 0; i < invRuteros.size(); i++) {
-                                if (invRuteros.elementAt(i).getRutero().equals(entregador)) {  //i=entregador                                  
-                                     invRuteros.elementAt(i).reducirExistencia( mov );                                    
-                                }
-                            }
-                            InventarioRutero.actualizarBD(invRuteros);                            
                         }
-                    }        
-                    
-                    FileWriter fr = new FileWriter("Archivos/Formatos.bin",true);
-                    PrintWriter pw= new PrintWriter(fr);
-                    pw.println(f.toString());
-                    pw.close();                    
-                    
-                    JOptionPane.showMessageDialog(rootPane, "Formato Agregado con Éxito", "Éxito", WIDTH);//mostrar mensaje y limpiar pantalla
-                    this.limpiarCaptura();                   
-                }else{
-                    if(turnoDuplicado){
-                        JOptionPane.showMessageDialog(rootPane, "El encargado que ingresó ya trabajó en esa fecha", "Error", WIDTH);
+                        if (discrepancia) {
+                            JOptionPane.showMessageDialog(null, "El Movimiento Generado por el formato, no coincide con los datos del movimiento capturado por importación, reviselo", "Atención", JOptionPane.WARNING_MESSAGE);
+                        }
+                    } else {
+                        //Agregar al archivo
+                        FileWriter frMov = new FileWriter("Archivos/Movimientos.data", true);
+                        PrintWriter pwMov = new PrintWriter(frMov);
+                        pwMov.println(mov.toString());
+                        pwMov.close();
+                        //actualizar el inventario del rutero
+                        for (int i = 0; i < invRuteros.size(); i++) {
+                            if (invRuteros.elementAt(i).getRutero().equals(entregador)) {  //i=entregador                                  
+                                invRuteros.elementAt(i).reducirExistencia(mov);
+                            }
+                        }
+                        InventarioRutero.actualizarBD(invRuteros);
                     }
-                    if(existe){
-                      JOptionPane.showMessageDialog(rootPane, "El Formato que está ingresando ya existe", "Error", WIDTH); 
-                    }                    
                 }
-                }catch(NullPointerException e){
-                     JOptionPane.showMessageDialog(rootPane, "No ingresó Fecha al Formato ó existe un valor en blanco de la tabla", "ERROR", WIDTH);                     
-                }catch(NumberFormatException e){
-                     JOptionPane.showMessageDialog(rootPane, "Ingresa todos los datos correctamente por favor", "ERROR", WIDTH);                                            
-                }catch(IOException e){
-                    JOptionPane.showMessageDialog(rootPane, "Base de datos no existe o es inutilisable", "ERROR", WIDTH);
+
+                FileWriter fr = new FileWriter("Archivos/Formatos.bin", true);
+                PrintWriter pw = new PrintWriter(fr);
+                pw.println(f.toString());
+                pw.close();
+
+                JOptionPane.showMessageDialog(rootPane, "Formato Agregado con Éxito", "Éxito", WIDTH);//mostrar mensaje y limpiar pantalla
+                this.limpiarCaptura();
+            } else {
+                if (turnoDuplicado) {
+                    JOptionPane.showMessageDialog(rootPane, "El encargado que ingresó ya trabajó en esa fecha", "Error", WIDTH);
                 }
+                if (existe) {
+                    JOptionPane.showMessageDialog(rootPane, "El Formato que está ingresando ya existe", "Error", WIDTH);
+                }
+            }
+        } catch (NullPointerException e) {
+            JOptionPane.showMessageDialog(rootPane, "No ingresó Fecha al Formato ó existe un valor en blanco de la tabla", "ERROR", WIDTH);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(rootPane, "Ingresa todos los datos correctamente por favor", "ERROR", WIDTH);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(rootPane, "Base de datos no existe o es inutilisable", "ERROR", WIDTH);
+        }
     }//GEN-LAST:event_btnAceptarActionPerformed
     private void txtFondoInicialKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFondoInicialKeyTyped
         char tecla;
-        tecla=evt.getKeyChar();
-        if(!Character.isDigit(tecla)){
+        tecla = evt.getKeyChar();
+        if (!Character.isDigit(tecla)) {
             evt.consume();
         }
     }//GEN-LAST:event_txtFondoInicialKeyTyped
     private void txtFondoFinalKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFondoFinalKeyTyped
         char tecla;
-        tecla=evt.getKeyChar();
-        if(!Character.isDigit(tecla)){
+        tecla = evt.getKeyChar();
+        if (!Character.isDigit(tecla)) {
             evt.consume();
         }
     }//GEN-LAST:event_txtFondoFinalKeyTyped
     private void btnAceptarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnAceptarKeyTyped
-        char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnAceptarActionPerformed(null);
         }
     }//GEN-LAST:event_btnAceptarKeyTyped
     private void btnCancelarKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnCancelarKeyTyped
-       char tecla=evt.getKeyChar();
-        if(tecla==KeyEvent.VK_ENTER){
+        char tecla = evt.getKeyChar();
+        if (tecla == KeyEvent.VK_ENTER) {
             this.btnCancelarActionPerformed(null);
         }
     }//GEN-LAST:event_btnCancelarKeyTyped
@@ -632,7 +643,7 @@ public class CapturaFormato extends javax.swing.JFrame {
             evt.consume();
         }
     }//GEN-LAST:event_tablaKeyTyped
-   
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
     private javax.swing.JButton btnCancelar;

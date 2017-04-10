@@ -33,7 +33,7 @@ public class Vale {
     }
 
     public Chequera getChequera() {
-        return chequera;
+    return chequera;        
     }
 
     public void setChequera(Chequera chequera) {
@@ -130,11 +130,7 @@ public class Vale {
     
     public boolean equals(Vale v){
         return this.getFolio().equals(v.getFolio()) && this.getChequera().getId().equals(v.getChequera().getId());
-    }
-    
-    public int compareTo(Vale v){
-        return 0;
-    }
+    }   
     
     public static ArrayList<Vale> cargarVales(){
         ArrayList<Vale> vales = new ArrayList<>();
@@ -182,5 +178,7 @@ public class Vale {
             JOptionPane.showMessageDialog(null, "Error al intentar guardar el vale al archivo", "Error", JOptionPane.ERROR_MESSAGE);
         }           
     }
+
+    
     
 }

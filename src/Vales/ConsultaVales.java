@@ -8,6 +8,7 @@ import static java.awt.image.ImageObserver.WIDTH;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -31,20 +32,32 @@ public class ConsultaVales extends javax.swing.JFrame {
             @Override
             public void run() {
                 ArrayList<String> nomSucursales = new ArrayList<>();
+                ArrayList<String> nomChequeras = new ArrayList<>();
                 for (int i = 0; i < vales.size(); i++) {
                     if (!nomSucursales.contains(vales.get(i).getSucursal())) {
                         nomSucursales.add(vales.get(i).getSucursal());
                     }
+                    if (!nomChequeras.contains(vales.get(i).getChequera().getId())) {
+                        nomChequeras.add(vales.get(i).getChequera().getId());
+                    }
                 }
+                
+                Collections.sort(nomSucursales);
+                Collections.sort(nomChequeras);
+                
                 for (String nomSucursal : nomSucursales) {
                     cmbSucursal.addItem(quitaGuion(nomSucursal));
+                }
+                for (String nomChequera : nomChequeras) {
+                    cmbChequera.addItem(nomChequera);
                 }
             }
             
         }.run();
         
         this.llenarTablaVales(vales);
-        tabla.setAutoCreateRowSorter(true);        
+        tabla.setAutoCreateRowSorter(true); 
+        tabla.getTableHeader().setReorderingAllowed(false);
     }
 
     private void llenarTablaVales(ArrayList<Vale> vales){
@@ -64,15 +77,13 @@ public class ConsultaVales extends javax.swing.JFrame {
             fila.add(vale.isVigente()); 
             md.addRow(fila);
         }
-        tabla.setModel(md);
+        //tabla.setModel(md);
     }
     
     private void filtrar(){
         //llenar valeFiltrados con la lista de vales general
-        valesFiltrados = new ArrayList<>();
-        for (Vale vale : vales) {
-            valesFiltrados.add(vale);
-        }
+        valesFiltrados = new ArrayList<>(vales);
+        
         if(!cmbVigente.getSelectedItem().toString().equals("Todos")){
             if (cmbVigente.getSelectedItem().toString().equals("Vigente")) {
                 int k = 0;
@@ -94,12 +105,24 @@ public class ConsultaVales extends javax.swing.JFrame {
                 }
             }                
         }
-        
+        //filtrado de sucursal
         if (!cmbSucursal.getSelectedItem().toString().equals("Todos")) {
             String suc = quitaEspacios(cmbSucursal.getSelectedItem().toString());
             int k = 0;
             while(k < valesFiltrados.size()){
                 if(!valesFiltrados.get(k).getSucursal().equals(suc)){
+                    valesFiltrados.remove(k);
+                }else{
+                    k++;
+                }
+            }
+        }
+        //filtrado de chequera
+        String chequera = quitaEspacios(cmbChequera.getSelectedItem().toString());
+        if (!chequera.equals("Todos")) {            
+            int k = 0;
+            while(k < valesFiltrados.size()){
+                if(!valesFiltrados.get(k).getChequera().getId().equals(chequera)){
                     valesFiltrados.remove(k);
                 }else{
                     k++;
@@ -143,6 +166,8 @@ public class ConsultaVales extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         cmbSucursal = new javax.swing.JComboBox();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        cmbChequera = new javax.swing.JComboBox<>();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabla = new javax.swing.JTable();
@@ -169,6 +194,10 @@ public class ConsultaVales extends javax.swing.JFrame {
 
         jLabel4.setText("Sucursal:");
 
+        jLabel5.setText("Chequera:");
+
+        cmbChequera.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos" }));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -182,7 +211,11 @@ public class ConsultaVales extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(cmbVigente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cmbChequera, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(calInicial, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -201,7 +234,9 @@ public class ConsultaVales extends javax.swing.JFrame {
                     .addComponent(calInicial, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(cmbVigente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(cmbVigente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel5)
+                        .addComponent(cmbChequera, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(cmbSucursal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -219,7 +254,7 @@ public class ConsultaVales extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Float.class, java.lang.Boolean.class, java.lang.Boolean.class
+                java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Float.class, java.lang.Boolean.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false, false, false, false, false, false
@@ -364,19 +399,20 @@ public class ConsultaVales extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTotalesActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        
         int index = tabla.getSelectedRow();
-        if (index != -1) {            
-            if (JOptionPane.showConfirmDialog(null, "Seguro desea eliminar el vale: \"" + valesFiltrados.get(index).getFolioCompleto() +"\"?", "Eliminar", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-                for (int i = 0; i < vales.size(); i++) {
-                    if (valesFiltrados.get(index).equals(vales.get(i))) {
+        if (index != -1) {      
+            for (int i = 0; i < vales.size(); i++) {
+                //tomar el folio completo seleccionado
+                String folioCompleto = String.valueOf(tabla.getValueAt(index, 0));//folio                    
+                if (vales.get(i).getFolioCompleto().equals(folioCompleto)) {
+                    if (JOptionPane.showConfirmDialog(null, "Seguro desea eliminar el vale: \"" + vales.get(i).getFolioCompleto() +"\"?", "Eliminar", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                         vales.remove(i);
                         Vale.actualizarVD(vales);
                         JOptionPane.showMessageDialog(rootPane, "Vale eliminado con éxito", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                         this.filtrar();
                     }
                 }
-            }            
+            }                                                   
         }else{
             JOptionPane.showMessageDialog(rootPane, "Debe seleccionar un vale", "Atención", JOptionPane.WARNING_MESSAGE);
         }
@@ -396,12 +432,14 @@ public class ConsultaVales extends javax.swing.JFrame {
     private javax.swing.JButton btnTotales;
     private com.toedter.calendar.JDateChooser calFinal;
     private com.toedter.calendar.JDateChooser calInicial;
+    private javax.swing.JComboBox<String> cmbChequera;
     private javax.swing.JComboBox cmbSucursal;
     private javax.swing.JComboBox cmbVigente;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
