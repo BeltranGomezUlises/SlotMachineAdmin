@@ -1,52 +1,60 @@
 /*Necesitamos obtener una tabla, donde muestre las sucursales y sus datos de los corte de forma estadistica
  las columnas de la tabla son: SUCURSAL, N. MAQUINAS, FECHAS DE LOS CORTES Y SU CANTIDAD,
  PROMEDIO DE CORTE POR MAQUINA, TOTAL DE CORTE EN ESAS FECHAS, % QUE REPRESENTA DEL CORTE GENERAL.
-*/
+ */
 package Estadistica.Maquinas;
 
 import Corte.Corte;
+import Formato.Formato;
+import Productos.Producto;
 import Sucursal.Sucursal;
 import Utilerias.Utileria;
 import static Utilerias.Utileria.quitaGuion;
-import java.text.DateFormat;
+import static java.awt.Frame.MAXIMIZED_BOTH;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static java.util.stream.Collectors.toList;
 import javax.swing.JOptionPane;
+import javax.swing.RowSorter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
-public class EstadisticasMaquinas extends javax.swing.JFrame {
+public class EstadisticasMaquinas extends javax.swing.JFrame implements Runnable {
 
-    private DateFormat dateFormat = new SimpleDateFormat("d/MM/yyyy");
+    //controladores de pantallas
+    private PantallaInventarioFinal pantallaInvFinal = new PantallaInventarioFinal();
+
     private DecimalFormat decimalFormat = new DecimalFormat("0.00");
     private Vector<Corte> cortes;
-   
+
     private Vector<Corte> cortesFiltrados;
-    private float corteTotalGeneral = 0;    
-    private String datos[][]={};        
+    private float corteTotalGeneral = 0;
+    private String datos[][] = {};
     private DefaultTableModel md;
-    
+
     //private int deltaDias;
-    
     //LISTAS DE LA TABLA, CADA UNA REPRESENTA UNA COLUMNA
-    
     //lista de sucursales existente en los cortes
     private ArrayList<String> sucursales;
     private ArrayList<Integer> comisionesSucursales;
-    private Vector<Sucursal> sucursalesArchivo; 
-   //lista de la cantidad de maquinas correspondiente a sucursal
-    private ArrayList<Integer> numMaquinas;        
+    private Vector<Sucursal> sucursalesArchivo;
+    //lista de la cantidad de maquinas correspondiente a sucursal
+    private ArrayList<Integer> numMaquinas;
     //lista del corte promedio que tiene cada sucursal al dia
     private ArrayList<Float> promediosSemanalesDeCorte;
     //lista con la suma del corte por sucursal
     private ArrayList<Float> cortesTotalesPorSucursal;
     //lista con el porcentaje de corte al que corresponde cada sucursal
-    private ArrayList<Float> porcentajesDeCorteTotalPorSucursal;    
+    private ArrayList<Float> porcentajesDeCorteTotalPorSucursal;
     //lista para almacenar las dechas de los cortes
     private ArrayList<String> fechasDeCortes;
     //lista para almacenar las dechas de los cortes
@@ -56,12 +64,11 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
     //Lista para almacenar el el promedio de cortes de la sucursal solo del tango filtrado
     private ArrayList<Float> historicosPorFiltrados;
     //matriz de la cantidad de cortes por fecha de las sucursales
-    private ArrayList<ArrayList<Float>> matrizCortesPorFecha;    
+    private ArrayList<ArrayList<Float>> matrizCortesPorFecha;
     //lista del porcentaje de retencion que tiene la sucursal
     private ArrayList<Float> porcentajeRetencionContadorPorSucursal;
     private ArrayList<Float> porcentajeRetencionPantallaPorSucursal;
-    
-    
+
     //LISTAS PARA LA TABLA DE TARJETAS
     private ArrayList<Integer> cantMaquinasPorTarjeta;
     private ArrayList<Float> porcMaquinasPorTarjeta;
@@ -72,7 +79,7 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
     private ArrayList<Float> historicosPorFiltradosPorTarjeta;
     private ArrayList<Float> porcentajeRetencionContadorPorTarjeta;
     private ArrayList<Float> porcentajeRetencionPantallaPorTarjeta;
-    
+
     // LISTAS PARA LA TABLA DE PERIFERICOS
     private ArrayList<Integer> cantMaquinasPorPeriferico;
     private ArrayList<Float> porcMaquinasPorPeriferico;
@@ -93,44 +100,41 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
     private ArrayList<Float> historicosPorFiltradosPorMoneda;
     private ArrayList<Float> porcentajeRetencionContadorPorMoneda;
     private ArrayList<Float> porcentajeRetencionPantallaPorMoneda;
-    
+
     //CONSTRUCTOR =>
     public EstadisticasMaquinas() {
         initComponents();
-        this.setExtendedState(MAXIMIZED_BOTH);
-        cortes = Corte.cargarCortes(); //la lista general de todos los cortes  
-        //inicializar las listas
-        this.inicializarListas();        
-        //llenar con listas de valores
-        try {
-            this.llenarListasDeValores();        
-        } catch (IndexOutOfBoundsException e) {
-            JOptionPane.showMessageDialog(null, "No hay cortes para mostrar estadisticas");
-        }
-        
-        //calcular los valores de la listas
-        this.calcularValoresSucursales();
-         //obtener el corte historico general de las sucursales del origen de los tiempos
-        historicosGenerales = this.calcularCorteHistorico();
-        historicosPorFiltrados = this.calcularCorteHistorico();
-        //obtener el valor de filtrado aunque sea el mismo por ser el proceso de construccion
-        //llenar las tablas y campos
-        ConcentradoSucursales cs = this.crearCS();
-        this.llenarTablaSucursales(cs); //enpaquetar las listas en el objeto        
-        
-       
-        
+        this.myIniComponents();
     }
-    
+
+    private void myIniComponents() {
+        jDateFinal.setDate(new Date());
+        dateInvFinalInicial.setDate(new Date());
+
+    }
+
+    @Override
+    public void run() {
+        PantallaCortes pantallaCortes = new PantallaCortes();
+        Thread tPantallaCortes = new Thread(pantallaCortes);
+        tPantallaCortes.start();
+        try {
+            tPantallaCortes.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(EstadisticasMaquinas.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.setVisible(true);
+    }
+
     //INICIALIZAR VARIABLES =>
-    private void inicializarListas(){                                      
-        sucursales = new ArrayList<>();  
+    private void inicializarListas() {
+        sucursales = new ArrayList<>();
         comisionesSucursales = new ArrayList<>();
         sucursalesArchivo = Sucursal.cargarSucursales();
-        numMaquinas = new ArrayList<>();        
+        numMaquinas = new ArrayList<>();
         promediosSemanalesDeCorte = new ArrayList<>();
         cortesTotalesPorSucursal = new ArrayList<>();
-        porcentajesDeCorteTotalPorSucursal = new ArrayList<>(); 
+        porcentajesDeCorteTotalPorSucursal = new ArrayList<>();
         fechasDeInicioDeSemana = new ArrayList<>();
         porcentajeRetencionContadorPorSucursal = new ArrayList<>();
         porcentajeRetencionPantallaPorSucursal = new ArrayList<>();
@@ -138,91 +142,92 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         cortesFiltrados = new Vector<>();
         for (Corte corte : cortes) {
             cortesFiltrados.add(corte);
-        }        
-    }                
-    
+        }
+    }
+
     //COMPORTAMIENTO
-    private void llenarListasDeValores(){        
-               
+    private void llenarListasDeValores() {
         //obtener las fechas de los cortes
         fechasDeCortes = fechasDeCortes(cortesFiltrados);
-        
-        //obtener la primer fecha y la ultima                
-        String fechaInicial = fechasDeCortes.get(0);
-        String fechaFinal = fechasDeCortes.get(fechasDeCortes.size() - 1);
-       
-        //deltaDias = Utileria.diferenciaDias(fechaInicial, fechaFinal);
-        //if (deltaDias == 0) deltaDias = 1; //si solo hay una fecha obtendremos 0, para evitar errores lo convertimos  a 1
 
-        //obtener lunes anterior de la primer fecha y lunes posterior de la ultima fecha
-        Date lunesAnterior = Utileria.lunesAnterior(fechaInicial);
-        Date lunesPosterior = Utileria.lunesPosterior(fechaFinal);
-        //obtener todos los lunes desde el lunesAnterior hasta el lunes posterior
-        fechasDeInicioDeSemana.add(dateFormat.format(lunesAnterior));
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(lunesAnterior);
-        while (cal.getTime().before(lunesPosterior)) {
-            cal.add(Calendar.DATE, 7);
-            fechasDeInicioDeSemana.add(dateFormat.format(cal.getTime()));
-        }                          
-        //remover el lunes posterior que tambien se agrega en el ciclo
-        fechasDeInicioDeSemana.remove(fechasDeInicioDeSemana.size() - 1);
-        //llenar la lista de sucursales con las que alla en los cortes
-        sucursales = new ArrayList<>();
-        for (Corte corte : cortesFiltrados) {
-            String suc = corte.getSucursal();
-            if (!sucursales.contains(suc)) {
-                sucursales.add(suc);     
-                //buscar su comision y asiganrla
-                int comision = 0;
-                for (Sucursal sucursalArchivo : sucursalesArchivo) {
-                    if (suc.equals(sucursalArchivo.getNombre())) {
-                        comision = sucursalArchivo.getComision();
-                    }
-                }
-                comisionesSucursales.add(comision);
+        //obtener la primer fecha y la ultima   
+        if (fechasDeCortes.size() > 0) {
+            String fechaInicial = fechasDeCortes.get(0);
+            String fechaFinal = fechasDeCortes.get(fechasDeCortes.size() - 1);
+
+            //deltaDias = Utileria.diferenciaDias(fechaInicial, fechaFinal);
+            //if (deltaDias == 0) deltaDias = 1; //si solo hay una fecha obtendremos 0, para evitar errores lo convertimos  a 1
+            //obtener lunes anterior de la primer fecha y lunes posterior de la ultima fecha
+            Date lunesAnterior = Utileria.lunesAnterior(fechaInicial);
+            Date lunesPosterior = Utileria.lunesPosterior(fechaFinal);
+            //obtener todos los lunes desde el lunesAnterior hasta el lunes posterior
+            fechasDeInicioDeSemana.add(Utileria.SDF.format(lunesAnterior));
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTime(lunesAnterior);
+            while (cal.getTime().before(lunesPosterior)) {
+                cal.add(Calendar.DATE, 7);
+                fechasDeInicioDeSemana.add(Utileria.SDF.format(cal.getTime()));
             }
-        }
-        //inicializar la matriz de las cantidades de corte por fecha con 0 en todos los campos
+            //remover el lunes posterior que tambien se agrega en el ciclo
+            fechasDeInicioDeSemana.remove(fechasDeInicioDeSemana.size() - 1);
+            //llenar la lista de sucursales con las que alla en los cortes
+            sucursales = new ArrayList<>();
+            for (Corte corte : cortesFiltrados) {
+                String suc = corte.getSucursal();
+                if (!sucursales.contains(suc)) {
+                    sucursales.add(suc);
+                    //buscar su comision y asiganrla
+                    int comision = 0;
+                    for (Sucursal sucursalArchivo : sucursalesArchivo) {
+                        if (suc.equals(sucursalArchivo.getNombre())) {
+                            comision = sucursalArchivo.getComision();
+                        }
+                    }
+                    comisionesSucursales.add(comision);
+                }
+            }
+            //inicializar la matriz de las cantidades de corte por fecha con 0 en todos los campos
 //        matrizCortesPorFecha = new float[sucursales.size()][fechasDeCortes.size()];
 //        for (int i = 0; i < sucursales.size(); i++) {
 //            Arrays.fill(matrizCortesPorFecha[i], 0); //llenar cada columna con 0
 //               
-        matrizCortesPorFecha = new ArrayList<>();
-        for (int i = 0; i < sucursales.size(); i++) {
-            matrizCortesPorFecha.add(new ArrayList<Float>());
-            for (int j = 0; j < fechasDeInicioDeSemana.size(); j++) {
-                matrizCortesPorFecha.get(i).add(0.0f);
+            matrizCortesPorFecha = new ArrayList<>();
+            for (int i = 0; i < sucursales.size(); i++) {
+                matrizCortesPorFecha.add(new ArrayList<Float>());
+                for (int j = 0; j < fechasDeInicioDeSemana.size(); j++) {
+                    matrizCortesPorFecha.get(i).add(0.0f);
+                }
             }
         }
+
     }
-    
-    private void calcularValoresSucursales(){
+
+    private void calcularValoresSucursales() {
         //con los nombres de las sucursales en cortes, llenar las maquinas que tienen las sucursales segun los cortes
-        for (int k = 0; k < sucursales.size(); k++) {                                
+        for (int k = 0; k < sucursales.size(); k++) {
             //obtener los cortes que corresponden a esta sucursal
-            ArrayList<Corte> cortesEnSucursal = this.cortesEnSucursal(sucursales.get(k));             
+            ArrayList<Corte> cortesEnSucursal = this.cortesEnSucursal(sucursales.get(k));
             //obtener el corte total de la sucursal
-            float corteTotalSucursal = this.calcularCorteTotal(cortesEnSucursal);            
-            cortesTotalesPorSucursal.add(corteTotalSucursal);            
+            float corteTotalSucursal = this.calcularCorteTotal(cortesEnSucursal);
+            cortesTotalesPorSucursal.add(corteTotalSucursal);
             //obtener los nombres de las maquinas que tienen los cortes de la sucursal
             ArrayList<String> nombresMaquinasSuc = new ArrayList<>();
             //listas para agregar los porcentajes de retencion de cada corte
-           
-            float sumaPorcentajePantalla = 0;            
+
+            float sumaPorcentajePantalla = 0;
             float sumaPorcentajeContador = 0;
-            
-            for (Corte c : cortesEnSucursal) {                
+
+            for (Corte c : cortesEnSucursal) {
                 if (!nombresMaquinasSuc.contains(c.getMaquina().getNombre())) {
                     nombresMaquinasSuc.add(c.getMaquina().getNombre());
-                }      
+                }
                 //obtener la cantidad de retencion de cada corte
                 sumaPorcentajePantalla += c.getPorcentajePantalla();
                 sumaPorcentajeContador += c.getPorcentajeContador();
-            }  
-            
-            porcentajeRetencionPantallaPorSucursal.add(((float) sumaPorcentajePantalla / (float) cortesEnSucursal.size() ));
-            porcentajeRetencionContadorPorSucursal.add(((float) sumaPorcentajeContador / (float) cortesEnSucursal.size() ));
+            }
+
+            porcentajeRetencionPantallaPorSucursal.add(((float) sumaPorcentajePantalla / (float) cortesEnSucursal.size()));
+            porcentajeRetencionContadorPorSucursal.add(((float) sumaPorcentajeContador / (float) cortesEnSucursal.size()));
             //añadir el numero de maquinas que tiene la sucursal a la lista general
             numMaquinas.add(nombresMaquinasSuc.size());
             ArrayList<Corte> cortesEnFecha;
@@ -241,34 +246,34 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
                 //matrizCortesPorFecha[k][i] = corteEnFecha; //usar metodo set por que ya tiene valores la lista de 0.0f
                 matrizCortesPorFecha.get(k).set(i, corteEnFecha);
             }
-        } 
-                                
+        }
+
         //con el corte total de cada sucursal, obtener la suma total de corte y obtener los porcentajes
         float sumaCortes = 0;
-        for (int i = 0; i < cortesTotalesPorSucursal.size(); i++) {                    
-            sumaCortes += cortesTotalesPorSucursal.get(i);            
+        for (int i = 0; i < cortesTotalesPorSucursal.size(); i++) {
+            sumaCortes += cortesTotalesPorSucursal.get(i);
             //obtener el promedio de corte por dia
-            promediosSemanalesDeCorte.add( (float) cortesTotalesPorSucursal.get(i) / (float) fechasDeInicioDeSemana.size() );
+            promediosSemanalesDeCorte.add((float) cortesTotalesPorSucursal.get(i) / (float) fechasDeInicioDeSemana.size());
         }
         corteTotalGeneral = sumaCortes;
-        
+
         for (float corteTotal : cortesTotalesPorSucursal) {
-             //con el corteTotalGeneral obtener los porcentajes de corte
+            //con el corteTotalGeneral obtener los porcentajes de corte
             porcentajesDeCorteTotalPorSucursal.add(corteTotal / corteTotalGeneral * 100);
-        }              
+        }
     }
-       
-    private void calcularValoresTarjetas(ArrayList<Corte> cortesEnSucursal){
+
+    private void calcularValoresTarjetas(ArrayList<Corte> cortesEnSucursal) {
         cantMaquinasPorTarjeta = new ArrayList<>();
         porcMaquinasPorTarjeta = new ArrayList<>();
         cantCortePorTarjeta = new ArrayList<>();
-        porcCortePorTarjeta = new ArrayList<>();   
-        porcentajeRetencionContadorPorTarjeta = new ArrayList<>(); 
-        porcentajeRetencionPantallaPorTarjeta = new ArrayList<>(); 
-        
+        porcCortePorTarjeta = new ArrayList<>();
+        porcentajeRetencionContadorPorTarjeta = new ArrayList<>();
+        porcentajeRetencionPantallaPorTarjeta = new ArrayList<>();
+
         //obtener la listas de las tarjetas que existan en los cortes de la sucursal y que maquinas tiene la sucursal
         nomTarjetas = new ArrayList<>();
-        ArrayList<String> nomMaquinasEnSucursal = new ArrayList<>();            
+        ArrayList<String> nomMaquinasEnSucursal = new ArrayList<>();
         for (Corte c : cortesEnSucursal) {
             if (!nomTarjetas.contains(c.getMaquina().getTarjeta().getNombre())) {
                 nomTarjetas.add(c.getMaquina().getTarjeta().getNombre());
@@ -277,8 +282,8 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
                 nomMaquinasEnSucursal.add(c.getMaquina().getNombre());
             }
         }
-        
-        int cantMaquinasEnSucursal = nomMaquinasEnSucursal.size();        
+
+        int cantMaquinasEnSucursal = nomMaquinasEnSucursal.size();
         //con los nombres de todas las tarjeras recorrer la lista de cortes y generar una lista con cada tipo de tarjeta
         ArrayList<Corte> cortesDeTarjeta;
         ArrayList<String> maquinasDeTarjeta;
@@ -292,25 +297,25 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
                     }
                     cortesDeTarjeta.add(c);
                 }
-            }                  
-            
-            float sumaPorcentajePantalla = 0;            
+            }
+
+            float sumaPorcentajePantalla = 0;
             float sumaPorcentajeContador = 0;
-            
+
             for (Corte corte : cortesDeTarjeta) {
                 sumaPorcentajePantalla += corte.getPorcentajePantalla();
-                sumaPorcentajeContador += corte.getPorcentajeContador();                
+                sumaPorcentajeContador += corte.getPorcentajeContador();
             }
-            porcentajeRetencionPantallaPorTarjeta.add((float) sumaPorcentajePantalla / (float)cortesDeTarjeta.size());
-            porcentajeRetencionContadorPorTarjeta.add((float) sumaPorcentajeContador / (float)cortesDeTarjeta.size());
-            
+            porcentajeRetencionPantallaPorTarjeta.add((float) sumaPorcentajePantalla / (float) cortesDeTarjeta.size());
+            porcentajeRetencionContadorPorTarjeta.add((float) sumaPorcentajeContador / (float) cortesDeTarjeta.size());
+
             int cantMaquinasDeTarjeta = maquinasDeTarjeta.size();
-            float porcMaquinasDeTarjeta = ((float)cantMaquinasDeTarjeta / (float)cantMaquinasEnSucursal) * 100;
-            
-            float cantCorteDeTarjeta = this.calcularCorteTotal(cortesDeTarjeta);                        
-            float corteTotalDeSucursal = cortesTotalesPorSucursal.get(tablaSucursales.getSelectedRow());                
-            float porcCorteDeTarjeta = (float) cantCorteDeTarjeta / (float)corteTotalDeSucursal * 100;
-            
+            float porcMaquinasDeTarjeta = ((float) cantMaquinasDeTarjeta / (float) cantMaquinasEnSucursal) * 100;
+
+            float cantCorteDeTarjeta = this.calcularCorteTotal(cortesDeTarjeta);
+            float corteTotalDeSucursal = cortesTotalesPorSucursal.get(tablaSucursales.getSelectedRow());
+            float porcCorteDeTarjeta = (float) cantCorteDeTarjeta / (float) corteTotalDeSucursal * 100;
+
             cantMaquinasPorTarjeta.add(cantMaquinasDeTarjeta);
             porcMaquinasPorTarjeta.add(porcMaquinasDeTarjeta);
             cantCortePorTarjeta.add(cantCorteDeTarjeta);
@@ -320,18 +325,18 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         ConcentradoTarjetas ct = this.crearCT();
         this.llenarTablaTarjetas(ct);
     }
-    
+
     private void calcularValoresPerifericos(ArrayList<Corte> cortesEnSucursal) {
         cantMaquinasPorPeriferico = new ArrayList<>();
         porcMaquinasPorPeriferico = new ArrayList<>();
         cantCortePorPeriferico = new ArrayList<>();
-        porcCortePorPeriferico = new ArrayList<>(); 
+        porcCortePorPeriferico = new ArrayList<>();
         porcentajeRetencionPantallaPorPeriferico = new ArrayList<>();
         porcentajeRetencionContadorPorPeriferico = new ArrayList<>();
-                
+
         //obtener la listas de las tarjetas que existan en los cortes de la sucursal y que maquinas tiene la sucursal
         nomPerifericos = new ArrayList<>();
-        ArrayList<String> nomMaquinasEnSucursal = new ArrayList<>();            
+        ArrayList<String> nomMaquinasEnSucursal = new ArrayList<>();
         for (Corte c : cortesEnSucursal) {
             if (!nomPerifericos.contains(c.getMaquina().getPeriferico().getNombre())) {
                 nomPerifericos.add(c.getMaquina().getPeriferico().getNombre());
@@ -340,8 +345,8 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
                 nomMaquinasEnSucursal.add(c.getMaquina().getNombre());
             }
         }
-        
-        int cantMaquinasEnSucursal = nomMaquinasEnSucursal.size();        
+
+        int cantMaquinasEnSucursal = nomMaquinasEnSucursal.size();
         //con los nombres de todas las tarjeras recorrer la lista de cortes y generar una lista con cada tipo de tarjeta
         ArrayList<Corte> cortesDePeriferico;
         ArrayList<String> maquinasDePeriferico;
@@ -356,23 +361,23 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
                     cortesDePeriferico.add(c);
                 }
             }
-            float sumaPorcentajePantalla = 0;            
+            float sumaPorcentajePantalla = 0;
             float sumaPorcentajeContador = 0;
-            
+
             for (Corte corte : cortesDePeriferico) {
                 sumaPorcentajePantalla += corte.getPorcentajePantalla();
-                sumaPorcentajeContador += corte.getPorcentajeContador();                
+                sumaPorcentajeContador += corte.getPorcentajeContador();
             }
-            porcentajeRetencionPantallaPorPeriferico.add((float) sumaPorcentajePantalla / (float)cortesDePeriferico.size());
-            porcentajeRetencionContadorPorPeriferico.add((float) sumaPorcentajeContador / (float)cortesDePeriferico.size());
-            
+            porcentajeRetencionPantallaPorPeriferico.add((float) sumaPorcentajePantalla / (float) cortesDePeriferico.size());
+            porcentajeRetencionContadorPorPeriferico.add((float) sumaPorcentajeContador / (float) cortesDePeriferico.size());
+
             int cantMaquinasDePeriferico = maquinasDePeriferico.size();
-            float porcMaquinasDePeriferico = ((float)cantMaquinasDePeriferico / (float)cantMaquinasEnSucursal) * 100;
-            
-            float cantCorteDePeriferico = this.calcularCorteTotal(cortesDePeriferico);                        
-            float corteTotalDeSucursal = cortesTotalesPorSucursal.get(tablaSucursales.getSelectedRow());                
-            float porcCorteDePeriferico = (float) cantCorteDePeriferico / (float)corteTotalDeSucursal * 100;
-            
+            float porcMaquinasDePeriferico = ((float) cantMaquinasDePeriferico / (float) cantMaquinasEnSucursal) * 100;
+
+            float cantCorteDePeriferico = this.calcularCorteTotal(cortesDePeriferico);
+            float corteTotalDeSucursal = cortesTotalesPorSucursal.get(tablaSucursales.getSelectedRow());
+            float porcCorteDePeriferico = (float) cantCorteDePeriferico / (float) corteTotalDeSucursal * 100;
+
             cantMaquinasPorPeriferico.add(cantMaquinasDePeriferico);
             porcMaquinasPorPeriferico.add(porcMaquinasDePeriferico);
             cantCortePorPeriferico.add(cantCorteDePeriferico);
@@ -382,28 +387,28 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         ConcentradoPerifericos cp = this.crearCP();
         this.llenarTablaPerifericos(cp);
     }
-    
-    private void calcularValoresMonedas(ArrayList<Corte> cortesEnSucursal){
+
+    private void calcularValoresMonedas(ArrayList<Corte> cortesEnSucursal) {
         cantMaquinasPorMoneda = new ArrayList<>();
         porcMaquinasPorMoneda = new ArrayList<>();
         cantCortePorMoneda = new ArrayList<>();
-        porcCortePorMoneda = new ArrayList<>(); 
+        porcCortePorMoneda = new ArrayList<>();
         porcentajeRetencionPantallaPorMoneda = new ArrayList<>();
-        porcentajeRetencionContadorPorMoneda = new ArrayList<>();        
-        
+        porcentajeRetencionContadorPorMoneda = new ArrayList<>();
+
         //obtener la listas de las tarjetas que existan en los cortes de la sucursal y que maquinas tiene la sucursal
         nomMonedas = new ArrayList<>();
-        ArrayList<String> nomMaquinasEnSucursal = new ArrayList<>();            
+        ArrayList<String> nomMaquinasEnSucursal = new ArrayList<>();
         for (Corte c : cortesEnSucursal) {
-            if (!nomMonedas.contains( String.valueOf(c.getMaquina().getMoneda()) ) ) {
+            if (!nomMonedas.contains(String.valueOf(c.getMaquina().getMoneda()))) {
                 nomMonedas.add(String.valueOf(c.getMaquina().getMoneda()));
             }
             if (!nomMaquinasEnSucursal.contains(c.getMaquina().getNombre())) {
                 nomMaquinasEnSucursal.add(c.getMaquina().getNombre());
             }
         }
-        
-        int cantMaquinasEnSucursal = nomMaquinasEnSucursal.size();        
+
+        int cantMaquinasEnSucursal = nomMaquinasEnSucursal.size();
         //con los nombres de todas las tarjeras recorrer la lista de cortes y generar una lista con cada tipo de tarjeta
         ArrayList<Corte> cortesDeMoneda;
         ArrayList<String> maquinasDeMoneda;
@@ -418,23 +423,23 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
                     cortesDeMoneda.add(c);
                 }
             }
-            float sumaPorcentajePantalla = 0;            
+            float sumaPorcentajePantalla = 0;
             float sumaPorcentajeContador = 0;
-            
+
             for (Corte corte : cortesDeMoneda) {
                 sumaPorcentajePantalla += corte.getPorcentajePantalla();
-                sumaPorcentajeContador += corte.getPorcentajeContador();                
+                sumaPorcentajeContador += corte.getPorcentajeContador();
             }
-            porcentajeRetencionPantallaPorMoneda.add((float) sumaPorcentajePantalla / (float)cortesDeMoneda.size());
-            porcentajeRetencionContadorPorMoneda.add((float) sumaPorcentajeContador / (float)cortesDeMoneda.size());
-            
+            porcentajeRetencionPantallaPorMoneda.add((float) sumaPorcentajePantalla / (float) cortesDeMoneda.size());
+            porcentajeRetencionContadorPorMoneda.add((float) sumaPorcentajeContador / (float) cortesDeMoneda.size());
+
             int cantMaquinasDeMoneda = maquinasDeMoneda.size();
-            float porcMaquinasDeMoneda = ((float)cantMaquinasDeMoneda / (float)cantMaquinasEnSucursal) * 100;
-            
-            float cantCorteDeMoneda = this.calcularCorteTotal(cortesDeMoneda);                        
-            float corteTotalDeSucursal = cortesTotalesPorSucursal.get(tablaSucursales.getSelectedRow());                
-            float porcCorteDeMoneda= (float) cantCorteDeMoneda / (float)corteTotalDeSucursal * 100;
-            
+            float porcMaquinasDeMoneda = ((float) cantMaquinasDeMoneda / (float) cantMaquinasEnSucursal) * 100;
+
+            float cantCorteDeMoneda = this.calcularCorteTotal(cortesDeMoneda);
+            float corteTotalDeSucursal = cortesTotalesPorSucursal.get(tablaSucursales.getSelectedRow());
+            float porcCorteDeMoneda = (float) cantCorteDeMoneda / (float) corteTotalDeSucursal * 100;
+
             cantMaquinasPorMoneda.add(cantMaquinasDeMoneda);
             porcMaquinasPorMoneda.add(porcMaquinasDeMoneda);
             cantCortePorMoneda.add(cantCorteDeMoneda);
@@ -444,66 +449,65 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         ConcentradoMonedas cm = this.crearCM();
         this.llenarTablaMonedas(cm);
     }
-            
-    private ArrayList<Float> calcularCorteHistorico(){
+
+    private ArrayList<Float> calcularCorteHistorico() {
         ArrayList<Float> historicoPorSucursal = new ArrayList<>();
         float suma;
         int nCortes;
-        for (int i = 0; i < sucursales.size(); i++) {                    
+        for (int i = 0; i < sucursales.size(); i++) {
             //para cada sucursal obtener el corte por fecha y dividir entre el numero de cortes contados
             suma = 0;
             nCortes = 0;
             for (int j = 0; j < matrizCortesPorFecha.get(i).size(); j++) {
                 if (matrizCortesPorFecha.get(i).get(j) > 0) {
                     suma += matrizCortesPorFecha.get(i).get(j);
-                    nCortes ++;
+                    nCortes++;
                 }
-            }          
+            }
             historicoPorSucursal.add(suma / (float) nCortes);
         }
         return historicoPorSucursal;
     }
-    
+
     //FUNCIONES COMUNES
-    private ArrayList<String> fechasDeCortes(Vector<Corte> listaCortes){
-        ArrayList<String> listaFechasDeCortes = new ArrayList<>();        
+    private ArrayList<String> fechasDeCortes(Vector<Corte> listaCortes) {
+        ArrayList<String> listaFechasDeCortes = new ArrayList<>();
         for (Corte c : listaCortes) {
             if (!listaFechasDeCortes.contains(c.getFecha())) {
                 listaFechasDeCortes.add(c.getFecha());
             }
-        }        
+        }
         //ordenas las fechas
         Utileria.BubbleOrderStringOfDates(listaFechasDeCortes);
-        
+
         return listaFechasDeCortes;
     }
-    
-    private float calcularCorteTotal(ArrayList<Corte> cortes){
-        float suma = 0 ;
+
+    private float calcularCorteTotal(ArrayList<Corte> cortes) {
+        float suma = 0;
         for (Corte corte : cortes) {
             suma += corte.getInOut();
         }
         return suma;
     }
-    
-    private ArrayList<Corte> cortesEnSucursal(String sucursal){
-        ArrayList<Corte> cortesEnSucursal = new ArrayList<>();            
-            for (Corte corte : cortesFiltrados) {
-                if (corte.getSucursal().equals(sucursal)) {
-                    cortesEnSucursal.add(corte);
-                }
-            } 
+
+    private ArrayList<Corte> cortesEnSucursal(String sucursal) {
+        ArrayList<Corte> cortesEnSucursal = new ArrayList<>();
+        for (Corte corte : cortesFiltrados) {
+            if (corte.getSucursal().equals(sucursal)) {
+                cortesEnSucursal.add(corte);
+            }
+        }
         return cortesEnSucursal;
     }
-    
-    
+
     //LLENADO DE TABLAS
-    private void llenarTablaSucursales(ConcentradoSucursales cs){
-        String cabecera[]={"Sucursal","#. Maquinas","Corte Total","comision","Utilidad","% de Corte", "Corte Semanal", "C.S. p/Maquina", "Historico", "P. Filtrado", "Retención P - C"};
+    private void llenarTablaSucursales(ConcentradoSucursales cs) {
+        String cabecera[] = {"Sucursal", "#. Maquinas", "Corte Total", "comision", "Utilidad", "% de Corte", "Corte Semanal", "C.S. p/Maquina", "Historico", "P. Filtrado", "Retención P - C"};
         md = new DefaultTableModel(datos, cabecera);
         Vector fila;
         Vector filaTotales = new Vector();
-        for (int i = 0; i < 10 ; i++) {
+        for (int i = 0; i < 10; i++) {
             filaTotales.add(0);
         }
         filaTotales.set(0, "Totales:");
@@ -528,21 +532,21 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
             filaTotales.set(1, Integer.parseInt(filaTotales.get(1).toString()) + cs.getNumMaquinas().get(i));
             filaTotales.set(2, Float.parseFloat(filaTotales.get(2).toString()) + cs.getCortesTotalesPorSucursal().get(i));
             comision += cs.getComisiones().get(i);
-            filaTotales.set(4, Float.parseFloat(filaTotales.get(4).toString()) + (cs.getCortesTotalesPorSucursal().get(i) / 100 * cs.getComisiones().get(i)) );
+            filaTotales.set(4, Float.parseFloat(filaTotales.get(4).toString()) + (cs.getCortesTotalesPorSucursal().get(i) / 100 * cs.getComisiones().get(i)));
             filaTotales.set(5, Float.parseFloat(filaTotales.get(5).toString()) + cs.getPorcentajesDeCorteTotalPorSucursal().get(i));
             filaTotales.set(6, Float.parseFloat(filaTotales.get(6).toString()) + cs.getPromediosSemanalesDeCorte().get(i));
-            filaTotales.set(7, Float.parseFloat(filaTotales.get(7).toString()) + ( (float) cs.getPromediosSemanalesDeCorte().get(i) / (float) cs.getNumMaquinas().get(i)) );
+            filaTotales.set(7, Float.parseFloat(filaTotales.get(7).toString()) + ((float) cs.getPromediosSemanalesDeCorte().get(i) / (float) cs.getNumMaquinas().get(i)));
             filaTotales.set(8, Float.parseFloat(filaTotales.get(8).toString()) + cs.getHistoricosGenerales().get(i));
-            filaTotales.set(9, Float.parseFloat(filaTotales.get(9).toString()) + cs.getHistoricosPorFiltrados().get(i));  
+            filaTotales.set(9, Float.parseFloat(filaTotales.get(9).toString()) + cs.getHistoricosPorFiltrados().get(i));
             retencionPantalla += cs.getPorcentajeRetencionPantallaPorSucursal().get(i); //posiciones 10
             retencionContador += cs.getPorcentajeRetencionContadorPorSucursal().get(i);
-            
+
         }
         //añadir formatos a fila de totales
-        filaTotales.add(decimalFormat.format(retencionPantalla / (float) sucursales.size()) + "% - " +  decimalFormat.format(retencionContador / (float) sucursales.size()) + "%");
+        filaTotales.add(decimalFormat.format(retencionPantalla / (float) sucursales.size()) + "% - " + decimalFormat.format(retencionContador / (float) sucursales.size()) + "%");
         filaTotales.set(3, decimalFormat.format(comision / (float) sucursales.size()) + "%");
-        filaTotales.set(5, decimalFormat.format(filaTotales.get(5)) + "%" );
-        filaTotales.set(7, decimalFormat.format(filaTotales.get(7)) );
+        filaTotales.set(5, decimalFormat.format(filaTotales.get(5)) + "%");
+        filaTotales.set(7, decimalFormat.format(filaTotales.get(7)));
         //agregar la matriz de cortes por semana a la tabla y agregar a la fila de totales su correspondiente cantidad
         for (int i = 0; i < fechasDeInicioDeSemana.size(); i++) {
             String columnaDeCortes[] = new String[cs.getMatrizCortesPorFecha().size()];
@@ -550,26 +554,26 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
             for (int j = 0; j < columnaDeCortes.length; j++) {
                 columnaDeCortes[j] = String.valueOf(cs.getMatrizCortesPorFecha().get(j).get(i));
                 totalDeColumnaDeCortes += Float.parseFloat(columnaDeCortes[j]);
-            }         
-            filaTotales.add( totalDeColumnaDeCortes );
-            md.addColumn(fechasDeInicioDeSemana.get(i),columnaDeCortes );
+            }
+            filaTotales.add(totalDeColumnaDeCortes);
+            md.addColumn(fechasDeInicioDeSemana.get(i), columnaDeCortes);
         }
-        
+
         //agregar la fila de totales al modelo
         md.addRow(filaTotales);
         tablaSucursales.setModel(md);
-        
+
         //txt resultados
-        txtCortePorMaquina.setText(decimalFormat.format((Float.parseFloat(filaTotales.get(2).toString()) / Float.parseFloat(filaTotales.get(1).toString())) / (float) fechasDeInicioDeSemana.size() ) );
+        txtCortePorMaquina.setText(decimalFormat.format((Float.parseFloat(filaTotales.get(2).toString()) / Float.parseFloat(filaTotales.get(1).toString())) / (float) fechasDeInicioDeSemana.size()));
         txtCorteGeneral.setText(decimalFormat.format(corteTotalGeneral));
     }
-    
-    private ConcentradoSucursales crearCS(){
+
+    private ConcentradoSucursales crearCS() {
         ConcentradoSucursales cs = new ConcentradoSucursales();
         cs.setSucursales(sucursales);
         cs.setComisiones(comisionesSucursales);
-        cs.setNumMaquinas(numMaquinas);        
-        cs.setCortesTotalesPorSucursal(cortesTotalesPorSucursal);        
+        cs.setNumMaquinas(numMaquinas);
+        cs.setCortesTotalesPorSucursal(cortesTotalesPorSucursal);
         cs.setPorcentajesDeCorteTotalPorSucursal(porcentajesDeCorteTotalPorSucursal);
         cs.setMatrizCortesPorFecha(matrizCortesPorFecha);
         cs.setPromediosSemanalesDeCorte(promediosSemanalesDeCorte);
@@ -579,9 +583,9 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         cs.setPorcentajeRetencionPantallaPorSucursal(porcentajeRetencionPantallaPorSucursal);
         return cs;
     }
-    
-    private void llenarTablaTarjetas(ConcentradoTarjetas ct){
-        String cabecera[]={"Tarjeta","#. Maquinas","%. Maquinas","$ de Corte","% de Corte", "Retención P - C"};
+
+    private void llenarTablaTarjetas(ConcentradoTarjetas ct) {
+        String cabecera[] = {"Tarjeta", "#. Maquinas", "%. Maquinas", "$ de Corte", "% de Corte", "Retención P - C"};
         DefaultTableModel md = new DefaultTableModel(datos, cabecera);
         Vector fila;
         for (int i = 0; i < nomTarjetas.size(); i++) {
@@ -596,8 +600,8 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         }
         tablaTarjetas.setModel(md);
     }
-    
-    private ConcentradoTarjetas crearCT(){
+
+    private ConcentradoTarjetas crearCT() {
         ConcentradoTarjetas ct = new ConcentradoTarjetas();
         ct.setCantMaquinasPorTarjeta(cantMaquinasPorTarjeta);
         ct.setPorcMaquinasPorTarjeta(porcMaquinasPorTarjeta);
@@ -607,9 +611,9 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         ct.setPorcentajeRetencionPantallaPorTarjeta(porcentajeRetencionPantallaPorTarjeta);
         return ct;
     }
-    
-    private void llenarTablaPerifericos(ConcentradoPerifericos cp){
-        String cabecera[]={"Periférico","#. Maquinas","%. Maquinas","$ de Corte","% de Corte", "Retención P - C"};
+
+    private void llenarTablaPerifericos(ConcentradoPerifericos cp) {
+        String cabecera[] = {"Periférico", "#. Maquinas", "%. Maquinas", "$ de Corte", "% de Corte", "Retención P - C"};
         DefaultTableModel md = new DefaultTableModel(datos, cabecera);
         Vector fila;
         for (int i = 0; i < nomPerifericos.size(); i++) {
@@ -619,14 +623,14 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
             fila.add(decimalFormat.format(cp.getPorcMaquinasPorPeriferico().get(i)) + "%");
             fila.add(cp.getCantCortePorPeriferico().get(i));
             fila.add(decimalFormat.format(cp.getPorcCortePorPeriferico().get(i)) + "%");
-            fila.add(decimalFormat.format(cp.getPorcentajeRetencionPantallaPorPeriferico().get(i)) + "% - " 
+            fila.add(decimalFormat.format(cp.getPorcentajeRetencionPantallaPorPeriferico().get(i)) + "% - "
                     + decimalFormat.format(cp.getPorcentajeRetencionContadorPorPeriferico().get(i)) + "%");
             md.addRow(fila);
         }
         tablaPerifericos.setModel(md);
     }
-    
-    private ConcentradoPerifericos crearCP(){
+
+    private ConcentradoPerifericos crearCP() {
         ConcentradoPerifericos ct = new ConcentradoPerifericos();
         ct.setCantMaquinasPorPeriferico(cantMaquinasPorPeriferico);
         ct.setPorcMaquinasPorPeriferico(porcMaquinasPorPeriferico);
@@ -636,9 +640,9 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         ct.setPorcentajeRetencionContadorPorPeriferico(porcentajeRetencionContadorPorPeriferico);
         return ct;
     }
-    
-    private void llenarTablaMonedas(ConcentradoMonedas cm){
-        String cabecera[]={"Moneda","#. Maquinas","%. Maquinas","$ de Corte","% de Corte", "Retención P - C"};
+
+    private void llenarTablaMonedas(ConcentradoMonedas cm) {
+        String cabecera[] = {"Moneda", "#. Maquinas", "%. Maquinas", "$ de Corte", "% de Corte", "Retención P - C"};
         DefaultTableModel md = new DefaultTableModel(datos, cabecera);
         Vector fila;
         for (int i = 0; i < nomMonedas.size(); i++) {
@@ -648,14 +652,14 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
             fila.add(decimalFormat.format(cm.getPorcMaquinasPorMoneda().get(i)) + "%");
             fila.add(cm.getCantCortePorMoneda().get(i));
             fila.add(decimalFormat.format(cm.getPorcCortePorMoneda().get(i)) + "%");
-            fila.add(decimalFormat.format(cm.getPorcentajeRetencionPantallaPorMoneda().get(i)) + "% - " 
+            fila.add(decimalFormat.format(cm.getPorcentajeRetencionPantallaPorMoneda().get(i)) + "% - "
                     + decimalFormat.format(cm.getPorcentajeRetencionContadorPorMoneda().get(i)) + "%");
             md.addRow(fila);
         }
         tablaMonedas.setModel(md);
     }
-    
-    private ConcentradoMonedas crearCM(){
+
+    private ConcentradoMonedas crearCM() {
         ConcentradoMonedas cm = new ConcentradoMonedas();
         cm.setCantMaquinasPorMoneda(cantMaquinasPorMoneda);
         cm.setPorcMaquinasPorMoneda(porcMaquinasPorMoneda);
@@ -665,33 +669,34 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         cm.setPorcentajeRetencionContadorPorMoneda(porcentajeRetencionContadorPorMoneda);
         return cm;
     }
+
     //FILTRADO
-    private void filtrar(){
+    private void filtrar() {
         //inicializar las listas
         this.inicializarListas();
         //filtrar la lista de cortes con los que se va a calcular
-        try{            
-            Date fechaInicial=dateFormat.parse(dateFormat.format(jDateInicial.getDate()));            
-            Date fechaFinal=dateFormat.parse(dateFormat.format(jDateFinal.getDate()));            
+        try {
+            Date fechaInicial = Utileria.SDF.parse(Utileria.SDF.format(jDateInicial.getDate()));
+            Date fechaFinal = Utileria.SDF.parse(Utileria.SDF.format(jDateFinal.getDate()));
             String fecha;
-            int k=0;
-            while(k < cortesFiltrados.size()){
-                fecha=cortesFiltrados.elementAt(k).getFecha();
-                Date fechaCorte = dateFormat.parse(fecha);
-                if(fechaCorte.before(fechaInicial) || fechaCorte.after(fechaFinal)){
-                   cortesFiltrados.removeElementAt(k); 
-                }else{
+            int k = 0;
+            while (k < cortesFiltrados.size()) {
+                fecha = cortesFiltrados.elementAt(k).getFecha();
+                Date fechaCorte = Utileria.SDF.parse(fecha);
+                if (fechaCorte.before(fechaInicial) || fechaCorte.after(fechaFinal)) {
+                    cortesFiltrados.removeElementAt(k);
+                } else {
                     k++;
                 }
-            }        
-        }catch(NullPointerException e){
+            }
+        } catch (NullPointerException e) {
 //            JOptionPane.showMessageDialog(rootPane, "Referencia nula al filtrar por fechas", "ERROR", WIDTH);
-        }catch (ParseException ex) {
+        } catch (ParseException ex) {
             JOptionPane.showMessageDialog(rootPane, "Error al convertir fechas al filtrar", "ERROR", WIDTH);
             ex.printStackTrace();
         }
         //llenar con listas de valores
-        this.llenarListasDeValores();        
+        this.llenarListasDeValores();
         //calcular los valores de la listas
         this.calcularValoresSucursales();
         //calcular el historico
@@ -699,20 +704,23 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         //llenar las tablas y campos                
         ConcentradoSucursales cs = this.crearCS();
         this.llenarTablaSucursales(cs); //enpaquetar las listas en el objeto
-        
+
         txtCorteGeneral.setText(String.valueOf(corteTotalGeneral));
     }
-        
+
     //GRAFICAR
-    private void graficar(){
+    private void graficar() {
         AreaDeGrafica ag = new AreaDeGrafica(sucursales, fechasDeInicioDeSemana, matrizCortesPorFecha);
         ag.setLocationRelativeTo(this);
         ag.setVisible(true);
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel5 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jDateInicial = new com.toedter.calendar.JDateChooser();
@@ -720,7 +728,6 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         jDateFinal = new com.toedter.calendar.JDateChooser();
         btnFiltrar = new javax.swing.JButton();
         btnGraficar = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
         splitpane = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaSucursales = new javax.swing.JTable(){
@@ -744,6 +751,20 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         tablaPerifericos = new javax.swing.JTable();
         jScrollPane4 = new javax.swing.JScrollPane();
         tablaMonedas = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        dateInvFinalInicial = new com.toedter.calendar.JDateChooser();
+        jLabel4 = new javax.swing.JLabel();
+        btnFiltrarInvFinal = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        cmbTurnoInvFinal = new javax.swing.JComboBox<>();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        invFinalFormatoTable = new javax.swing.JTable(){
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                return false; //Disallow the editing of any cell
+            }
+        }
+        ;
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Estadisticas de Sucursales");
@@ -775,14 +796,14 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(6, 6, 6)
+                .addContainerGap()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jDateInicial, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jDateInicial, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jDateFinal, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jDateFinal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnFiltrar, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -794,18 +815,19 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jDateInicial, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jDateFinal, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnFiltrar, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnGraficar, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(6, 6, 6))
+                            .addComponent(btnGraficar, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jDateFinal, javax.swing.GroupLayout.DEFAULT_SIZE, 26, Short.MAX_VALUE)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jDateInicial, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 26, Short.MAX_VALUE)))))
+                .addGap(6, 12, Short.MAX_VALUE))
         );
 
         splitpane.setDividerLocation(805);
@@ -938,9 +960,9 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
-            .addComponent(jScrollPane2)
-            .addComponent(jScrollPane4)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
@@ -958,37 +980,128 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
 
         splitpane.setRightComponent(jPanel4);
 
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(splitpane, javax.swing.GroupLayout.DEFAULT_SIZE, 980, Short.MAX_VALUE)
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(splitpane, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Cortes", jPanel5);
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel4.setText("Fecha Inicial:");
+
+        btnFiltrarInvFinal.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/filtrarFinal.png"))); // NOI18N
+        btnFiltrarInvFinal.setText("Filtrar");
+        btnFiltrarInvFinal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFiltrarInvFinalActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setText("Turno:");
+
+        cmbTurnoInvFinal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "D", "N" }));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dateInvFinalInicial, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cmbTurnoInvFinal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29)
+                .addComponent(btnFiltrarInvFinal, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(424, Short.MAX_VALUE))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnFiltrarInvFinal, javax.swing.GroupLayout.PREFERRED_SIZE, 34, Short.MAX_VALUE)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(cmbTurnoInvFinal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(dateInvFinalInicial, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 26, Short.MAX_VALUE))
+                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+
+        invFinalFormatoTable.setAutoCreateRowSorter(true);
+        invFinalFormatoTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Fecha", "Turno", "Sucursal", "Productos"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.Double.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        invFinalFormatoTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane5.setViewportView(invFinalFormatoTable);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(splitpane, javax.swing.GroupLayout.DEFAULT_SIZE, 1180, Short.MAX_VALUE)
+            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane5)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(splitpane)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        jTabbedPane1.addTab("Inv Final", jPanel2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+            .addComponent(jTabbedPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jTabbedPane1)
         );
 
         pack();
@@ -996,7 +1109,7 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
 
     //EVENTOS =>
     private void btnFiltrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarActionPerformed
-       this.filtrar();
+        this.filtrar();
     }//GEN-LAST:event_btnFiltrarActionPerformed
 
     private void tablaSucursalesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaSucursalesMouseClicked
@@ -1006,7 +1119,7 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
         if ((index != -1) && (index != tablaSucursales.getRowCount() - 1)) {
             String sucursal = sucursales.get(index);
             ArrayList<Corte> cortesEnSucursal = this.cortesEnSucursal(sucursal);
-            
+
             new procesoTarjeta(cortesEnSucursal).run();
             //calcularValoresTarjetas(cortesEnSucursal);
             new procesoPeriferico(cortesEnSucursal).run();
@@ -1017,12 +1130,12 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
     }//GEN-LAST:event_tablaSucursalesMouseClicked
 
     private void tablaSucursalesKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tablaSucursalesKeyReleased
-        if (evt.getKeyCode() == 38 || evt.getKeyCode()== 40) { //tecla nav arriba o abajo
+        if (evt.getKeyCode() == 38 || evt.getKeyCode() == 40) { //tecla nav arriba o abajo
             int index = tablaSucursales.getSelectedRow();
             if ((index != -1) && (index != tablaSucursales.getRowCount() - 1)) {
                 String sucursal = sucursales.get(index);
                 ArrayList<Corte> cortesEnSucursal = this.cortesEnSucursal(sucursal);
-                
+
                 new procesoTarjeta(cortesEnSucursal).run();
                 //calcularValoresTarjetas(cortesEnSucursal);
                 new procesoPeriferico(cortesEnSucursal).run();
@@ -1030,70 +1143,227 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
                 new procesoMoneda(cortesEnSucursal).run();
                 //calcularValoresMonedas(cortesEnSucursal);
             }
-        } 
+        }
     }//GEN-LAST:event_tablaSucursalesKeyReleased
 
     private void btnGraficarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGraficarActionPerformed
         this.graficar();
     }//GEN-LAST:event_btnGraficarActionPerformed
 
+    private void btnFiltrarInvFinalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarInvFinalActionPerformed
+        pantallaInvFinal.filtar();
+    }//GEN-LAST:event_btnFiltrarInvFinalActionPerformed
 
-    private class procesoTarjeta implements Runnable{
+    private class procesoTarjeta implements Runnable {
 
         ArrayList<Corte> cortesEnSucursal;
-        
-        procesoTarjeta(ArrayList<Corte> cortesEnSucursal){
-            this.cortesEnSucursal = cortesEnSucursal;                   
+
+        procesoTarjeta(ArrayList<Corte> cortesEnSucursal) {
+            this.cortesEnSucursal = cortesEnSucursal;
         }
-                
+
         public void run() {
             calcularValoresTarjetas(cortesEnSucursal);
-        }        
+        }
     }
-    
-    private class procesoPeriferico implements Runnable{
+
+    private class procesoPeriferico implements Runnable {
 
         ArrayList<Corte> cortesEnSucursal;
-        
-        procesoPeriferico(ArrayList<Corte> cortesEnSucursal){
-            this.cortesEnSucursal = cortesEnSucursal;                   
+
+        procesoPeriferico(ArrayList<Corte> cortesEnSucursal) {
+            this.cortesEnSucursal = cortesEnSucursal;
         }
-                
+
         public void run() {
             calcularValoresPerifericos(cortesEnSucursal);
-        }        
+        }
     }
-    
-    private class procesoMoneda implements Runnable{
+
+    private class procesoMoneda implements Runnable {
 
         ArrayList<Corte> cortesEnSucursal;
-        
-        procesoMoneda(ArrayList<Corte> cortesEnSucursal){
-            this.cortesEnSucursal = cortesEnSucursal;                   
+
+        procesoMoneda(ArrayList<Corte> cortesEnSucursal) {
+            this.cortesEnSucursal = cortesEnSucursal;
         }
-                
+
         public void run() {
             calcularValoresMonedas(cortesEnSucursal);
-        }        
+        }
     }
-    
+
+    private class PantallaCortes implements Runnable {
+
+        @Override
+        public void run() {
+            setExtendedState(MAXIMIZED_BOTH);
+            cortes = Corte.cargarCortes(); //la lista general de todos los cortes  
+            //inicializar las listas
+            inicializarListas();
+            //llenar con listas de valores
+            try {
+                llenarListasDeValores();
+                //calcular los valores de la listas
+                calcularValoresSucursales();
+                //obtener el corte historico general de las sucursales del origen de los tiempos
+                historicosGenerales = calcularCorteHistorico();
+                historicosPorFiltrados = calcularCorteHistorico();
+                //obtener el valor de filtrado aunque sea el mismo por ser el proceso de construccion
+                //llenar las tablas y campos
+                ConcentradoSucursales cs = crearCS();
+                llenarTablaSucursales(cs); //enpaquetar las listas en el objeto  
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(EstadisticasMaquinas.this, "No hay cortes para mostrar estadisticas", "Atencion", JOptionPane.WARNING_MESSAGE);
+            }
+
+        }
+
+    }
+
+    private class PantallaInventarioFinal {
+
+        private List<Formato> formatos = new ArrayList<>(Formato.cargarFormatos());
+        private List<Formato> formatosFiltrados;
+
+        public void filtar() {
+            try {
+
+                Date fecha = Utileria.SDF.parse(Utileria.SDF.format(dateInvFinalInicial.getDate()));
+
+                if (fecha == null) {
+                    throw new NullPointerException();
+                }
+
+                formatosFiltrados = formatos.stream().filter((Formato f) -> {
+                    try {
+                        String turno = cmbTurnoInvFinal.getSelectedItem().toString();
+                        Date fechaFormato = Utileria.SDF.parse(f.getFecha());
+                        if (turno.equals("Todos")) {
+                            return fechaFormato.compareTo(fecha) == 0;
+                        } else {
+                            return fechaFormato.compareTo(fecha) == 0 && turno.charAt(0) == f.getTurno();
+                        }
+                    } catch (Exception ex) {
+                        return false;
+                    }
+                }).sorted((Formato f1, Formato f2) -> f1.getSucursal().compareTo(f2.getSucursal())).collect(toList());
+
+                this.llenarTablaFormatos();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Asegurese de tener fechas validas", "Atención", JOptionPane.WARNING_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+
+        private void llenarTablaFormatos() {
+            //obtener los nombres de los productos y agregar las columnas     
+
+            List<String> nombreProductos = new ArrayList<>();
+            for (Formato f : formatosFiltrados) {
+                List<Producto> fproductos = new ArrayList<>(f.getProductos());
+                for (Producto fproducto : fproductos) {
+                    if (!nombreProductos.contains(fproducto.getNombre())) {
+                        nombreProductos.add(fproducto.getNombre());
+                    }
+                }
+            }
+
+            List<String> nombresColumnas = new ArrayList<>();
+            nombresColumnas.add("Fecha");
+            nombresColumnas.add("Turno");
+            nombresColumnas.add("Sucursal");
+            nombreProductos.forEach(n -> nombresColumnas.add(n));
+
+            DefaultTableModel dtm = new DefaultTableModel(new Object[][]{}, nombresColumnas.toArray()) {
+                @Override
+                public Class getColumnClass(int columnIndex) {
+                    if (columnIndex < 3) {
+                        return String.class;
+                    } else {
+                        return Integer.class;
+                    }
+                }
+
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return false;
+                }
+            };
+
+            // crear un modelo con los datos de cada fila
+            List<InvFinalModelo> listaModelos = new ArrayList<>();
+            for (Formato f : formatosFiltrados) {
+                InvFinalModelo modelo = new InvFinalModelo(f.getFecha(), f.getSucursal(), String.valueOf(f.getTurno()), f.getProductos(), f.getInvF());
+                listaModelos.add(modelo);
+            }
+
+            //llenar la tabla con la lista de modelos
+            for (InvFinalModelo modelo : listaModelos) {
+                Vector fila = new Vector();
+                fila.add(modelo.getFecha());
+                fila.add(modelo.getTurno());
+                fila.add(Utileria.quitaGuion(modelo.getSucursal()));
+                dtm.addRow(fila);
+            }
+
+            for (int i = 3; i < dtm.getColumnCount(); i++) {
+                String columnName = dtm.getColumnName(i);
+                for (int j = 0; j < listaModelos.size(); j++) {
+                    if (listaModelos.get(j).getCantidadesPorProducto().get(columnName) == null) {
+                        dtm.setValueAt(0, j, i);
+                    } else {
+                        dtm.setValueAt(listaModelos.get(j).getCantidadesPorProducto().get(columnName), j, i);
+                    }
+
+                }
+            }
+
+            invFinalFormatoTable.setModel(dtm);
+
+            //fila de totales
+            Vector totales = new Vector();
+            totales.add("");
+            totales.add("");
+            totales.add("Totales:");
+
+            for (int i = 3; i < dtm.getColumnCount(); i++) {
+                totales.add((int) Utileria.sumaColumna(i, invFinalFormatoTable));
+            }
+
+            dtm.addRow(totales);
+
+        }
+
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnFiltrar;
+    private javax.swing.JButton btnFiltrarInvFinal;
     private javax.swing.JButton btnGraficar;
+    private javax.swing.JComboBox<String> cmbTurnoInvFinal;
+    private com.toedter.calendar.JDateChooser dateInvFinalInicial;
+    private javax.swing.JTable invFinalFormatoTable;
     private com.toedter.calendar.JDateChooser jDateFinal;
     private com.toedter.calendar.JDateChooser jDateInicial;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JSplitPane splitpane;
     private javax.swing.JTable tablaMonedas;
     private javax.swing.JTable tablaPerifericos;
@@ -1103,5 +1373,4 @@ public class EstadisticasMaquinas extends javax.swing.JFrame {
     private javax.swing.JTextField txtCortePorMaquina;
     // End of variables declaration//GEN-END:variables
 
-    
 }

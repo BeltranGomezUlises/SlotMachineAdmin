@@ -342,8 +342,8 @@ public class ConsultaFormato extends javax.swing.JFrame {
             fila.add(filtrado.elementAt(k).getRetiro());
             fila.add(filtrado.elementAt(k).getFaltante());
             fila.add(filtrado.elementAt(k).getSobrante());
-            fila.add(decimalFormat.format(filtrado.elementAt(k).ganancia() - filtrado.elementAt(k).getSobranteUtilidad()));
-            fila.add(decimalFormat.format(filtrado.elementAt(k).getComision() - filtrado.elementAt(k).getSobranteComision()));
+            fila.add(decimalFormat.format(filtrado.elementAt(k).ganancia() - filtrado.elementAt(k).getSobranteUtilidad() + filtrado.elementAt(k).getFaltanteUtilidad()));
+            fila.add(decimalFormat.format(filtrado.elementAt(k).getComision() - filtrado.elementAt(k).getSobranteComision() + filtrado.elementAt(k).getFaltanteComision()));
             String firmado = "";
             if (filtrado.elementAt(k).getFirma()) {
                 firmado = "Sí";
@@ -918,9 +918,8 @@ public class ConsultaFormato extends javax.swing.JFrame {
             try {
                 int[] filas = tabla.getSelectedRows();
                 for (int k = 0; k < filas.length; k++) {
-                    MostrarFormato mf = new MostrarFormato(filtrado.elementAt(filas[k]));
-                    mf.setVisible(true);
-                    mf.setLocationRelativeTo(this);
+                    
+                    MostrarFormato mf = new MostrarFormato(filtrado.elementAt(filas[k]));                    
                     //asignar las posiciones anteriores y posteriores de los faltanes para marcarlos
                     //primero buscar el formato filtrado al que corresponde en el vector Formatos
                     for (int j = 0; j < Formatos.size(); j++) {
@@ -936,6 +935,8 @@ public class ConsultaFormato extends javax.swing.JFrame {
                             mf.setMarcas();
                         }
                     }
+                    mf.setVisible(true);
+                    mf.setLocationRelativeTo(this);
                 }
             } catch (ArrayIndexOutOfBoundsException e) {
                 JOptionPane.showMessageDialog(rootPane, "   ¡Fila Seleccionada inválida!", "Atención", JOptionPane.WARNING_MESSAGE);

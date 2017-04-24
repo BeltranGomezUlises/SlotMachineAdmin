@@ -29,6 +29,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import nomina.ConsultaNomina;
@@ -824,8 +826,16 @@ public class Principal extends javax.swing.JFrame {
 
     private void btnEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEstadisticasActionPerformed
         EstadisticasMaquinas es = new EstadisticasMaquinas();
-        //es.setLocationRelativeTo(this);
-        es.setVisible(true);        
+        //es.setLocationRelativeTo(this);              
+        Thread t = new Thread(es);
+        t.start();
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));                      
+        try {
+            t.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        setCursor(null);        
     }//GEN-LAST:event_btnEstadisticasActionPerformed
 
     private void menuPerifericosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPerifericosActionPerformed

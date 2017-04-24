@@ -11,6 +11,7 @@ import java.util.GregorianCalendar;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 
 public class Utileria {
     
@@ -255,6 +256,22 @@ public class Utileria {
         return null;
     } 
      
+    
+    public static float sumaColumna(int columna, JTable tabla) {
+        float suma = 0;
+        for (int i = 0; i < tabla.getRowCount(); i++) {
+            suma += Float.valueOf(tabla.getValueAt(i, columna).toString());
+        }
+        return suma;
+    }
+
+    public static float sumaColumnaSinUltima(int columna, JTable tabla) {
+        float suma = 0;
+        for (int i = 0; i < tabla.getRowCount() - 1; i++) {
+            suma += Float.valueOf(tabla.getValueAt(i, columna).toString());
+        }
+        return suma;
+    }
     /* PARA CALCULAR LA CANTIDAD DE MILISEGUNDOS QUE TOMA UN PROCESO
     long time_start, time_end;
     time_start = System.currentTimeMillis();

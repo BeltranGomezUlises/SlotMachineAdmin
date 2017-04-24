@@ -65,7 +65,7 @@
 {"nombre":"DAVID SALVADOR (LA 14)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060295,"pendiente":0.0,"fechaPendiente":1485465060295}
 {"nombre":"DIANA CM (21 MZO)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060295,"pendiente":0.0,"fechaPendiente":1485465060295}
 {"nombre":"DIEGO ARMANDO ROACHO","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060295,"pendiente":0.0,"fechaPendiente":1485465060295}
-{"nombre":"DON RAMIRO","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060295,"pendiente":0.0,"fechaPendiente":1485465060295}
+{"nombre":"DON RAMIRO","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":"","fechaNac":1485465060295,"pendiente":-946.3,"fechaPendiente":1492489886513}
 {"nombre":"DULCE CECILIA PAYAN","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060295,"pendiente":0.0,"fechaPendiente":1485465060295}
 {"nombre":"EDGAR A ESPINOZA","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060295,"pendiente":0.0,"fechaPendiente":1485465060295}
 {"nombre":"EDGAR ALVAREZ","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060295,"pendiente":0.0,"fechaPendiente":1485465060295}
@@ -209,7 +209,7 @@
 {"nombre":"KARLA SARAHI","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
 {"nombre":"KATANA RICARDO(ALAMITOS)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
 {"nombre":"KENDRA LIZETH VALENZUELA","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
-{"nombre":"KENIA (TORRES)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
+{"nombre":"KENIA (TORRES)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":"","fechaNac":1485465060297,"pendiente":-48.879997,"fechaPendiente":1492489678288}
 {"nombre":"LIDIA JAZMIN","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
 {"nombre":"LINA ESTHELA ESPINOZA","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
 {"nombre":"LLUVIA (GORDO BANDAS)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
@@ -263,7 +263,7 @@
 {"nombre":"OLEGARIO(SAN PETER)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
 {"nombre":"ORACIO AGUIRRE (21)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
 {"nombre":"OSCAR ALONSO (JUAREZ)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":"","fechaNac":1485465060297,"pendiente":-6.4400005,"fechaPendiente":1489866096852}
-{"nombre":"PABLO CARRILLO (SEPULVEDA)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
+{"nombre":"PABLO CARRILLO (SEPULVEDA)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":"","fechaNac":1485465060297,"pendiente":-221.95,"fechaPendiente":1492489939497}
 {"nombre":"PAMELA ALONDRA (SAN PEDRO)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
 {"nombre":"PANCHO (OFIC)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}
 {"nombre":"PATRICIO SANDOVAL (PROGRESO)","nombreCompleto":null,"telefono":null,"familiar":null,"telFamiliar":null,"foto":null,"notaPendiente":null,"fechaNac":1485465060297,"pendiente":0.0,"fechaPendiente":1485465060297}

@@ -21,7 +21,7 @@ public class Login extends javax.swing.JFrame {
         usuarios = Usuario.cargarUsuarios();
         //llenar el cmb
         for (int i = 0; i <usuarios.size(); i++) {
-            cmbUsuario.addItem(usuarios.get(i).getUsuario());
+            cmbUsuario.addItem(usuarios.get(i).getUsuario());            
         }               
         //JOptionPane.showConfirmDialog(null, "icono", "icono", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, iconPantalla);                
     }    
