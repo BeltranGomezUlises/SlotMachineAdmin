@@ -11,6 +11,7 @@ import Formato.Formato;
 import Utilerias.Utileria;
 import static Utilerias.Utileria.quitaEspacios;
 import static Utilerias.Utileria.quitaGuion;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,7 +34,6 @@ import nomina.incidentes.Incidente;
 import nomina.prestamos.Prestamo;
 
 /**
- *
  * @author Ulises Beltrán Gómez --- beltrangomezulises@gmail.com
  */
 public class ConsultaNomina extends javax.swing.JFrame {
@@ -59,6 +59,9 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
     private ArrayList<Encargado> activos = new ArrayList<>();
     private ArrayList<Encargado> inactivos = new ArrayList<>();
+
+    //lista de comisiones a sumar
+    ArrayList<Float> comisiones;
 
     Date lunesAnterior;
     Date domingoPosterior;
@@ -404,14 +407,14 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Empleado", "Turnos", "Formatos", "Comisión", "Prestamos", "Incidentes", "Total"
+                "Empleado", "Turnos", "Formatos", "Comisión", "Pagar comisión", "Prestamos", "Incidentes", "Total"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Float.class, java.lang.Float.class, java.lang.Boolean.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
+                false, false, false, false, true, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -420,6 +423,11 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        tablaGeneral.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tablaGeneralMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tablaGeneral);
@@ -843,7 +851,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                         .addComponent(rbtnNoPagadosSemana)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(rbtnSoloSemana)))
-                .addContainerGap(529, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelFiltroLayout.setVerticalGroup(
             panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -872,7 +880,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(panelFiltro, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelPestaña, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1046, Short.MAX_VALUE))
+                    .addComponent(panelPestaña, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -1092,6 +1100,41 @@ public class ConsultaNomina extends javax.swing.JFrame {
         initData();
     }//GEN-LAST:event_rbtnSoloSemanaActionPerformed
 
+    private void tablaGeneralMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaGeneralMouseClicked
+        //si es la columna 4
+        int columna = tablaGeneral.getSelectedColumn();
+        int fila = tablaGeneral.getSelectedRow();
+
+        if (columna == 4) {
+            boolean valor = (boolean) tablaGeneral.getValueAt(fila, columna);
+
+            if ((fila + 1) == tablaGeneral.getRowCount()) { //si es la ultima fila                
+                if (valor) {
+                    //poner a todos en el apagado/encendido y setear las comisiones
+                    for (int i = 0; i < tablaGeneral.getRowCount() - 1; i++) {
+                        tablaGeneral.setValueAt(valor, i, 4);
+                        tablaGeneral.setValueAt(comisiones.get(i), i, 3);
+                    }
+
+                } else {
+                    //poner a todos en el apagado/encendido setear todos los valores en 0
+                    for (int i = 0; i < tablaGeneral.getRowCount() - 1; i++) {
+                        tablaGeneral.setValueAt(valor, i, 4);
+                        tablaGeneral.setValueAt(0, i, 3);
+                    }
+                }
+
+            } else if (valor) {
+                tablaGeneral.setValueAt(comisiones.get(fila), fila, columna - 1);
+            } else {
+                tablaGeneral.setValueAt(0, fila, columna - 1);
+            }
+
+            tablaGeneral.setValueAt((int) Utileria.sumaColumnaSinUltima(3, tablaGeneral), tablaGeneral.getRowCount() - 1, 3);
+
+        }
+    }//GEN-LAST:event_tablaGeneralMouseClicked
+
     private class GeneralThread extends Thread {
 
         private final Vector<Formato> formatosFiltrados;
@@ -1103,7 +1146,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
             this.formatosFiltrados = new Vector<>(formatosFiltrados);
             this.incidentesFiltrados = new ArrayList<>(incidentesFiltrados);
             this.prestamosFiltrados = new ArrayList<>(prestamosFiltrados);
-            this.nombreEmpleados = nombreEmpleados;
+            this.nombreEmpleados = nombreEmpleados;           
         }
 
         @Override
@@ -1184,7 +1227,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 cantComisiones.add(totalComisionesDeTrabajaor);
                 cantTurnos.add(turnosTrabajadosDeTrabajador);
 
-            }
+            }            
             //llenar la tabla con los datos
             this.llenarTablaGeneral();
         }
@@ -1192,28 +1235,40 @@ public class ConsultaNomina extends javax.swing.JFrame {
         private void llenarTablaGeneral() {
             DefaultTableModel dtm = (DefaultTableModel) tablaGeneral.getModel();
             dtm.setRowCount(0);
+
+            comisiones = new ArrayList<>();
+            
             for (int i = 0; i < nombreEmpleados.size(); i++) {
+                float total = (cantFormatos.get(i) * -1) + cantComisiones.get(i) - cantPrestamos.get(i) - cantIncidentes.get(i);
+                
                 Vector fila = new Vector();
                 fila.add(nombreEmpleados.get(i));
                 fila.add(cantTurnos.get(i));
                 fila.add(cantFormatos.get(i));
                 fila.add(cantComisiones.get(i));
+                comisiones.add(cantComisiones.get(i));
+                fila.add(true);
                 fila.add(cantPrestamos.get(i));
                 fila.add(cantIncidentes.get(i));
                 //columna de totales
-                fila.add((cantFormatos.get(i) * -1) + cantComisiones.get(i) - cantPrestamos.get(i) - cantIncidentes.get(i));
+                fila.add(total);
 
                 dtm.addRow(fila);
             }
 
-            //generar fila de totoles
+            //generar fila de totales
             Vector fila = new Vector();
             fila.add("TOTALES:"); //columna del nombre
-            for (int i = 1; i < 7; i++) {
+            for (int i = 1; i < tablaGeneral.getColumnCount(); i++) {
+                if (i == 4) {
+                    fila.add(true);
+                    continue;
+                }
+
                 if (i == 2 || i == 3 || i == 6) {
-                    fila.add(sumaColumna(i, tablaGeneral));
+                    fila.add(Utileria.sumaColumna(i, tablaGeneral));
                 } else {
-                    fila.add((int) sumaColumna(i, tablaGeneral));
+                    fila.add((int) Utileria.sumaColumna(i, tablaGeneral));
                 }
 
             }
@@ -1235,19 +1290,22 @@ public class ConsultaNomina extends javax.swing.JFrame {
         public EmployeeThread(List<Formato> formatosFiltrados, List<Incidente> incidentesFiltrados, List<Prestamo> prestamosFiltrados) {
             this.misFormatosFiltrados = new ArrayList<>(formatosFiltrados);
             this.misIncidentesFiltrados = new ArrayList<>(incidentesFiltrados);
-            this.misPrestamosFiltrados = new ArrayList<>(prestamosFiltrados);
+            this.misPrestamosFiltrados = new ArrayList<>(prestamosFiltrados); 
+            
+            System.out.println("EmployeeThread");
+            System.out.println("incidentes: "  + incidentesFiltrados);
+            System.out.println("prestamos: " + prestamosFiltrados);
         }
 
         @Override
         public void run() {
             try {
-                final String empleado = cmbEmpleado.getSelectedItem().toString();
-                final String empleadoFiltro = quitaEspacios(empleado);
+                final String empleado = cmbEmpleado.getSelectedItem().toString();                
 
                 //filtrar por empleado
-                formatosEmpleado = misFormatosFiltrados.stream().filter(f -> f.getEncargado().equals(empleadoFiltro) && f.isPagado() == false).collect(toList());
-                incidentesEmpleado = misIncidentesFiltrados.stream().filter(i -> i.getResponsable().equals(empleadoFiltro) && i.isPagado() == false).collect(toList());
-                prestamosEmpleado = misPrestamosFiltrados.stream().filter(i -> i.getEncargado().equals(empleadoFiltro) && i.isPagado() == false).collect(toList());
+                formatosEmpleado = misFormatosFiltrados.stream().filter(f -> f.getEncargado().equals(empleado) && f.isPagado() == false).collect(toList());
+                incidentesEmpleado = misIncidentesFiltrados.stream().filter(i -> i.getResponsable().equals(empleado) && i.isPagado() == false).collect(toList());
+                prestamosEmpleado = misPrestamosFiltrados.stream().filter(i -> i.getEncargado().equals(empleado) && i.isPagado() == false).collect(toList());
 
                 //obtener totales de formatos, incidentes y prestamos
                 float totalFormatos = 0f;
@@ -1604,13 +1662,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
         });
     }
 
-    public float sumaColumna(int columna, JTable tabla) {
-        float suma = 0;
-        for (int i = 0; i < tabla.getRowCount(); i++) {
-            suma += Float.valueOf(tabla.getValueAt(i, columna).toString());
-        }
-        return suma;
-    }
+    
 
     private float sumafila(int fila, ArrayList<Integer> columnas, JTable tabla) {
         float suma = 0;
