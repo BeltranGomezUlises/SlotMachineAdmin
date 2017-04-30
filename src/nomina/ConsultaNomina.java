@@ -852,13 +852,7 @@ public class ConsultaNomina extends javax.swing.JFrame {
                     }
                 }
             }
-            System.out.println(activos);
-            System.out.println(inactivos);
-//            System.out.println("inactivos:");
-//            inactivos.stream().forEach(a -> System.out.println(a.getNombre()));
-//            System.out.println("");
-//            System.out.println("activos:");
-//            activos.stream().forEach(a -> System.out.println(a.getNombre())); //con las listas de encargados activos e inactivos
+            
             //llenar las tablas
             this.llenarTabalDeudoresInactivos();
             this.llenarTablaDeudoresActivos();
@@ -991,12 +985,12 @@ public class ConsultaNomina extends javax.swing.JFrame {
         btnAbonarInactivo = new javax.swing.JButton();
         panelFiltro = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        datechooserGeneral = new com.toedter.calendar.JDateChooser();
         lbRangofechas = new javax.swing.JLabel();
         btnGenerar = new javax.swing.JButton();
         rbtnTodosNoPagados = new javax.swing.JRadioButton();
         rbtnNoPagadosSemana = new javax.swing.JRadioButton();
         rbtnSoloSemana = new javax.swing.JRadioButton();
+        datechooserGeneral = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Nómina");
@@ -1438,9 +1432,9 @@ public class ConsultaNomina extends javax.swing.JFrame {
                 .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelFiltroLayout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(datechooserGeneral, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(3, 3, 3)
+                        .addComponent(datechooserGeneral, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(49, 49, 49)
                         .addComponent(btnGenerar, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lbRangofechas))
@@ -1456,13 +1450,12 @@ public class ConsultaNomina extends javax.swing.JFrame {
             panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelFiltroLayout.createSequentialGroup()
                 .addGap(6, 6, 6)
-                .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(btnGenerar)
                         .addComponent(lbRangofechas))
-                    .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(datechooserGeneral, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(datechooserGeneral, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelFiltroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rbtnTodosNoPagados)
