@@ -1,6 +1,7 @@
 package Formato;
 
 import Productos.Producto;
+import Utilerias.Utileria;
 import java.text.DecimalFormat;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
@@ -57,7 +58,12 @@ public class UtilidadPorProducto extends javax.swing.JFrame {
             fila.add(df.format(totales.elementAt(i)));
             md.addRow(fila);
         } 
-            
+        
+        fila = new Vector();
+        fila.add("TOTAL:");
+        fila.add(Utileria.sumaColumna(1, tabla));
+        md.addRow(fila);
+        
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -69,7 +75,6 @@ public class UtilidadPorProducto extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Utilidades");
-        setResizable(false);
 
         btnCerrar.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         btnCerrar.setText("Regresar");
@@ -98,16 +103,16 @@ public class UtilidadPorProducto extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(btnCerrar, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnCerrar, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(btnCerrar)
                 .addGap(18, 18, 18))

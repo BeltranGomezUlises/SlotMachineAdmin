@@ -11,7 +11,7 @@ import Formato.Formato;
 import Utilerias.Utileria;
 import static Utilerias.Utileria.quitaEspacios;
 import static Utilerias.Utileria.quitaGuion;
-import java.text.DecimalFormat;
+import java.awt.event.ActionEvent;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,9 +25,12 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import nomina.incidentes.Incidente;
@@ -50,6 +53,8 @@ public class ConsultaNomina extends javax.swing.JFrame {
     private ArrayList<Float> cantComisiones;
     private ArrayList<Integer> cantPrestamos;
     private ArrayList<Integer> cantIncidentes;
+    private ArrayList<Float> cantPendientes;
+    private ArrayList<Float> cantTotales;
 
     private List<Formato> formatosFiltrados;
     private List<Incidente> incidentesFiltrados;
@@ -59,9 +64,6 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
     private ArrayList<Encargado> activos = new ArrayList<>();
     private ArrayList<Encargado> inactivos = new ArrayList<>();
-
-    //lista de comisiones a sumar
-    ArrayList<Float> comisiones;
 
     Date lunesAnterior;
     Date domingoPosterior;
@@ -200,6 +202,16 @@ public class ConsultaNomina extends javax.swing.JFrame {
         this.rGroup.add(rbtnTodosNoPagados);
         this.rGroup.add(rbtnNoPagadosSemana);
         this.rGroup.add(rbtnSoloSemana);
+
+        Action doNothing = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        };
+
+        tablaGeneral.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "doNothing");
+        tablaGeneral.getActionMap().put("doNothing", doNothing);
 
 //        datechooserGeneral.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
 //            @Override
@@ -352,6 +364,593 @@ public class ConsultaNomina extends javax.swing.JFrame {
         }
     }
 
+    private void activarComision() {
+        //si es la columna 4
+        int columna = tablaGeneral.getSelectedColumn();
+        int fila = tablaGeneral.getSelectedRow();
+
+        if (columna == 4) {
+            boolean valor = (boolean) tablaGeneral.getValueAt(fila, columna);
+
+            if ((fila + 1) == tablaGeneral.getRowCount()) { //si es la ultima fila                
+                if (valor) {
+                    //poner a todos en el apagado/encendido y setear las comisiones
+                    for (int i = 0; i < tablaGeneral.getRowCount() - 1; i++) {
+                        tablaGeneral.setValueAt(valor, i, 4);
+                        tablaGeneral.setValueAt(cantComisiones.get(i), i, 3);
+                        tablaGeneral.setValueAt(cantTotales.get(i), i, 8);
+                    }
+
+                } else {
+                    //poner a todos en el apagado/encendido setear todos los valores en 0
+                    for (int i = 0; i < tablaGeneral.getRowCount() - 1; i++) {
+                        tablaGeneral.setValueAt(valor, i, 4);
+                        tablaGeneral.setValueAt(0, i, 3);
+                        tablaGeneral.setValueAt(cantTotales.get(i) - cantComisiones.get(i), i, 8);
+                    }
+                }
+
+            } else if (valor) {
+                tablaGeneral.setValueAt(cantComisiones.get(fila), fila, columna - 1);
+                tablaGeneral.setValueAt(cantTotales.get(fila), fila, 8);
+            } else {
+                tablaGeneral.setValueAt(0, fila, columna - 1);
+                tablaGeneral.setValueAt(cantTotales.get(fila) - cantComisiones.get(fila), fila, 8);
+            }
+
+            tablaGeneral.setValueAt((int) Utileria.sumaColumnaSinUltima(3, tablaGeneral), tablaGeneral.getRowCount() - 1, 3);
+            tablaGeneral.setValueAt((int) Utileria.sumaColumnaSinUltima(8, tablaGeneral), tablaGeneral.getRowCount() - 1, 8);
+
+        }
+    }
+
+    private float sumafila(int fila, ArrayList<Integer> columnas, JTable tabla) {
+        float suma = 0;
+        for (int i = 0; i < tabla.getColumnCount(); i++) {
+            if (columnas.contains(i)) {
+                suma += Float.valueOf(tabla.getValueAt(fila, i).toString());
+            }
+        }
+        return suma;
+    }
+
+    private class GeneralThread extends Thread {
+
+        private final Vector<Formato> formatosFiltrados;
+        private final ArrayList<Incidente> incidentesFiltrados;
+        private final ArrayList<Prestamo> prestamosFiltrados;
+        private final ArrayList<String> nombreEmpleados;
+
+        public GeneralThread(List<Formato> formatosFiltrados, List<Incidente> incidentesFiltrados, List<Prestamo> prestamosFiltrados, ArrayList<String> nombreEmpleados) {
+            this.formatosFiltrados = new Vector<>(formatosFiltrados);
+            this.incidentesFiltrados = new ArrayList<>(incidentesFiltrados);
+            this.prestamosFiltrados = new ArrayList<>(prestamosFiltrados);
+            this.nombreEmpleados = nombreEmpleados;
+        }
+
+        @Override
+        public void run() {
+
+            //cada elemento de estas lista le corresponde a un nombre de trabajador
+            cantTurnos = new ArrayList<>();
+            cantFormatos = new ArrayList<>();
+            cantComisiones = new ArrayList<>();
+            cantPrestamos = new ArrayList<>();
+            cantIncidentes = new ArrayList<>();
+            cantPendientes = new ArrayList<>();
+            cantTotales = new ArrayList<>();
+            //para cada uno de los trabajadores obtenidos llenar su correspondiente indice con los valores
+            ArrayList<Formato> formatosDeEngargado;
+            ArrayList<Prestamo> prestamosDeEngargado;
+            ArrayList<Incidente> incidentesDeEngargado;
+
+            float totalFormatosDeTrabajador;
+            int totalIncidenteDeTrabajador;
+            int totalPrestamosDeTrabajador;
+            float totalComisionesDeTrabajaor;
+            int turnosTrabajadosDeTrabajador;
+            float pendiente;
+
+            for (String nombreTrabajore : nombreEmpleados) {
+                //obtener los formatos de el, los prestamos y los incidentes
+                formatosDeEngargado = new ArrayList<>();
+                prestamosDeEngargado = new ArrayList<>();
+                incidentesDeEngargado = new ArrayList<>();
+
+                String trabajador = quitaGuion(nombreTrabajore);
+
+                for (Formato formatosFiltrado : formatosFiltrados) {
+                    if (quitaGuion(formatosFiltrado.getEncargado()).equals(trabajador)) {
+                        formatosDeEngargado.add(formatosFiltrado);
+                    }
+                }
+                for (Incidente incidentesFiltrado : incidentesFiltrados) {
+                    if (trabajador.equals(incidentesFiltrado.getResponsable())) {
+                        incidentesDeEngargado.add(incidentesFiltrado);
+                    }
+                }
+                for (Prestamo prestamosFiltrado : prestamosFiltrados) {
+                    if (trabajador.equals(prestamosFiltrado.getEncargado())) {
+                        prestamosDeEngargado.add(prestamosFiltrado);
+                    }
+                }
+
+                totalFormatosDeTrabajador = 0f;
+                totalIncidenteDeTrabajador = 0;
+                totalPrestamosDeTrabajador = 0;
+                totalComisionesDeTrabajaor = 0f;
+                turnosTrabajadosDeTrabajador = formatosDeEngargado.size();
+                pendiente = 0;
+
+                for (Formato formato : formatosDeEngargado) {
+                    totalFormatosDeTrabajador += formato.obtenerTotalFinal();
+                    totalComisionesDeTrabajaor += formato.getComision();
+                }
+                for (Incidente incidente : incidentesDeEngargado) {
+                    totalIncidenteDeTrabajador += incidente.getCantidad();
+                }
+                for (Prestamo prestamo : prestamosDeEngargado) {
+                    totalPrestamosDeTrabajador += prestamo.getCantidad();
+                }
+
+                //buscar le pendiente del empleado y asiganarlo a la variable
+                for (Encargado encargado : encargados) {
+                    if (nombreTrabajore.equals(encargado.getNombre())) {
+                        pendiente = encargado.getPendiente();
+                    }
+                }
+
+                //llenar su posicion en la lista
+                cantFormatos.add(totalFormatosDeTrabajador);
+                cantIncidentes.add(totalIncidenteDeTrabajador);
+                cantPrestamos.add(totalPrestamosDeTrabajador);
+                cantComisiones.add(totalComisionesDeTrabajaor);
+                cantTurnos.add(turnosTrabajadosDeTrabajador);
+                cantPendientes.add(pendiente);
+
+            }
+            //llenar la tabla con los datos
+            this.llenarTablaGeneral();
+        }
+
+        private void llenarTablaGeneral() {
+            DefaultTableModel dtm = (DefaultTableModel) tablaGeneral.getModel();
+            dtm.setRowCount(0);
+
+            for (int i = 0; i < nombreEmpleados.size(); i++) {
+                float total = (cantFormatos.get(i) * -1) + cantComisiones.get(i) + cantPendientes.get(i) - cantPrestamos.get(i) - cantIncidentes.get(i);
+                cantTotales.add(total);
+
+                Vector fila = new Vector();
+                fila.add(nombreEmpleados.get(i));
+                fila.add(cantTurnos.get(i));
+                fila.add(cantFormatos.get(i));
+                fila.add(0);                  //comision 0              
+                fila.add(false);
+                fila.add(cantPendientes.get(i));
+                fila.add(cantPrestamos.get(i));
+                fila.add(cantIncidentes.get(i));
+                fila.add(total - cantComisiones.get(i));
+
+                dtm.addRow(fila);
+            }
+
+            //generar fila de totales
+            Vector fila = new Vector();
+            fila.add("TOTALES:"); //columna del nombre
+            for (int i = 1; i < tablaGeneral.getColumnCount(); i++) {
+                if (i == 4) {
+                    fila.add(false);
+                    continue;
+                }
+
+                if (i == 2 || i == 3 || i == 7) {
+                    fila.add(Utileria.sumaColumna(i, tablaGeneral));
+                } else {
+                    fila.add((int) Utileria.sumaColumna(i, tablaGeneral));
+                }
+
+            }
+            dtm.addRow(fila);
+
+        }
+    }
+
+    private class EmployeeThread extends Thread {
+
+        private List<Formato> formatosEmpleado;
+        private List<Incidente> incidentesEmpleado;
+        private List<Prestamo> prestamosEmpleado;
+
+        private final List<Formato> misFormatosFiltrados;
+        private final ArrayList<Incidente> misIncidentesFiltrados;
+        private final ArrayList<Prestamo> misPrestamosFiltrados;
+
+        public EmployeeThread(List<Formato> formatosFiltrados, List<Incidente> incidentesFiltrados, List<Prestamo> prestamosFiltrados) {
+            this.misFormatosFiltrados = new ArrayList<>(formatosFiltrados);
+            this.misIncidentesFiltrados = new ArrayList<>(incidentesFiltrados);
+            this.misPrestamosFiltrados = new ArrayList<>(prestamosFiltrados);
+        }
+
+        @Override
+        public void run() {
+            try {
+                final String empleado = cmbEmpleado.getSelectedItem().toString();
+                final String empleadoFiltro = quitaEspacios(empleado);
+
+                //filtrar por empleado
+                formatosEmpleado = misFormatosFiltrados.stream().filter(f -> f.getEncargado().equals(empleadoFiltro) && f.isPagado() == false).collect(toList());
+                incidentesEmpleado = misIncidentesFiltrados.stream().filter(i -> i.getResponsable().equals(empleado) && i.isPagado() == false).collect(toList());
+                prestamosEmpleado = misPrestamosFiltrados.stream().filter(i -> i.getEncargado().equals(empleado) && i.isPagado() == false).collect(toList());
+                //obtener totales de formatos, incidentes y prestamos
+                float totalFormatos = 0f;
+                float totalComisiones = 0f;
+                float totalIncidentes = 0f;
+                float totalPrestamos = 0f;
+                float totalGeneral;
+                float pendiente = 0;
+
+                for (Encargado encargado : encargados) {
+                    if (encargado.getNombre().equals(empleado)) {
+                        pendiente = encargado.getPendiente();
+                        break;
+                    }
+                }
+
+                for (Formato formato : formatosEmpleado) {
+                    totalFormatos += formato.obtenerTotalFinal();
+                    totalComisiones += formato.getComision();
+                }
+
+                for (Incidente incidente : incidentesEmpleado) {
+                    totalIncidentes += incidente.getCantidad();
+                }
+
+                for (Prestamo prestamo : prestamosEmpleado) {
+                    totalPrestamos += prestamo.getCantidad();
+                }
+                totalFormatos = totalFormatos * -1;
+
+                if (!chkPagarConComision.isSelected()) {
+                    totalComisiones = 0; //mandamos la comision a 0 para no afectar las cuentas
+                }
+                if (!chkPagarConPendiente.isSelected()) {
+                    pendiente = 0;
+                }
+
+                totalGeneral = totalFormatos + totalComisiones + pendiente - totalIncidentes - totalPrestamos;
+                pagarAEmpleado = totalGeneral;
+
+                llenarTablaEmpleados();
+                llenarTablaIncidentes();
+                llenarTablaPrestamos();
+                llenarTablaTotales(totalFormatos, totalComisiones, totalIncidentes, totalPrestamos, pendiente, totalGeneral);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void llenarTablaTotales(float totalFormatos, float totalComisiones, float totalIncidentes, float totalPrestamos, float pendiente, float totalGeneral) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultTableModel dtm = (DefaultTableModel) tablaTotales.getModel();
+                    dtm.setRowCount(0);
+                    Vector fila = new Vector();
+                    //formatos
+                    fila.add("Formatos");
+                    fila.add(totalFormatos);
+                    dtm.addRow(fila);
+
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Comisiones");
+                    fila.add(totalComisiones);
+                    dtm.addRow(fila);
+
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Incidentes");
+                    fila.add(totalIncidentes);
+                    dtm.addRow(fila);
+
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Prestamos");
+                    fila.add(totalPrestamos);
+                    dtm.addRow(fila);
+
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Pendiente");
+                    fila.add(pendiente);
+                    dtm.addRow(fila);
+
+                    fila = new Vector();
+                    //formatos
+                    fila.add("Total");
+                    fila.add(totalGeneral);
+                    dtm.addRow(fila);
+                }
+            });
+        }
+
+        private void llenarTablaEmpleados() {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultTableModel dtm = (DefaultTableModel) tablaFormatos.getModel();
+                    dtm.setRowCount(0);
+                    formatosEmpleado.stream().map((formatosFiltrado) -> {
+                        Vector fila = new Vector();
+                        fila.add(formatosFiltrado.getFecha() + " - " + formatosFiltrado.getTurno());
+                        fila.add(quitaGuion(formatosFiltrado.getSucursal()));
+                        fila.add(formatosFiltrado.getComision());
+                        fila.add(formatosFiltrado.obtenerTotalFinal());
+                        return fila;
+                    }).forEach((fila) -> {
+                        dtm.addRow(fila);
+                    });
+                }
+            });
+
+        }
+
+        private void llenarTablaIncidentes() {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultTableModel dtm = (DefaultTableModel) tablaIncidentes.getModel();
+                    dtm.setRowCount(0);
+                    incidentesEmpleado.stream().map((incidentesFiltrado) -> {
+                        Vector fila = new Vector();
+                        fila.add(incidentesFiltrado.getFecha());
+                        fila.add(incidentesFiltrado.getNota());
+                        fila.add(incidentesFiltrado.getCantidad());
+                        return fila;
+                    }).forEach((fila) -> {
+                        dtm.addRow(fila);
+                    });
+                }
+            });
+
+        }
+
+        private void llenarTablaPrestamos() {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultTableModel dtm = (DefaultTableModel) tablaPrestamos.getModel();
+                    dtm.setRowCount(0);
+                    prestamosEmpleado.stream().map((prestamoFiltrado) -> {
+                        Vector fila = new Vector();
+                        fila.add(prestamoFiltrado.getFecha());
+                        fila.add(prestamoFiltrado.getAutorizador());
+                        fila.add(prestamoFiltrado.getNota());
+                        fila.add(prestamoFiltrado.getCantidad());
+                        return fila;
+                    }).forEach((fila) -> {
+                        dtm.addRow(fila);
+                    });
+                }
+            });
+
+        }
+
+        private Vector<Formato> filtrarFormatosEmpleado(String nombreEmpleado) {
+            Vector<Formato> misFormatosFiltrados = new Vector<>(formatos);
+            String comp = quitaEspacios(nombreEmpleado);
+            for (int i = 0; i < misFormatosFiltrados.size(); i++) {
+                if (!misFormatosFiltrados.get(i).getEncargado().equals(comp) || misFormatosFiltrados.get(i).isPagado()) {
+                    misFormatosFiltrados.remove(i);
+                    i--;
+                }
+            }
+            return misFormatosFiltrados;
+        }
+
+        private ArrayList<Incidente> filtrarIncidentesEmpleado(String nombreEmpleado) {
+            ArrayList<Incidente> misIncidentesFiltrados = new ArrayList<>(incidentes);
+            for (int i = 0; i < misIncidentesFiltrados.size(); i++) {
+                if (!misIncidentesFiltrados.get(i).getResponsable().equals(nombreEmpleado) || misIncidentesFiltrados.get(i).isPagado()) {
+                    misIncidentesFiltrados.remove(i);
+                    i--;
+                }
+            }
+            return misIncidentesFiltrados;
+        }
+
+        private ArrayList<Prestamo> filtrarPrestamosEmpleado(String nombreEmpleado) {
+            ArrayList<Prestamo> misPrestamosFiltrados = new ArrayList<>(prestamos);
+            for (int i = 0; i < misPrestamosFiltrados.size(); i++) {
+                if (!misPrestamosFiltrados.get(i).getEncargado().equals(nombreEmpleado) || misPrestamosFiltrados.get(i).isPagado()) {
+                    misPrestamosFiltrados.remove(i);
+                    i--;
+                }
+            }
+            return misPrestamosFiltrados;
+        }
+
+        private Vector<Formato> filtrarFormatosFecha(Vector<Formato> formatos, Date fechaInit, Date fechaFin) throws ParseException {
+            Vector<Formato> misFormatosFiltrados = new Vector<>(formatos);
+            Date fechaFormato;
+            for (int i = 0; i < misFormatosFiltrados.size(); i++) {
+                fechaFormato = Utileria.SDF.parse(misFormatosFiltrados.get(i).getFecha());
+                if (fechaFormato.before(fechaInit) || fechaFormato.after(fechaFin)) {
+                    misFormatosFiltrados.remove(i);
+                    i--;
+                }
+            }
+            return misFormatosFiltrados;
+        }
+
+        private ArrayList<Incidente> filtrarIncidentesFecha(ArrayList<Incidente> incidentes, Date fechaInit, Date fechaFin) throws ParseException {
+            ArrayList<Incidente> misIncidentesFiltrados = new ArrayList<>(incidentes);
+            Date fechaIncidente;
+            for (int i = 0; i < misIncidentesFiltrados.size(); i++) {
+                fechaIncidente = Utileria.SDF.parse(misIncidentesFiltrados.get(i).getFecha());
+                if (fechaIncidente.before(fechaInit) || fechaIncidente.after(fechaFin)) {
+                    misIncidentesFiltrados.remove(i);
+                    i--;
+                }
+            }
+            return misIncidentesFiltrados;
+        }
+
+        private ArrayList<Prestamo> filtrarPrestamosFecha(ArrayList<Prestamo> prestamos, Date fechaInit, Date fechaFin) throws ParseException {
+            ArrayList<Prestamo> misPrestamosFiltrados = new ArrayList<>(prestamos);
+            Date fechaPrestamo;
+            for (int i = 0; i < misPrestamosFiltrados.size(); i++) {
+                fechaPrestamo = Utileria.SDF.parse(misPrestamosFiltrados.get(i).getFecha());
+                if (fechaPrestamo.before(fechaInit) || fechaPrestamo.after(fechaFin)) {
+                    misPrestamosFiltrados.remove(i);
+                    i--;
+                }
+            }
+            return misPrestamosFiltrados;
+        }
+
+    }
+
+    private class DebtThread extends Thread {
+
+        @Override
+        public void run() {
+            //PARA TODOS LOS ENCARGADOS OBTENER SU PENDIENTE
+            //SI TIENEN PENDIENTE NEGATIVO ES UN DEUDOR
+            //LOS DEUDORES CON FORMATOS EXISTENTES DE 2 SEMANAS A LA FECHA SON ACTIVOS
+            //LOS DEUDORES SIN FORMATOS EXISTENTES DE 2 SEMANAS A LA FECHA SON INACTIVOS
+
+            activos = new ArrayList<>();
+            inactivos = new ArrayList<>();
+
+            for (Encargado encargado : encargados) {
+                if (encargado.getPendiente() < 0) {
+                    //es deudor
+                    // buscar si tiene formatos activos
+                    GregorianCalendar cal = new GregorianCalendar();
+                    cal.add(Calendar.WEEK_OF_YEAR, -2); //fecha de hace 2 semanas
+
+                    boolean activo = false;
+                    for (Formato formato : formatos) {
+                        if (formato.getEncargado().equals(quitaEspacios(encargado.getNombre()))) {//es formato del encargado
+                            try {
+                                Date fechaFormato = Utileria.SDF.parse(formato.getFecha());
+                                if (!fechaFormato.before(cal.getTime())) { //es formato dentro de las 2 semanas
+                                    activo = true;
+                                    break;
+                                }
+                            } catch (ParseException ex) {
+                                Logger.getLogger(ConsultaNomina.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }
+                    if (activo) {
+                        activos.add(encargado);
+                    } else {
+                        inactivos.add(encargado);
+                    }
+                }
+            }
+            System.out.println(activos);
+            System.out.println(inactivos);
+//            System.out.println("inactivos:");
+//            inactivos.stream().forEach(a -> System.out.println(a.getNombre()));
+//            System.out.println("");
+//            System.out.println("activos:");
+//            activos.stream().forEach(a -> System.out.println(a.getNombre())); //con las listas de encargados activos e inactivos
+            //llenar las tablas
+            this.llenarTabalDeudoresInactivos();
+            this.llenarTablaDeudoresActivos();
+
+        }
+
+        private void llenarTablaDeudoresActivos() {
+            DefaultTableModel dtm = (DefaultTableModel) tablaDeudoresActivos.getModel();
+            dtm.setRowCount(0);
+            activos.stream().map((activo) -> {
+                Vector fila = new Vector();
+                fila.add(activo.getNombre());
+                fila.add(activo.getNombreCompleto());
+                if (activo.getFechaPendiente() != null) {
+                    fila.add(Utileria.SDF.format(activo.getFechaPendiente()));
+                } else {
+                    fila.add("");
+                }
+                fila.add(activo.getPendiente());
+                return fila;
+            }).forEach((fila) -> {
+                dtm.addRow(fila);
+            });
+
+            dtm.addRow(new Vector());
+            tablaDeudoresActivos.setValueAt("Total:", tablaDeudoresActivos.getRowCount() - 1, 2);
+            tablaDeudoresActivos.setValueAt(Utileria.sumaColumnaSinUltima(3, tablaDeudoresActivos), tablaDeudoresActivos.getRowCount() - 1, 3);
+
+        }
+
+        private void llenarTabalDeudoresInactivos() {
+
+            DefaultTableModel dtm = (DefaultTableModel) tablaDeudoresInactivos.getModel();
+            dtm.setRowCount(0);
+            inactivos.stream().map((activo) -> {
+                Vector fila = new Vector();
+                fila.add(activo.getNombre());
+                fila.add(activo.getNombreCompleto());
+                if (activo.getFechaPendiente() != null) {
+                    fila.add(Utileria.SDF.format(activo.getFechaPendiente()));
+                } else {
+                    fila.add("");
+                }
+                fila.add(activo.getPendiente());
+                return fila;
+            }).forEach((fila) -> {
+                dtm.addRow(fila);
+            
+            });                        
+            
+            dtm.addRow(new Vector());
+            tablaDeudoresInactivos.setModel(dtm);
+            tablaDeudoresInactivos.setValueAt("Total:", tablaDeudoresInactivos.getRowCount()-1, 2);
+            tablaDeudoresInactivos.setValueAt(Utileria.sumaColumnaSinUltima(3, tablaDeudoresInactivos), tablaDeudoresInactivos.getRowCount()-1, 3);
+        }
+    }
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Metal".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(ConsultaNomina.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(ConsultaNomina.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(ConsultaNomina.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(ConsultaNomina.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new ConsultaNomina().setVisible(true);
+            }
+        });
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -407,14 +1006,14 @@ public class ConsultaNomina extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Empleado", "Turnos", "Formatos", "Comisión", "Pagar comisión", "Prestamos", "Incidentes", "Total"
+                "Empleado", "Turnos", "Formatos", "Comisión", "Pagar comisión", "Pendiente", "Prestamos", "Incidentes", "Total"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Float.class, java.lang.Float.class, java.lang.Boolean.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Float.class, java.lang.Float.class, java.lang.Boolean.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class, java.lang.Float.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, true, false, false, false
+                false, false, false, false, true, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -426,8 +1025,8 @@ public class ConsultaNomina extends javax.swing.JFrame {
             }
         });
         tablaGeneral.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tablaGeneralMouseClicked(evt);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tablaGeneralMouseReleased(evt);
             }
         });
         jScrollPane1.setViewportView(tablaGeneral);
@@ -1100,577 +1699,10 @@ public class ConsultaNomina extends javax.swing.JFrame {
         initData();
     }//GEN-LAST:event_rbtnSoloSemanaActionPerformed
 
-    private void tablaGeneralMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaGeneralMouseClicked
-        //si es la columna 4
-        int columna = tablaGeneral.getSelectedColumn();
-        int fila = tablaGeneral.getSelectedRow();
+    private void tablaGeneralMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaGeneralMouseReleased
+        this.activarComision();
+    }//GEN-LAST:event_tablaGeneralMouseReleased
 
-        if (columna == 4) {
-            boolean valor = (boolean) tablaGeneral.getValueAt(fila, columna);
-
-            if ((fila + 1) == tablaGeneral.getRowCount()) { //si es la ultima fila                
-                if (valor) {
-                    //poner a todos en el apagado/encendido y setear las comisiones
-                    for (int i = 0; i < tablaGeneral.getRowCount() - 1; i++) {
-                        tablaGeneral.setValueAt(valor, i, 4);
-                        tablaGeneral.setValueAt(comisiones.get(i), i, 3);
-                    }
-
-                } else {
-                    //poner a todos en el apagado/encendido setear todos los valores en 0
-                    for (int i = 0; i < tablaGeneral.getRowCount() - 1; i++) {
-                        tablaGeneral.setValueAt(valor, i, 4);
-                        tablaGeneral.setValueAt(0, i, 3);
-                    }
-                }
-
-            } else if (valor) {
-                tablaGeneral.setValueAt(comisiones.get(fila), fila, columna - 1);
-            } else {
-                tablaGeneral.setValueAt(0, fila, columna - 1);
-            }
-
-            tablaGeneral.setValueAt((int) Utileria.sumaColumnaSinUltima(3, tablaGeneral), tablaGeneral.getRowCount() - 1, 3);
-
-        }
-    }//GEN-LAST:event_tablaGeneralMouseClicked
-
-    private class GeneralThread extends Thread {
-
-        private final Vector<Formato> formatosFiltrados;
-        private final ArrayList<Incidente> incidentesFiltrados;
-        private final ArrayList<Prestamo> prestamosFiltrados;
-        private final ArrayList<String> nombreEmpleados;
-
-        public GeneralThread(List<Formato> formatosFiltrados, List<Incidente> incidentesFiltrados, List<Prestamo> prestamosFiltrados, ArrayList<String> nombreEmpleados) {
-            this.formatosFiltrados = new Vector<>(formatosFiltrados);
-            this.incidentesFiltrados = new ArrayList<>(incidentesFiltrados);
-            this.prestamosFiltrados = new ArrayList<>(prestamosFiltrados);
-            this.nombreEmpleados = nombreEmpleados;
-        }
-
-        @Override
-        public void run() {
-
-            //cada elemento de estas lista le corresponde a un nombre de trabajador
-            cantTurnos = new ArrayList<>();
-            cantFormatos = new ArrayList<>();
-            cantComisiones = new ArrayList<>();
-            cantPrestamos = new ArrayList<>();
-            cantIncidentes = new ArrayList<>();
-
-            //para cada uno de los trabajadores obtenidos llenar su correspondiente indice con los valores
-            ArrayList<Formato> formatosDeEngargado;
-            ArrayList<Prestamo> prestamosDeEngargado;
-            ArrayList<Incidente> incidentesDeEngargado;
-
-            float totalFormatosDeTrabajador;
-            int totalIncidenteDeTrabajador;
-            int totalPrestamosDeTrabajador;
-            float totalComisionesDeTrabajaor;
-            int turnosTrabajadosDeTrabajador;
-            float pendiente;
-
-            for (String nombreTrabajore : nombreEmpleados) {
-                //obtener los formatos de el, los prestamos y los incidentes
-                formatosDeEngargado = new ArrayList<>();
-                prestamosDeEngargado = new ArrayList<>();
-                incidentesDeEngargado = new ArrayList<>();
-
-                String trabajador = quitaGuion(nombreTrabajore);
-
-                for (Formato formatosFiltrado : formatosFiltrados) {
-                    if (quitaGuion(formatosFiltrado.getEncargado()).equals(trabajador)) {
-                        formatosDeEngargado.add(formatosFiltrado);
-                    }
-                }
-                for (Incidente incidentesFiltrado : incidentesFiltrados) {
-                    if (trabajador.equals(incidentesFiltrado.getResponsable())) {
-                        incidentesDeEngargado.add(incidentesFiltrado);
-                    }
-                }
-                for (Prestamo prestamosFiltrado : prestamosFiltrados) {
-                    if (trabajador.equals(prestamosFiltrado.getEncargado())) {
-                        prestamosDeEngargado.add(prestamosFiltrado);
-                    }
-                }
-
-                totalFormatosDeTrabajador = 0f;
-                totalIncidenteDeTrabajador = 0;
-                totalPrestamosDeTrabajador = 0;
-                totalComisionesDeTrabajaor = 0f;
-                turnosTrabajadosDeTrabajador = formatosDeEngargado.size();
-                pendiente = 0;
-
-                for (Formato formato : formatosDeEngargado) {
-                    totalFormatosDeTrabajador += formato.obtenerTotalFinal();
-                    totalComisionesDeTrabajaor += formato.getComision();
-                }
-                for (Incidente incidente : incidentesDeEngargado) {
-                    totalIncidenteDeTrabajador += incidente.getCantidad();
-                }
-                for (Prestamo prestamo : prestamosDeEngargado) {
-                    totalPrestamosDeTrabajador += prestamo.getCantidad();
-                }
-
-                //buscar le pendiente del empleado y asiganarlo a la variable
-                for (Encargado encargado : encargados) {
-                    if (nombreTrabajore.equals(encargado.getNombre())) {
-                        pendiente = encargado.getPendiente();
-                    }
-                }
-
-                //llenar su posicion en la lista
-                cantFormatos.add(totalFormatosDeTrabajador);
-                cantIncidentes.add(totalIncidenteDeTrabajador);
-                cantPrestamos.add(totalPrestamosDeTrabajador);
-                cantComisiones.add(totalComisionesDeTrabajaor);
-                cantTurnos.add(turnosTrabajadosDeTrabajador);
-
-            }
-            //llenar la tabla con los datos
-            this.llenarTablaGeneral();
-        }
-
-        private void llenarTablaGeneral() {
-            DefaultTableModel dtm = (DefaultTableModel) tablaGeneral.getModel();
-            dtm.setRowCount(0);
-
-            comisiones = new ArrayList<>();
-            for (int i = 0; i < nombreEmpleados.size(); i++) {
-                float total = (cantFormatos.get(i) * -1) + cantComisiones.get(i) - cantPrestamos.get(i) - cantIncidentes.get(i);
-                if (total < 0) {
-                    continue;
-                }
-                Vector fila = new Vector();
-                fila.add(nombreEmpleados.get(i));
-                fila.add(cantTurnos.get(i));
-                fila.add(cantFormatos.get(i));
-                fila.add(cantComisiones.get(i));
-                comisiones.add(cantComisiones.get(i));
-                fila.add(true);
-                fila.add(cantPrestamos.get(i));
-                fila.add(cantIncidentes.get(i));
-                //columna de totales
-                fila.add(total);
-
-                dtm.addRow(fila);
-            }
-
-            //generar fila de totales
-            Vector fila = new Vector();
-            fila.add("TOTALES:"); //columna del nombre
-            for (int i = 1; i < tablaGeneral.getColumnCount(); i++) {
-                if (i == 4) {
-                    fila.add(true);
-                    continue;
-                }
-
-                if (i == 2 || i == 3 || i == 6) {
-                    fila.add(Utileria.sumaColumna(i, tablaGeneral));
-                } else {
-                    fila.add((int) Utileria.sumaColumna(i, tablaGeneral));
-                }
-
-            }
-            dtm.addRow(fila);
-
-        }
-    }
-
-    private class EmployeeThread extends Thread {
-
-        private List<Formato> formatosEmpleado;
-        private List<Incidente> incidentesEmpleado;
-        private List<Prestamo> prestamosEmpleado;
-
-        private final List<Formato> misFormatosFiltrados;
-        private final ArrayList<Incidente> misIncidentesFiltrados;
-        private final ArrayList<Prestamo> misPrestamosFiltrados;
-
-        public EmployeeThread(List<Formato> formatosFiltrados, List<Incidente> incidentesFiltrados, List<Prestamo> prestamosFiltrados) {
-            this.misFormatosFiltrados = new ArrayList<>(formatosFiltrados);
-            this.misIncidentesFiltrados = new ArrayList<>(incidentesFiltrados);
-            this.misPrestamosFiltrados = new ArrayList<>(prestamosFiltrados);
-        }
-
-        @Override
-        public void run() {
-            try {
-                final String empleado = cmbEmpleado.getSelectedItem().toString();
-                final String empleadoFiltro = quitaEspacios(empleado);
-
-                //filtrar por empleado
-                formatosEmpleado = misFormatosFiltrados.stream().filter(f -> f.getEncargado().equals(empleadoFiltro) && f.isPagado() == false).collect(toList());
-                incidentesEmpleado = misIncidentesFiltrados.stream().filter(i -> i.getResponsable().equals(empleadoFiltro) && i.isPagado() == false).collect(toList());
-                prestamosEmpleado = misPrestamosFiltrados.stream().filter(i -> i.getEncargado().equals(empleadoFiltro) && i.isPagado() == false).collect(toList());
-
-                //obtener totales de formatos, incidentes y prestamos
-                float totalFormatos = 0f;
-                float totalComisiones = 0f;
-                float totalIncidentes = 0f;
-                float totalPrestamos = 0f;
-                float totalGeneral;
-                float pendiente = 0;
-
-                for (Encargado encargado : encargados) {
-                    if (encargado.getNombre().equals(empleado)) {
-                        pendiente = encargado.getPendiente();
-                        break;
-                    }
-                }
-
-                for (Formato formato : formatosEmpleado) {
-                    totalFormatos += formato.obtenerTotalFinal();
-                    totalComisiones += formato.getComision();
-                }
-
-                for (Incidente incidente : incidentesEmpleado) {
-                    totalIncidentes += incidente.getCantidad();
-                }
-
-                for (Prestamo prestamo : prestamosEmpleado) {
-                    totalPrestamos += prestamo.getCantidad();
-                }
-                totalFormatos = totalFormatos * -1;
-
-                if (!chkPagarConComision.isSelected()) {
-                    totalComisiones = 0; //mandamos la comision a 0 para no afectar las cuentas
-                }
-                if (!chkPagarConPendiente.isSelected()) {
-                    pendiente = 0;
-                }
-
-                totalGeneral = totalFormatos + totalComisiones + pendiente - totalIncidentes - totalPrestamos;
-                pagarAEmpleado = totalGeneral;
-
-                llenarTablaEmpleados();
-                llenarTablaIncidentes();
-                llenarTablaPrestamos();
-                llenarTablaTotales(totalFormatos, totalComisiones, totalIncidentes, totalPrestamos, pendiente, totalGeneral);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void llenarTablaTotales(float totalFormatos, float totalComisiones, float totalIncidentes, float totalPrestamos, float pendiente, float totalGeneral) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    DefaultTableModel dtm = (DefaultTableModel) tablaTotales.getModel();
-                    dtm.setRowCount(0);
-                    Vector fila = new Vector();
-                    //formatos
-                    fila.add("Formatos");
-                    fila.add(totalFormatos);
-                    dtm.addRow(fila);
-
-                    fila = new Vector();
-                    //formatos
-                    fila.add("Comisiones");
-                    fila.add(totalComisiones);
-                    dtm.addRow(fila);
-
-                    fila = new Vector();
-                    //formatos
-                    fila.add("Incidentes");
-                    fila.add(totalIncidentes);
-                    dtm.addRow(fila);
-
-                    fila = new Vector();
-                    //formatos
-                    fila.add("Prestamos");
-                    fila.add(totalPrestamos);
-                    dtm.addRow(fila);
-
-                    fila = new Vector();
-                    //formatos
-                    fila.add("Pendiente");
-                    fila.add(pendiente);
-                    dtm.addRow(fila);
-
-                    fila = new Vector();
-                    //formatos
-                    fila.add("Total");
-                    fila.add(totalGeneral);
-                    dtm.addRow(fila);
-                }
-            });
-        }
-
-        private void llenarTablaEmpleados() {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    DefaultTableModel dtm = (DefaultTableModel) tablaFormatos.getModel();
-                    dtm.setRowCount(0);
-                    formatosEmpleado.stream().map((formatosFiltrado) -> {
-                        Vector fila = new Vector();
-                        fila.add(formatosFiltrado.getFecha() + " - " + formatosFiltrado.getTurno());
-                        fila.add(quitaGuion(formatosFiltrado.getSucursal()));
-                        fila.add(formatosFiltrado.getComision());
-                        fila.add(formatosFiltrado.obtenerTotalFinal());
-                        return fila;
-                    }).forEach((fila) -> {
-                        dtm.addRow(fila);
-                    });
-                }
-            });
-
-        }
-
-        private void llenarTablaIncidentes() {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    DefaultTableModel dtm = (DefaultTableModel) tablaIncidentes.getModel();
-                    dtm.setRowCount(0);
-                    incidentesEmpleado.stream().map((incidentesFiltrado) -> {
-                        Vector fila = new Vector();
-                        fila.add(incidentesFiltrado.getFecha());
-                        fila.add(incidentesFiltrado.getNota());
-                        fila.add(incidentesFiltrado.getCantidad());
-                        return fila;
-                    }).forEach((fila) -> {
-                        dtm.addRow(fila);
-                    });
-                }
-            });
-
-        }
-
-        private void llenarTablaPrestamos() {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    DefaultTableModel dtm = (DefaultTableModel) tablaPrestamos.getModel();
-                    dtm.setRowCount(0);
-                    prestamosEmpleado.stream().map((prestamoFiltrado) -> {
-                        Vector fila = new Vector();
-                        fila.add(prestamoFiltrado.getFecha());
-                        fila.add(prestamoFiltrado.getAutorizador());
-                        fila.add(prestamoFiltrado.getNota());
-                        fila.add(prestamoFiltrado.getCantidad());
-                        return fila;
-                    }).forEach((fila) -> {
-                        dtm.addRow(fila);
-                    });
-                }
-            });
-
-        }
-
-        private Vector<Formato> filtrarFormatosEmpleado(String nombreEmpleado) {
-            Vector<Formato> misFormatosFiltrados = new Vector<>(formatos);
-            String comp = quitaEspacios(nombreEmpleado);
-            for (int i = 0; i < misFormatosFiltrados.size(); i++) {
-                if (!misFormatosFiltrados.get(i).getEncargado().equals(comp) || misFormatosFiltrados.get(i).isPagado()) {
-                    misFormatosFiltrados.remove(i);
-                    i--;
-                }
-            }
-            return misFormatosFiltrados;
-        }
-
-        private ArrayList<Incidente> filtrarIncidentesEmpleado(String nombreEmpleado) {
-            ArrayList<Incidente> misIncidentesFiltrados = new ArrayList<>(incidentes);
-            for (int i = 0; i < misIncidentesFiltrados.size(); i++) {
-                if (!misIncidentesFiltrados.get(i).getResponsable().equals(nombreEmpleado) || misIncidentesFiltrados.get(i).isPagado()) {
-                    misIncidentesFiltrados.remove(i);
-                    i--;
-                }
-            }
-            return misIncidentesFiltrados;
-        }
-
-        private ArrayList<Prestamo> filtrarPrestamosEmpleado(String nombreEmpleado) {
-            ArrayList<Prestamo> misPrestamosFiltrados = new ArrayList<>(prestamos);
-            for (int i = 0; i < misPrestamosFiltrados.size(); i++) {
-                if (!misPrestamosFiltrados.get(i).getEncargado().equals(nombreEmpleado) || misPrestamosFiltrados.get(i).isPagado()) {
-                    misPrestamosFiltrados.remove(i);
-                    i--;
-                }
-            }
-            return misPrestamosFiltrados;
-        }
-
-        private Vector<Formato> filtrarFormatosFecha(Vector<Formato> formatos, Date fechaInit, Date fechaFin) throws ParseException {
-            Vector<Formato> misFormatosFiltrados = new Vector<>(formatos);
-            Date fechaFormato;
-            for (int i = 0; i < misFormatosFiltrados.size(); i++) {
-                fechaFormato = Utileria.SDF.parse(misFormatosFiltrados.get(i).getFecha());
-                if (fechaFormato.before(fechaInit) || fechaFormato.after(fechaFin)) {
-                    misFormatosFiltrados.remove(i);
-                    i--;
-                }
-            }
-            return misFormatosFiltrados;
-        }
-
-        private ArrayList<Incidente> filtrarIncidentesFecha(ArrayList<Incidente> incidentes, Date fechaInit, Date fechaFin) throws ParseException {
-            ArrayList<Incidente> misIncidentesFiltrados = new ArrayList<>(incidentes);
-            Date fechaIncidente;
-            for (int i = 0; i < misIncidentesFiltrados.size(); i++) {
-                fechaIncidente = Utileria.SDF.parse(misIncidentesFiltrados.get(i).getFecha());
-                if (fechaIncidente.before(fechaInit) || fechaIncidente.after(fechaFin)) {
-                    misIncidentesFiltrados.remove(i);
-                    i--;
-                }
-            }
-            return misIncidentesFiltrados;
-        }
-
-        private ArrayList<Prestamo> filtrarPrestamosFecha(ArrayList<Prestamo> prestamos, Date fechaInit, Date fechaFin) throws ParseException {
-            ArrayList<Prestamo> misPrestamosFiltrados = new ArrayList<>(prestamos);
-            Date fechaPrestamo;
-            for (int i = 0; i < misPrestamosFiltrados.size(); i++) {
-                fechaPrestamo = Utileria.SDF.parse(misPrestamosFiltrados.get(i).getFecha());
-                if (fechaPrestamo.before(fechaInit) || fechaPrestamo.after(fechaFin)) {
-                    misPrestamosFiltrados.remove(i);
-                    i--;
-                }
-            }
-            return misPrestamosFiltrados;
-        }
-
-    }
-
-    private class DebtThread extends Thread {
-
-        @Override
-        public void run() {
-            //PARA TODOS LOS ENCARGADOS OBTENER SU PENDIENTE
-            //SI TIENEN PENDIENTE NEGATIVO ES UN DEUDOR
-            //LOS DEUDORES CON FORMATOS EXISTENTES DE 2 SEMANAS A LA FECHA SON ACTIVOS
-            //LOS DEUDORES SIN FORMATOS EXISTENTES DE 2 SEMANAS A LA FECHA SON INACTIVOS
-
-            activos = new ArrayList<>();
-            inactivos = new ArrayList<>();
-
-            for (Encargado encargado : encargados) {
-                if (encargado.getPendiente() < 0) {
-                    //es deudor
-                    // buscar si tiene formatos activos
-                    GregorianCalendar cal = new GregorianCalendar();
-                    cal.add(Calendar.WEEK_OF_YEAR, -2); //fecha de hace 2 semanas
-
-                    boolean activo = false;
-                    for (Formato formato : formatos) {
-                        if (formato.getEncargado().equals(quitaEspacios(encargado.getNombre()))) {//es formato del encargado
-                            try {
-                                Date fechaFormato = Utileria.SDF.parse(formato.getFecha());
-                                if (!fechaFormato.before(cal.getTime())) { //es formato dentro de las 2 semanas
-                                    activo = true;
-                                    break;
-                                }
-                            } catch (ParseException ex) {
-                                Logger.getLogger(ConsultaNomina.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                    }
-                    if (activo) {
-                        activos.add(encargado);
-                    } else {
-                        inactivos.add(encargado);
-                    }
-                }
-            }
-//            System.out.println("inactivos:");
-//            inactivos.stream().forEach(a -> System.out.println(a.getNombre()));
-//            System.out.println("");
-//            System.out.println("activos:");
-//            activos.stream().forEach(a -> System.out.println(a.getNombre())); //con las listas de encargados activos e inactivos
-            //llenar las tablas
-            this.llenarTabalDeudoresInactivos();
-            this.llenarTablaDeudoresActivos();
-
-        }
-
-        private void llenarTablaDeudoresActivos() {
-            DefaultTableModel dtm = (DefaultTableModel) tablaDeudoresActivos.getModel();
-            dtm.setRowCount(0);
-            activos.stream().map((activo) -> {
-                Vector fila = new Vector();
-                fila.add(activo.getNombre());
-                fila.add(activo.getNombreCompleto());
-                if (activo.getFechaPendiente() != null) {
-                    fila.add(Utileria.SDF.format(activo.getFechaPendiente()));
-                } else {
-                    fila.add("");
-                }
-                fila.add(activo.getPendiente());
-                return fila;
-            }).forEach((fila) -> {
-                dtm.addRow(fila);
-            });
-        }
-
-        private void llenarTabalDeudoresInactivos() {
-            DefaultTableModel dtm = (DefaultTableModel) tablaDeudoresInactivos.getModel();
-            dtm.setRowCount(0);
-            inactivos.stream().map((activo) -> {
-                Vector fila = new Vector();
-                fila.add(activo.getNombre());
-                fila.add(activo.getNombreCompleto());
-                if (activo.getFechaPendiente() != null) {
-                    fila.add(Utileria.SDF.format(activo.getFechaPendiente()));
-                } else {
-                    fila.add("");
-                }
-                fila.add(activo.getPendiente());
-                return fila;
-            }).forEach((fila) -> {
-                dtm.addRow(fila);
-            });
-        }
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Metal".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ConsultaNomina.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ConsultaNomina.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ConsultaNomina.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ConsultaNomina.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ConsultaNomina().setVisible(true);
-            }
-        });
-    }
-
-    
-
-    private float sumafila(int fila, ArrayList<Integer> columnas, JTable tabla) {
-        float suma = 0;
-        for (int i = 0; i < tabla.getColumnCount(); i++) {
-            if (columnas.contains(i)) {
-                suma += Float.valueOf(tabla.getValueAt(fila, i).toString());
-            }
-        }
-        return suma;
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbonarActivo;
     private javax.swing.JButton btnAbonarInactivo;

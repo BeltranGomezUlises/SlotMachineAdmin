@@ -90,12 +90,13 @@
                 <Component class="javax.swing.JTable" name="tablaGeneral">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="8" rowCount="0">
+                      <Table columnCount="9" rowCount="0">
                         <Column editable="false" title="Empleado" type="java.lang.String"/>
                         <Column editable="false" title="Turnos" type="java.lang.Integer"/>
                         <Column editable="false" title="Formatos" type="java.lang.Float"/>
                         <Column editable="false" title="Comisi&#xf3;n" type="java.lang.Float"/>
                         <Column editable="true" title="Pagar comisi&#xf3;n" type="java.lang.Boolean"/>
+                        <Column editable="false" title="Pendiente" type="java.lang.Float"/>
                         <Column editable="false" title="Prestamos" type="java.lang.Float"/>
                         <Column editable="false" title="Incidentes" type="java.lang.Float"/>
                         <Column editable="false" title="Total" type="java.lang.Float"/>
@@ -103,7 +104,7 @@
                     </Property>
                   </Properties>
                   <Events>
-                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tablaGeneralMouseClicked"/>
+                    <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tablaGeneralMouseReleased"/>
                   </Events>
                 </Component>
               </SubComponents>

@@ -162,4 +162,11 @@ public class Encargado {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Encargado{" + "nombre=" + nombre + ", nombreCompleto=" + nombreCompleto + ", notaPendiente=" + notaPendiente + ", pendiente=" + pendiente + ", fechaPendiente=" + fechaPendiente + '}';
+    }
+    
+    
+
 }
